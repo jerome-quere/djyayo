@@ -33,14 +33,13 @@
     <script src="js/bootstrap/bootstrap.min.js"></script>
     <script src="js/knockout/knockout-2.0.0.js"></script>
     <script src="js/sammy/sammy.min.js"></script>
-    <script src="js/script.js"></script>
+    <script src="js/script.js?version=<?=time()?>"></script>
   </head>
   <body>
     <div id="panels">
       <div id="panel_search" class="panel" style="o%"><?include("./src/web/pages/searchPanel.php")?></div>
 
       <script>
-
 	$(function() {
 	  $(".panel").Panel({wrap: "#wrap"});
 	});
@@ -48,7 +47,7 @@
     </div>
     <div id="wrap">
       <div id="header">
-	<a class="search-ico" href="#" onclick="$('#panel_search').data('panel').show();">
+	<a class="search-ico" herf="" onclick="$('#panel_search').data('panel').show();">
 	  <img width="30px" src="images/search.png" />
 	</a>
         <a href="#">

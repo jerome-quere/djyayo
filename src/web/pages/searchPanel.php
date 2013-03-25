@@ -27,6 +27,6 @@
   <li data-bind="click: $root.onTrackClick">
     <h2 data-bind="text: trackName">...</h2>
     <p data-bind="text: artistName">...</p>
-    <img class="icon" data-bind="attr: {src: haveMyVote() ? 'images/star.png' : 'images/star_empty.png'}"/>
+    <img class="icon" data-bind="attr: {src: haveMyVote() ? 'images/star_full.png' : 'images/star_empty.png'}"/>
   </li>
 </ul>

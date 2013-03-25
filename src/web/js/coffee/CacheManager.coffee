@@ -17,8 +17,6 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-When = require('when');
-
 class CacheManager
 
 	@initCache: () ->
@@ -26,14 +24,12 @@ class CacheManager
 
 	@get : (key, loader) ->
 		@initCache()
-		if @cache[key]? then return @cache[key].promise;
-		@cache[key] = When.defer()
+		if @cache[key]? then return @cache[key];
+		@cache[key] = jQuery.Deferred()
 		promise = loader()
 		promise.then (data) =>
-			@cache[key].resolver.resolve(data);
-		promise.otherwise (error) =>
-			@cache[key].resolver.reject(error);
+			@cache[key].resolve(data);
+		promise.fail (error) =>
+			@cache[key].reject(error);
 			@cache[key] = null;
-		return @cache[key].promise;
-
-module.exports = CacheManager
+		return @cache[key].promise();

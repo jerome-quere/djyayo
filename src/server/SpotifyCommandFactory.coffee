@@ -22,8 +22,8 @@ class SpotifyCommandFactory
 	@search: (query) ->
 		return {cmd:"search", args:{query: query}};
 
-	@play: (url) ->
-		return {cmd:"play", args:{url:url}}
+	@play: (uri) ->
+		return {cmd:"play", args:{uri:uri}}
 
 	@lookup: (uri) ->
 		return {cmd:"lookup", args:{uri: uri}};

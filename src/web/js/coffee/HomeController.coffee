@@ -22,11 +22,14 @@ class HomeController extends Controller
 	constructor: (@app, @elem) ->
 		@timer = setInterval(@onTimeout, 5000)
 		@onTimeout()
-		@queue = ko.computed(@createQueue);
+		@queue = ko.observable();
+		@currentTrack = ko.observable({uri:'', trackName:'', artistName:'', albumImg:'', nbVotes:0})
+		@app.on('updateQueue', @updateQueue)
 
 	onTimeout: () =>
 		@app.ws('queue').then (data) =>
 			@app.updateQueue(data.queue);
+			@app.updateCurrentTrack(data.currentTrack);
 
 	onSearchBtnClick: () ->
 		@searchPanel.show();
@@ -38,14 +41,18 @@ class HomeController extends Controller
 		else
 			@app.getUser().vote(uri);
 
-	createQueue: () =>
+	updateQueue: () =>
+		@queue(@buildQueue())
+		@currentTrack(@buildCurrenTrack());
+
+	buildQueue: () ->
 		res = []
 		for elem in @app.getQueue()
 			data = {};
 			data.uri = elem.uri;
 			data.trackName =  if (elem.track?) then elem.track.name else '...' ;
 			data.artistName = if (elem.track?) then elem.track.artists[0].name else '...';
-			data.imgUrl = if (elem.track?) then Spotify.getImgFromAlbumUrl(elem.track.album.uri) else 'images/album.png';
+			data.albumImg = if (elem.track?) then Model.getAlbumImg(elem.track.album.uri) else Model.getAlbumImg(null);
 			data.nbVotes = elem.nbVotes;
 			func = () =>
 				uri = data.uri
@@ -53,4 +60,16 @@ class HomeController extends Controller
 			func = func();
 			data.haveMyVote = ko.computed(func);
 			res.push(data);
-		return (res);
+		return res;
+
+	buildCurrenTrack: () =>
+		elem = @app.getCurrentTrack()
+		if (!elem?)
+			return {uri:'', trackName:'', artistName:'', albumImg:'', nbVotes:0}
+		data = {}
+		data.uri = elem.uri
+		data.trackName = if (elem.track?) then elem.track.name else '...' ;
+		data.artistName = if (elem.track?) then elem.track.artists[0].name else '...';
+		data.albumImg = if (elem.track?) then Model.getAlbumImg(elem.track.album.uri) else Model.getAlbumImg(null);
+		data.nbVotes = elem.nbVotes;
+		return data

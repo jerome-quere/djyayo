@@ -17,23 +17,19 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-When = require('when');
+class Model
+	@getAlbumImg: (albumUri) =>
+		obs = ko.observable('images/album.png')
+		if (!albumUri?)
+			return obs;
+		promise = CacheManager.get("albumImg/#{albumUri}", () => @_loadAlbumImg(albumUri));
+		promise.then (data) ->
+			obs(data)
+		return (obs)
 
-class CacheManager
-
-	@initCache: () ->
-		if !@cache? then @cache = {}
-
-	@get : (key, loader) ->
-		@initCache()
-		if @cache[key]? then return @cache[key].promise;
-		@cache[key] = When.defer()
-		promise = loader()
-		promise.then (data) =>
-			@cache[key].resolver.resolve(data);
-		promise.otherwise (error) =>
-			@cache[key].resolver.reject(error);
-			@cache[key] = null;
-		return @cache[key].promise;
-
-module.exports = CacheManager
+	@_loadAlbumImg: (albumUri) ->
+		defer = jQuery.Deferred()
+		albumId = albumUri.split(':')[2];
+		window.application.ws("album/#{albumId}").then (data) =>
+			if (data and data.album?) then defer.resolve(data.album.imgUri) else defer.reject("Not Found")
+		return (defer.promise());

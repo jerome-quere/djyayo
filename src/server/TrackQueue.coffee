@@ -25,6 +25,9 @@ class TrackQueue
 	constructor: (@app) ->
 		@tracks = []
 
+	empty: () ->
+		return (@tracks.length == 0)
+
 	indexOf: (trackUri) ->
 		i = 0
 		while (i < @tracks.length)
@@ -53,7 +56,7 @@ class TrackQueue
 
 	getQueue: () ->
 		queue = []
-		@tracks.sort((a, b) -> b.getNbVotes() - a.getNbVotes())
+		@_sort()
 		for elem in @tracks
 			data = {};
 			data.nbVotes = elem.getNbVotes()
@@ -61,6 +64,16 @@ class TrackQueue
 			data.track = elem.trackData;
 			queue.push(data);
 		return (queue)
+
+	pop: () ->
+		@_sort()
+		elem = @tracks[0];
+		@tracks.splice(0, 1)
+		return (elem)
+
+
+	_sort: () ->
+		@tracks.sort((a, b) -> b.getNbVotes() - a.getNbVotes())
 
 	getVotes: (clientId) ->
 		res = []

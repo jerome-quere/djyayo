@@ -29,7 +29,7 @@ class HttpResponse
 
 	enableCache: () =>
 		@headers['Cache-Control'] = 'must-revalidate';
-		@headers['Expires'] = 'Fri, 03 Jan 2013 14:19:41 GMT'
+		@headers['Expires'] = 'Fri, 03 Jan 2042 23:42:00 GMT'
 
 	setCookie: (name, value) =>
 		if (@headers['Set-Cookie']?)

@@ -17,18 +17,19 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-class Application
+class Application extends EventEmmiter
 
 	constructor: () ->
 	init: () ->
 		@pageElements = jQuery('.page');
-		@queue = ko.observableArray();
+		@panelElements = jQuery('.panel');
+		@user = new User(this);
+		@queue = []
 		@initPageControllers()
-		@initPanelsControllers();
+		@initPanelControllers();
 		@server = null
 		@currentPage = null
 		self = this
-		@user = new User(this);
 		@user.refresh();
 		@sammy = Sammy () ->
 			@get('#home', () -> self.loadPage('home'))
@@ -43,10 +44,10 @@ class Application
 		for name, controller of @pageControllers
 			ko.applyBindings(controller, @pageElements.filter("#page_#{name}").get(0));
 
-	initPanelsControllers: () ->
-		@panelsControllers = {}
-		@panelsControllers['search'] = new SearchPanelController(this, $("#panel_search"));
-		for name, controller of @panelsControllers
+	initPanelControllers: () ->
+		@panelControllers = {}
+		@panelControllers['search'] = new SearchPanelController(this, @panelElements.filter("#panel_search"));
+		for name, controller of @panelControllers
 			ko.applyBindings(controller, jQuery("#panel_#{name}").get(0));
 
 	loadPage: (page, params) =>
@@ -61,7 +62,14 @@ class Application
 		document.location.hash = page;
 
 	getUser: () => return @user;
-	updateQueue: (queue) => @queue(queue)
-	getQueue: () -> return @queue();
+	updateQueue: (queue) =>
+		@queue = queue
+		@emit('updateQueue')
+	updateCurrentTrack: (track) =>
+		@currentTrack = track;
+		@emit('updateQueue')
+
+	getQueue: () -> return @queue;
+	getCurrentTrack: () -> return @currentTrack;
 
 	ws: (method, data) -> return jQuery.post("/#{method}", JSON.stringify(data), null, 'json')

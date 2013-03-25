@@ -21,28 +21,29 @@
 <div class="container-fluid">
   <div class="row-fluid">
     <div class="span12">
-      <div class="listView-header">
-	Currently Playing
+      <div data-bind="visible: currentTrack().uri != ''">
+	<div class="listView-header">
+	  Currently Playing
+	</div>
+	<ul class="listView">
+	  <li>
+	    <img class="thumbmail" data-bind="attr: {src: currentTrack().albumImg}" />
+	    <h2 data-bind="text: currentTrack().trackName">...</h2>
+	    <p data-bind="text: currentTrack().artistName">...</p>
+	    <span class="badge" data-bind="text: currentTrack().nbVotes + ' votes'"></span>
+	  </li>
+	</ul>
       </div>
-      <ul class="listView">
-	<li>
-	  <img class="thumbmail" src="http://o.scdn.co/300/f694c5ec82c86b3551ade4c8719d5b4f12ee72a7" />
-	  <h2>Love you like a love song</h2>
-	  <p>Selena gomez and the scene</p>
-	  <span class="badge">12 votes</span>
-	  <img class="icon" src="images/star.png" />
-	</li>
-      </ul>
       <div class="listView-header">
 	To Come ...
       </div>
       <ul class="listView" data-bind="foreach: queue">
 	<li data-bind="click: $root.onTrackClick">
-	  <img class="thumbmail" data-bind="attr:{src: imgUrl}" />
+	  <img class="thumbmail" data-bind="attr:{src: albumImg}" />
 	  <h2 data-bind="text: trackName">..</h2>
 	  <p data-bind="text: trackName">...</p>
 	  <span class="badge" data-bind="text: nbVotes + ' votes'"></span>
-	  <img class="icon" src="images/star.png" data-bind="attr: {src: haveMyVote() ? 'images/star.png' : 'images/star_empty.png'}"/>
+	  <img class="icon" data-bind="attr: {src: haveMyVote() ? 'images/star_full.png' : 'images/star_empty.png'}"/>
 	</li>
       </ul>
     </div>

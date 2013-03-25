@@ -17,23 +17,14 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-When = require('when');
+class EventEmmiter
+	initEventEmmiter: () ->
+		if !@jqueryElem? then @jqueryElem = jQuery('<p></p>');
 
-class CacheManager
+	on: (eventName, cb) =>
+		@initEventEmmiter()
+		@jqueryElem.on(eventName, cb)
 
-	@initCache: () ->
-		if !@cache? then @cache = {}
-
-	@get : (key, loader) ->
-		@initCache()
-		if @cache[key]? then return @cache[key].promise;
-		@cache[key] = When.defer()
-		promise = loader()
-		promise.then (data) =>
-			@cache[key].resolver.resolve(data);
-		promise.otherwise (error) =>
-			@cache[key].resolver.reject(error);
-			@cache[key] = null;
-		return @cache[key].promise;
-
-module.exports = CacheManager
+	emit: (eventName) =>
+		@initEventEmmiter()
+		@jqueryElem.trigger(eventName)

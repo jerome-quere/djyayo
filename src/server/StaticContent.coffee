@@ -28,7 +28,8 @@ handleRootRequest = (response) ->
 		response.end()
 
 handleFileRequest = (request, response) ->
-	path = "src/web/#{request.getUrl()}"
+	fileName = request.getUrl().split('?')[0]
+	path = "src/web/#{fileName}"
 	fs.readFile path, (err, data) ->
 		if (err)
 			response.setCode(404)

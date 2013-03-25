@@ -32,8 +32,10 @@ class Application
 	constructor: (@config) ->
 		@communicator = new Communicator(@config);
 		@communicator.on('httpRequest', @onHttpRequest)
+		@communicator.on('endOfTrack', @onEndOfTrack)
 		@clients = new jstd.map();
 		@trackQueue = new TrackQueue(this);
+		@currentTrack = null;
 		console.log("Application:\nHTTP Port #{@config.httpPort}");
 
 	getClientFromId: (clientId) ->
@@ -75,10 +77,14 @@ class Application
 		@trackQueue.vote(client.id, request.getData().uri)
 		queue = @trackQueue.getQueue();
 		response.end(JSON.stringify({queue:queue}))
+		if (@currentTrack == null)
+			@playNextTrack()
 
 	onQueueRequest: (client, request, response) =>
-		queue = @trackQueue.getQueue();
-		response.end(JSON.stringify({queue:queue}))
+		res = {}
+		res.queue = @trackQueue.getQueue();
+		res.currentTrack = if (@currentTrack?) then @currentTrack.getData() else null;
+		response.end(JSON.stringify(res))
 
 	onSearchRequest: (client, request, response) =>
 		data = request.getData();
@@ -87,7 +93,7 @@ class Application
 
 	onPlayRequest: (client, request, response) =>
 		data = request.getData();
-		@communicator.spotifyQuery SpotifyCommandFactory.play(data.url), (data) =>
+		@communicator.spotifyQuery SpotifyCommandFactory.play("spotify:track:4jzktlSihQ5IWBsfQcU8Mo"), (data) =>
 			response.end(JSON.stringify(data))
 
 	onAlbumRequest: (client, request, response) =>
@@ -103,6 +109,19 @@ class Application
 
 	onStaticRequest: (client, request, response) ->
 		StaticContent.handle(request, response);
+
+	onEndOfTrack: () =>
+		@playNextTrack()
+
+	playNextTrack: () ->
+		if (@currentTrack != null)
+			@currentTrack = null;
+		if (@trackQueue.empty())
+			return;
+		@currentTrack = @trackQueue.pop();
+		p = @communicator.spotifyQuery(SpotifyCommandFactory.play(@currentTrack.getUri()))
+		p.otherwise () =>
+			@playNextTrack()
 
 	run : () ->
 		@communicator.run()

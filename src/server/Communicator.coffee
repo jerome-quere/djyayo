@@ -26,6 +26,7 @@ class Communicator extends EventEmitter
 		@httpServer = new HttpServer(@config.httpPort);
 		@httpServer.on('request', @onHttpRequest)
 		@spotifyClient = new SpotifyClient(@config.spotifyPort);
+		@spotifyClient.on('endOfTrack', () => @emit('endOfTrack'));
 
 	onHttpRequest: (clientId, request, response) =>
 		@emit('httpRequest', clientId, request, response)

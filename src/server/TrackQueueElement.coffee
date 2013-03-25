@@ -46,4 +46,6 @@ class TrackQueueElement
 	hasVote: (clientId) ->
 		return @clients.indexOf(clientId) != -1
 
+	getData: () -> {nbVotes: @clients.length, uri: @trackUri, track:@trackData}
+
 module.exports = TrackQueueElement;
