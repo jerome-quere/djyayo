@@ -34,7 +34,7 @@ handleFileRequest = (request, response) ->
 			response.setCode(404)
 			response.end()
 		else
-			#response.enableCache();
+			response.enableCache();
 			response.writeBuffer(data)
 			response.end()
 

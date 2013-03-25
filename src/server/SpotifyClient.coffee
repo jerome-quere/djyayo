@@ -35,7 +35,6 @@ class SpotifyClient extends EventEmitter
 		@client.connect();
 
 	search: (args, resolver) =>
-		console.log("Lauch Search");
 		@client.library.search({any:args.query}).then (data) ->
 			resolver.resolve(data[1].tracks)
 

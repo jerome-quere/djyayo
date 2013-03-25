@@ -18,22 +18,22 @@
 ##
 
 When = require('when');
-HttpClient = require('./HttpClient.coffee');
 
 class CacheManager
 
-	@getAlbumImg : (uri) ->
+	@initCache: () ->
 		if !@cache? then @cache = {}
-		if !@cache['albumImg']? then @cache['albumImg'] = {}
-		@cache['albumImg'][uri] = When.defer()
 
-		albumId = uri.split(':')[2];
-		url = "http://open.spotify.com/album/#{albumId}"
-
-		HttpClient.get(url).then (data) =>
-			regex = /http:\/\/o.scdn.co\/300\/[^"]+/
-			res = regex.exec(data)[0]
-			@cache['albumImg'][uri].resolve(res);
-		return (@cache['albumImg'][uri].promise)
+	@get : (key, loader) ->
+		@initCache()
+		if @cache[key]? then return @cache[key];
+		@cache[key] = When.defer()
+		promise = loader()
+		promise.then (data) =>
+			@cache[key].resolver.resolve(data);
+		promise.otherwise (error) =>
+			@cache[key].resolver.reject(error);
+			@cache[key] = null;
+		return @cache[key].promise;
 
 module.exports = CacheManager

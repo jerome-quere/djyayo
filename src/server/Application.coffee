@@ -25,7 +25,7 @@ jstd = require('./jstd.js');
 StaticContent = require('./StaticContent.coffee')
 SpotifyCommandFactory = require('./SpotifyCommandFactory.coffee')
 TrackQueue = require('./TrackQueue.coffee')
-CacheManager = require('./CacheManager.coffee');
+Model = require('./Model.coffee')
 
 class Application
 
@@ -34,7 +34,7 @@ class Application
 		@communicator.on('httpRequest', @onHttpRequest)
 		@clients = new jstd.map();
 		@trackQueue = new TrackQueue(this);
-		console.log("Application:\nHTTP Port #{@config.httpPort}\nSpotify Port #{config.spotifyPort}");
+		console.log("Application:\nHTTP Port #{@config.httpPort}");
 
 	getClientFromId: (clientId) ->
 		it = @clients.find(clientId);
@@ -52,11 +52,10 @@ class Application
 		actions.push({pattern: "^/vote$", action: @onVoteRequest});
 		actions.push({pattern: "^/unvote$", action: @onUnvoteRequest});
 		actions.push({pattern: "^/me$", action: @onMeRequest});
-		actions.push({pattern: "^/albumImg$", action: @onAlbumImgRequest});
-		actions.push({pattern: "",  action: @onStaticRequest});
-
-		console.log(request.getUrl());
+		actions.push({pattern: "^/album/[0-9a-zA-Z]+$", action: @onAlbumRequest});
+		actions.push({pattern: "", action: @onStaticRequest});
 		url = request.getUrl()
+		console.log("HTTP: #{url}", request.getData());
 		for action in actions
 			regex = new RegExp("#{action.pattern}");
 			if (regex.test(url))
@@ -91,10 +90,16 @@ class Application
 		@communicator.spotifyQuery SpotifyCommandFactory.play(data.url), (data) =>
 			response.end(JSON.stringify(data))
 
-	onAlbumImgRequest: (client, request, response) =>
-		data = request.getData();
-		CacheManager.getAlbumImg(data.uri).then (url) ->
-			response.end(JSON.stringify({uri:url}))
+	onAlbumRequest: (client, request, response) =>
+		url = request.getUrl();
+		data = new RegExp("^/album/\([0-9a-zA-Z]+\)$").exec(url);
+		albumUri = "spotify:album:#{data[1]}";
+		promise = Model.getAlbum(albumUri);
+		promise.then (album) ->
+			response.enableCache()
+			response.end(JSON.stringify({album:album}))
+		promise.otherwise () ->
+			response.end(JSON.stringify(null))
 
 	onStaticRequest: (client, request, response) ->
 		StaticContent.handle(request, response);

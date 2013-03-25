@@ -26,12 +26,16 @@ class HttpClient
 		get = http.get url, (res) =>
 			data = ''
 			resolver = defer.resolver
+			if (res.statusCode != 200)
+				resolver.reject('ERROR');
+				return
 			res.setEncoding('utf8');
 			res.on 'data', (chunk) ->
 				data = "#{data}#{chunk}";
 			res.on 'end', () ->
 				resolver.resolve(data);
-		get.on('error', () => resolver.reject('ERROR'));
+		get.on 'error', () =>
+			resolver.reject('ERROR');
 		return (defer.promise);
 
 
