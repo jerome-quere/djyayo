@@ -17,19 +17,11 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-class CacheManager
+class SpotifyModel
 
-	@initCache: () ->
-		if !@cache? then @cache = {}
+	constructor: ($cacheFactory) ->
+		@cache = $cacheFactory('spotifyDj', {});
 
-	@get : (key, loader) ->
-		@initCache()
-		if @cache[key]? then return @cache[key];
-		@cache[key] = jQuery.Deferred()
-		promise = loader()
-		promise.then (data) =>
-			@cache[key].resolve(data);
-		promise.fail (error) =>
-			@cache[key].reject(error);
-			@cache[key] = null;
-		return @cache[key].promise();
+	getAlbum: (uri) -> @cache.get(uri)
+	getArtist: (uri) -> @cahce.get(uri)
+	getTrack: (uri) -> @cache.get(uri)

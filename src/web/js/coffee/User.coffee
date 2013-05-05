@@ -17,28 +17,30 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-class User
+class User extends EventEmitter
 
-	constructor: (@app) ->
+	constructor: (@webService) ->
+		super;
 		@id = -1;
-		@votes = ko.observableArray();
+		@votes = [];
+		@refresh();
 
 	refresh: () =>
-		@app.ws('me').then (data) =>
-			@id = data.id;
-			@votes(data.votes);
+		@webService.query('me').then (httpRes) =>
+			@id = httpRes.data.id;
+			@votes = httpRes.data.votes;
 
 	vote: (uri) ->
-		@app.ws('vote', {uri: uri}).then (data) =>
+		@webService.query('vote', {uri: uri}).then (httpRes) =>
 			@_addVote(uri)
-			@app.updateQueue(data.queue);
+			@emitEvent('queueChanged', [httpRes.data]);
 
 	unvote: (uri) ->
-		@app.ws('unvote', {uri: uri}).then (data) =>
+		@webService.query('unvote', {uri: uri}).then (httpRes) =>
 			@_delVote(uri)
-			@app.updateQueue(data.queue);
+			@emitEvent('queueChanged', [httpRes.data]);
 
-	haveVote: (uri) ->
+	haveMyVote: (uri) ->
 		return @votes.indexOf(uri) != -1;
 
 	_addVote: (uri) ->

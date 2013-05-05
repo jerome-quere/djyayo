@@ -17,6 +17,14 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-$ () ->
-	window.application = new Application();
-	window.application.init()
+spotifyDj = angular.module('spotifyDj', [])
+
+spotifyDj.config ['$routeProvider', ($routeProvider) ->
+	$routeProvider.when('/home', {templateUrl:"./pages/home.html", controller: HomeController})
+	$routeProvider.otherwise({redirectTo: '/home'});
+]
+
+spotifyDj.factory 'webService', ($http, $q) -> new WebService($http, $q)
+spotifyDj.factory 'spotify', ($cacheFactory, $q, webService) -> new Spotify($cacheFactory, $q, webService)
+spotifyDj.factory 'user', (webService) -> new User(webService)
+spotifyDj.factory 'trackQueue', (webService, spotify, user, $timeout) -> new TrackQueue(webService, spotify, user, $timeout)

@@ -17,33 +17,25 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-class HomeController extends Controller
+class HomeController
 
-	constructor: (@app, @elem) ->
-		@timer = setInterval(@onTimeout, 5000)
-		@onTimeout()
-		@queue = ko.observable();
-		@currentTrack = ko.observable({uri:'', trackName:'', artistName:'', albumImg:'', nbVotes:0})
-		@app.on('updateQueue', @updateQueue)
-
-	onTimeout: () =>
-		@app.ws('queue').then (data) =>
-			@app.updateQueue(data.queue);
-			@app.updateCurrentTrack(data.currentTrack);
+	constructor: ($scope, @trackQueue, @spotify, @user) ->
+		@scope = $scope;
+		@scope.trackQueue = @trackQueue;
+		@scope.spotify = @spotify
+		@scope.onTrackClick = @onTrackClick;
 
 	onSearchBtnClick: () ->
 		@searchPanel.show();
 
 	onTrackClick: (e) =>
+		if (!e?) then return;
 		uri = e.uri;
-		if (@app.getUser().haveVote(uri))
-			@app.getUser().unvote(uri)
+		console.log(e);
+		if (e.haveMyVote)
+			@user.unvote(uri)
 		else
-			@app.getUser().vote(uri);
-
-	updateQueue: () =>
-		@queue(@buildQueue())
-		@currentTrack(@buildCurrenTrack());
+			@user.vote(uri);
 
 	buildQueue: () ->
 		res = []
@@ -61,15 +53,3 @@ class HomeController extends Controller
 			data.haveMyVote = ko.computed(func);
 			res.push(data);
 		return res;
-
-	buildCurrenTrack: () =>
-		elem = @app.getCurrentTrack()
-		if (!elem?)
-			return {uri:'', trackName:'', artistName:'', albumImg:'', nbVotes:0}
-		data = {}
-		data.uri = elem.uri
-		data.trackName = if (elem.track?) then elem.track.name else '...' ;
-		data.artistName = if (elem.track?) then elem.track.artists[0].name else '...';
-		data.albumImg = if (elem.track?) then Model.getAlbumImg(elem.track.album.uri) else Model.getAlbumImg(null);
-		data.nbVotes = elem.nbVotes;
-		return data

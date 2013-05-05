@@ -1,17 +1,19 @@
 #!/bin/sh
 
-FILES="coffee/EventEmiter.coffee		\
-       coffee/Application.coffee		\
-       coffee/CacheManager.coffee		\
-       coffee/Controller.coffee			\
-       coffee/DebugController.coffee		\
+FILES="coffee/Album.coffee			\
+       coffee/Artist.coffee			\
        coffee/HomeController.coffee		\
        coffee/main.coffee			\
        coffee/Model.coffee			\
        coffee/Panel.coffee			\
        coffee/SearchPanelController.coffee	\
        coffee/Spotify.coffee			\
-       coffee/User.coffee"
+       coffee/Track.coffee			\
+       coffee/TrackQueue.coffee			\
+       coffee/TrackQueueElement.coffee		\
+       coffee/User.coffee			\
+       coffee/WebService.coffee"
 
 
      coffee -cwj ./script.js $FILES
+

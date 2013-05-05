@@ -20,5 +20,6 @@
 class Config
 	constructor: (argc, argv) ->
 		@httpPort = 4242
+		@spotifyPort = 4343;
 
 module.exports = Config;

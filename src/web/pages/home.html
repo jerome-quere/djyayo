@@ -1,0 +1,32 @@
+<div class="container-fluid">
+  <div class="row-fluid">
+    <div class="span12">
+      <div ng-show="trackQueue.currentTrack">
+	<div class="listView-header">
+	  Currently Playing
+	</div>
+	<ul class="listView">
+	  <li>
+	    <img class="thumbmail" ng-src="{{trackQueue.currentTrack.track.album.imgUrl}}" />
+	    <h2>{{trackQueue.currentTrack.track.name}}</h2>
+	    <p>{{trackQueue.currentTrack.track.artists[0].name}}</p>
+	    <span class="badge">{{trackQueue.currentTrack.votes.length}} votes</span>
+	  </li>
+	</ul>
+      </div>
+      <div class="listView-header" ng-show="trackQueue.queue">
+	To Come ...
+      </div>
+      <ul class="listView">
+	<li ng-repeat="elem in trackQueue.queue">
+	  <img class="thumbmail" ng-src="{{elem.track.album.imgUrl}}" />
+	  <h2>{{elem.track.name}}</h2>
+	  <p>{{elem.track.artists[0].name}}</p>
+	  <span class="badge">{{elem.votes.length}} votes</span>
+	  <img class="icon" ng-show="elem.haveMyVote" ng-click="onTrackClick(elem)" src="images/star_full.png" />
+	  <img class="icon" ng-show="!elem.haveMyVote" ng-click="onTrackClick(elem)" src="images/star_empty.png"/>
+	</li>
+      </ul>
+    </div>
+  </div>
+</div>

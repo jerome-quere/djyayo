@@ -18,21 +18,23 @@
 ##
 
 Client = require('./Client.coffee');
-Communicator = require('./Communicator.coffee')
+HttpCommunicator = require('./HttpCommunicator.coffee')
+SpotifyCommunicator = require('./SpotifyCommunicator.coffee')
 ChildProcess = require('child_process');
 fs = require('fs')
-jstd = require('./jstd.js');
 StaticContent = require('./StaticContent.coffee')
 SpotifyCommandFactory = require('./SpotifyCommandFactory.coffee')
 TrackQueue = require('./TrackQueue.coffee')
 Model = require('./Model.coffee')
+jstd = require('./jstd.js');
 
 class Application
 
 	constructor: (@config) ->
-		@communicator = new Communicator(@config);
-		@communicator.on('httpRequest', @onHttpRequest)
-		@communicator.on('endOfTrack', @onEndOfTrack)
+		@httpCom = new HttpCommunicator(@config);
+		@spotifyCom = new SpotifyCommunicator(@config);
+		@httpCom.on('httpRequest', @onHttpRequest);
+		@spotifyCom.on('commandReceived', @onSpotifyCommand)
 		@clients = new jstd.map();
 		@trackQueue = new TrackQueue(this);
 		@currentTrack = null;
@@ -49,12 +51,12 @@ class Application
 	onHttpRequest: (clientId, request, response) =>
 		actions = [];
 		actions.push({pattern: "^/search$", action: @onSearchRequest});
-		actions.push({pattern: "^/play$", action: @onPlayRequest});
 		actions.push({pattern: "^/queue$", action: @onQueueRequest});
 		actions.push({pattern: "^/vote$", action: @onVoteRequest});
 		actions.push({pattern: "^/unvote$", action: @onUnvoteRequest});
 		actions.push({pattern: "^/me$", action: @onMeRequest});
-		actions.push({pattern: "^/album/[0-9a-zA-Z]+$", action: @onAlbumRequest});
+		actions.push({pattern: "^/album/[0-9a-zA-Z:]+$", action: @onAlbumRequest});
+		actions.push({pattern: "^/track/[0-9a-zA-Z:]+$", action: @onTrackRequest});
 		actions.push({pattern: "", action: @onStaticRequest});
 		url = request.getUrl()
 		console.log("HTTP: #{url}", request.getData());
@@ -70,15 +72,13 @@ class Application
 
 	onUnvoteRequest: (client, request, response) =>
 		@trackQueue.unvote(client.id, request.getData().uri)
-		queue = @trackQueue.getQueue();
-		response.end(JSON.stringify({queue:queue}))
+		@onQueueRequest(client, request, response)
 
 	onVoteRequest: (client, request, response) =>
 		@trackQueue.vote(client.id, request.getData().uri)
-		queue = @trackQueue.getQueue();
-		response.end(JSON.stringify({queue:queue}))
 		if (@currentTrack == null)
 			@playNextTrack()
+		@onQueueRequest(client, request, response)
 
 	onQueueRequest: (client, request, response) =>
 		res = {}
@@ -88,24 +88,32 @@ class Application
 
 	onSearchRequest: (client, request, response) =>
 		data = request.getData();
-		@communicator.spotifyQuery(SpotifyCommandFactory.search(data.query)).then (data) =>
-			response.end(JSON.stringify({results:data}))
-
-	onPlayRequest: (client, request, response) =>
-		data = request.getData();
-		@communicator.spotifyQuery SpotifyCommandFactory.play("spotify:track:4jzktlSihQ5IWBsfQcU8Mo"), (data) =>
-			response.end(JSON.stringify(data))
+		p = @spotifyCom.exec SpotifyCommandFactory.search(data.query)
+		p.then (data) => response.end(JSON.stringify({results:data}))
 
 	onAlbumRequest: (client, request, response) =>
 		url = request.getUrl();
-		data = new RegExp("^/album/\([0-9a-zA-Z]+\)$").exec(url);
-		albumUri = "spotify:album:#{data[1]}";
-		promise = Model.getAlbum(albumUri);
-		promise.then (album) ->
+		data = new RegExp("^/album/\([0-9a-zA-Z:]+\)$").exec(url);
+		albumUri = data[1];
+		p = Model.getAlbum(albumUri);
+		p.then (album) ->
 			response.enableCache()
 			response.end(JSON.stringify({album:album}))
-		promise.otherwise () ->
+		p.otherwise () ->
 			response.end(JSON.stringify(null))
+
+	onTrackRequest: (client, request, response) =>
+		url = request.getUrl();
+		data = new RegExp("^/track/\([0-9a-zA-Z:]+\)$").exec(url);
+		trackUri = data[1];
+		p = Model.getTrack(trackUri);
+		p.then (track) ->
+			response.enableCache()
+			response.end(JSON.stringify({track:track}))
+		p.otherwise (e) ->
+			console.log(e)
+			response.end(JSON.stringify(null))
+
 
 	onStaticRequest: (client, request, response) ->
 		StaticContent.handle(request, response);
@@ -119,11 +127,16 @@ class Application
 		if (@trackQueue.empty())
 			return;
 		@currentTrack = @trackQueue.pop();
-		p = @communicator.spotifyQuery(SpotifyCommandFactory.play(@currentTrack.getUri()))
-		p.otherwise () =>
-			@playNextTrack()
+		p = @spotifyCom.exec SpotifyCommandFactory.play(@currentTrack.getUri())
+		p.otherwise () => @playNextTrack()
+
+	onSpotifyCommand: (command) =>
+		console.log("Spotify Command : #{command}");
+		@onEndOfTrack();
+
 
 	run : () ->
-		@communicator.run()
+		@httpCom.run()
+		@spotifyCom.run()
 
 module.exports = Application;

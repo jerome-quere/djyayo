@@ -20,24 +20,63 @@
 When = require('when');
 HttpClient = require('./HttpClient.coffee');
 CacheManager = require('./CacheManager.coffee');
+Track = require('./Track.coffee');
+Album = require('./Album.coffee');
+Artist = require('./Artist.coffee');
 
 class Model
 
-	@getAlbum: (albumUri) ->
-		return CacheManager.get("album/#{albumUri}", () => @_loadAlbum(albumUri));
+	@getAlbum: (uri) ->
+		return CacheManager.get("#{uri}", () => @_loadAlbum(uri));
+
+	@getTrack: (uri) ->
+		return CacheManager.get("#{uri}", () => @_loadTrack(uri))
+
+	@getArtist: (uri) ->
+		return CacheManager.get("#{uri}", () => @_loadArtist(uri))
 
 
 	@_loadAlbum: (albumUri) ->
 		defer = When.defer();
-		albumId = albumUri.split(':')[2];
-		url = "http://open.spotify.com/album/#{albumId}"
+		url = "http://ws.spotify.com/lookup/1/.json?uri=#{albumUri}"
+		console.log("Album Uri is", url)
 		promise = HttpClient.get(url)
-		promise.then (html) =>
-			regex = new RegExp('http:\/\/o.scdn.co\/300\/[^"]+');
-			imgUri = regex.exec(html)[0]
-			defer.resolver.resolve({uri: albumUri, imgUri: imgUri});
-		promise.otherwise (error) =>
-			defer.reject(error);
+		promise = promise.then (jsonStr) =>
+			data = JSON.parse(jsonStr)
+			album = new Album(albumUri);
+			promise2 = album.loadFromSpotifyWs(data.album, Model)
+			promise2 = promise2.then () =>
+				defer.resolver.resolve(album)
+			promise2.otherwise(defer.resolver.reject)
+		promise.otherwise(defer.resolver.reject);
+		return (defer.promise);
+
+	@_loadTrack: (trackUri) ->
+		defer = When.defer()
+		url = "http://ws.spotify.com/lookup/1/.json?uri=#{trackUri}"
+		console.log("Track Uri is", url)
+		promise = HttpClient.get(url)
+		promise = promise.then (jsonStr) =>
+			data = JSON.parse(jsonStr)
+			track = new Track(trackUri)
+			promise2 = track.loadFromSpotifyWs(data.track, Model);
+			promise2.then (t) =>
+				defer.resolver.resolve(track)
+			promise2.otherwise(defer.resolver.reject)
+		promise = promise.otherwise(defer.resolver.reject)
+		return (defer.promise);
+
+	@_loadArtist: (artistUri) ->
+		defer = When.defer()
+		url = "http://ws.spotify.com/lookup/1/.json?uri=#{artistUri}"
+		console.log("Aritst Uri is", url)
+		promise = HttpClient.get(url)
+		promise = promise.then (jsonStr) =>
+			data = JSON.parse(jsonStr)
+			artist = new Artist(artistUri)
+			artist.loadFromSpotifyWs(data.artist);
+			defer.resolver.resolve(artist)
+		promise = promise.otherwise(defer.resolver.reject)
 		return (defer.promise);
 
 module.exports = Model;

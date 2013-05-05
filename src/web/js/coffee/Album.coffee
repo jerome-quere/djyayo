@@ -18,12 +18,22 @@
 ##
 
 
-class ListViewBinding
-	@init: (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) ->
-		ko.bindingHandlers.foreach.init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext)
-	@update: (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) ->
-		ko.bindingHandlers.foreach.update(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext)
-		jQuery(element).listview("refresh");
-		console.log("REFRESH");
+class Album
 
-ko.bindingHandlers.listView = ListViewBinding
+	constructor: () ->
+		@uri = '';
+		@name = '';
+		@released = 0;
+		@imgUrl = 'images/album.png';
+		@artist = null;
+
+	loadFromWsData: (data) ->
+		@uri = data.uri;
+		@name = data.name;
+		@released = data.released;
+		if (data.imgUrl? && data.imgUrl)
+			@imgUrl = data.imgUrl;
+		else
+			@imgUrl = 'images/album.png'
+		@artist = new Artist();
+		@artist.loadFromWsData(data.artist)

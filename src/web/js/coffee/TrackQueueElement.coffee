@@ -17,13 +17,19 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-class DebugController extends Controller
+class TrackQueueElement
 
-	constructor: (@pageElem) ->
-		@url = ko.observable("/search");
-		@data = ko.observable('{"data":42}');
+	constructor: (@spotify, @user) ->
+		@votes = [];
+		@uri = '';
+		@track = null;
+		@haveMyVote = false;
 
-	onSubmitClick: () =>
-		jQuery.post(@url(), @data(), (data) =>
-			@pageElem.find('div').text(data);
-		)
+	loadFromWsData: (data) ->
+		@votes = data.votes;
+		@uri = data.uri;
+		@track = null;
+		promise = @spotify.getTrack(@uri)
+		promise = promise.then (track) =>
+			@track = track
+		@haveMyVote = @user.haveMyVote(@uri)

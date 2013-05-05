@@ -29,6 +29,8 @@ handleRootRequest = (response) ->
 
 handleFileRequest = (request, response) ->
 	fileName = request.getUrl().split('?')[0]
+	if (fileName == '/')
+		fileName = 'index.html';
 	path = "src/web/#{fileName}"
 	fs.readFile path, (err, data) ->
 		if (err)
@@ -40,10 +42,7 @@ handleFileRequest = (request, response) ->
 			response.end()
 
 handle = (request, response) ->
-	if (request.getUrl() == '/')
-		handleRootRequest(response)
-	else
-		handleFileRequest(request, response)
+	handleFileRequest(request, response)
 
 
 module.exports.handle = handle;

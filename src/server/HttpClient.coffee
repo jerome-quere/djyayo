@@ -27,15 +27,16 @@ class HttpClient
 			data = ''
 			resolver = defer.resolver
 			if (res.statusCode != 200)
-				resolver.reject('ERROR');
+				resolver.reject("Error - HttpClient - Can't load #{url}");
 				return
 			res.setEncoding('utf8');
 			res.on 'data', (chunk) ->
 				data = "#{data}#{chunk}";
 			res.on 'end', () ->
 				resolver.resolve(data);
+
 		get.on 'error', () =>
-			resolver.reject('ERROR');
+			defer.resolver.reject("Error - HttpClient - Can't load #{url}");
 		return (defer.promise);
 
 

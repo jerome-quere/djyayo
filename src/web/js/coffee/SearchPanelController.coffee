@@ -18,40 +18,45 @@
 ##
 
 class SearchPanelController
-	constructor: (@app, @elem) ->
-		@searchInput = ko.observable('');
-		@results = ko.observableArray();
-		@updater = ko.computed(@search);
+	constructor: ($scope, @webService, @trackQueue, @user) ->
+		@scope = $scope
+		@scope.searchInput = ''
+		@scope.results = [];
+		@scope.search = @search
+		@scope.onTrackClick = @onTrackClick;
 
 	search: () =>
-		query = @searchInput();
+		query = @scope.searchInput
 		if query.length >= 3
-			@app.ws('search', {query: query}).then (data) =>
+			@webService.query('search', {query: query}).then (httpRes) =>
 				res = []
-				if data.results?
-					for track in data.results
+				if httpRes.data.results?
+					for track in httpRes.data.results.tracks
 						elem = {}
-						elem.trackName = track.name
-						elem.artistName = track.artists[0].name
+						elem.name = track.name
+						elem.artist = {}
+						elem.artist.name = track.artists[0].name
 						elem.uri = track.uri
-						func = () =>
-							uri = elem.uri
-							() => @app.getUser().haveVote(uri)
-						func = func();
-						elem.haveMyVote = ko.computed(func);
+						elem.haveMyVote = @user.haveMyVote(track.uri);
 						res.push(elem);
-				if (query == @searchInput())
-					@results(res.splice(0, 20))
+				if (query == @scope.searchInput)
+					@scope.results.splice(0, @scope.results.length)
+					for e in res
+						@scope.results.push(e);
 		else
-			@results([]);
+			@results = [];
 		return (false);
 
 	onTrackClick: (e) =>
 		uri = e.uri;
-		if (@app.getUser().haveVote(uri))
-			@app.getUser().unvote(uri)
+		if (@user.haveMyVote(uri))
+			@user.unvote(uri)
+			e.haveMyVote = false
 		else
-			@app.getUser().vote(uri);
+			@user.vote(uri);
+			e.haveMyVote = true
 
 	show: () ->
 		@elem.panel("open")
+
+window.SearchPanelController = SearchPanelController;

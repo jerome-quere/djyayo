@@ -1,25 +1,5 @@
-<?php
-/*
-* Copyright 2012 Jerome Quere < contact@jeromequere.com >.
-*
-* This file is part of SpotifyDJ.
-*
-* SpotifyDJ is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* SpotifyDJ is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
-*/
-?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="spotifyDj">
   <head>
     <meta charset="utf-8">
     <title>Spotify - Dj</title>
@@ -31,14 +11,27 @@
     <link type="text/css" rel="stylesheet" href="css/style.css" />
     <script src="js/jquery/jquery-1.7.2.min.js"></script>
     <script src="js/bootstrap/bootstrap.min.js"></script>
-    <script src="js/knockout/knockout-2.0.0.js"></script>
-    <script src="js/sammy/sammy.min.js"></script>
+    <script src="js/angular/angular.min.js"></script>
+    <script src="js/EventEmmiter/EventEmitter-4.0.3.min.js"></script>
     <script src="js/script.js?version=<?=time()?>"></script>
   </head>
   <body>
     <div id="panels">
-      <div id="panel_search" class="panel" style="o%"><?include("./src/web/pages/searchPanel.php")?></div>
-
+      <div id="panel_search" class="panel" ng-controller="SearchPanelController">
+	<div class="list-search">
+	  <form class="form-search">
+	    <input type="text" class="search-query" ng-change="search()" ng-model="searchInput" />
+	  </form>
+	</div>
+	<ul class="listView listView-nothumbs">
+	  <li ng-repeat="track in results" ng-click="onTrackClick(track)">
+	    <h2>{{track.name}}</h2>
+	    <p>{{track.artist.name}}</p>
+	    <img class="icon" ng-show="track.haveMyVote" src="images/star_full.png" />
+	    <img class="icon" ng-show="!track.haveMyVote" src="images/star_empty.png"/>
+	  </li>
+	</ul>
+      </div>
       <script>
 	$(function() {
 	  $(".panel").Panel({wrap: "#wrap"});
@@ -54,10 +47,7 @@
 	  <span class="logo searchPanelTrigger">Spotify DJ</span>
 	</a>
       </div>
-      <div id="pages">
-	<div class="page" id="page_home"><?include("./src/web/pages/home.php") ?></div>
-	<div class="page" id="page_debug"><?include("./src/web/pages/debug.php") ?></div>
-      </div>
+      <div ng-view></div>
       <div id="push"></div>
     </div>
     <footer>

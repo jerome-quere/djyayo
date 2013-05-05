@@ -39,7 +39,7 @@ class TrackQueue
 	vote: (clientId, trackUri) ->
 		if ((idx = @indexOf(trackUri)) != -1)
 			return @tracks[idx].vote(clientId)
-		elem = new TrackQueueElement(@app, trackUri)
+		elem = new TrackQueueElement(trackUri)
 		elem.vote(clientId)
 		@tracks.push(elem);
 
@@ -58,11 +58,7 @@ class TrackQueue
 		queue = []
 		@_sort()
 		for elem in @tracks
-			data = {};
-			data.nbVotes = elem.getNbVotes()
-			data.uri = elem.getUri();
-			data.track = elem.trackData;
-			queue.push(data);
+			queue.push(elem.getData());
 		return (queue)
 
 	pop: () ->

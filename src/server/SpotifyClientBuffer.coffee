@@ -24,7 +24,7 @@ class SpotifyClientBuffer extends EventEmitter
 	constructor: () ->
 		@buffer = "";
 
-	add: (data) ->
+	append: (data) ->
 		@buffer = "#{@buffer}#{data}";
 		@processCommand();
 
@@ -35,7 +35,7 @@ class SpotifyClientBuffer extends EventEmitter
 	processCommand: () ->
 		while ((idx = @buffer.indexOf("\n")) != -1)
 			command = @buffer.slice(0, idx);
-			@emit('command', JSON.parse(command));
+			@emit('command', {cmd: command, args: {}});
 			@buffer = @buffer.slice(idx + 1);
 
 module.exports = SpotifyClientBuffer

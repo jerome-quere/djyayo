@@ -26,5 +26,4 @@ main = (argc, argv) ->
 	application = new Application(config);
 	application.run();
 
-
 main(process.argv.length, process.argv)

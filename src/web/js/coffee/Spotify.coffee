@@ -19,16 +19,34 @@
 
 class Spotify
 
+	constructor: ($cacheFactory, $q, @webService) ->
+		@cache = $cacheFactory('Spotify');
+		@q = $q;
 
-	@getImgFromAlbumUrl: (albumUrl) ->
-		if !@cache? then @cache = {}
-		if @cache[albumUrl]?
-			return (@cache[albumUrl]);
-		@cache[albumUrl] = ko.observable('images/album.png');
-		@loadImg(albumUrl)
-		return (@cache[albumUrl]);
+	getTrack: (uri) =>
+		if !uri? then return null;
+		res = @cache.get(uri)
+		if res? then return (res.promise);
+		defer = @q.defer()
+		@cache.put(uri, defer)
+		promise = @_loadTrack(uri)
+		promise = promise.then (track) =>
+			defer.resolve(track)
+		promise = promise.then null, (e) =>
+			defer.reject(e)
+			@cache.remove(uri)
+		return (defer.promise);
 
-
-	@loadImg: (uri) ->
-		window.application.ws('albumImg', {uri:uri}).then (data) =>
-			@cache[uri](data.uri);
+	_loadTrack: (uri) ->
+		defer = @q.defer()
+		promise = @webService.query("track/#{uri}")
+		promise = promise.then (response) =>
+			if (response.data.track?)
+				track = new Track();
+				track.loadFromWsData(response.data.track);
+				defer.resolve(track)
+			else
+				defer.reject("Can't load 'track/#{uri}'");
+		promise = promise.then null, () =>
+			defer.reject("Can't load 'track/#{uri}'");
+		return (defer.promise)

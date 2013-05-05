@@ -17,25 +17,37 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
+net = require('net');
+SpotifyClientBuffer = require('./SpotifyClientBuffer.coffee');
 EventEmitter = require('events').EventEmitter
-HttpServer = require('./HttpServer.coffee')
-SpotifyClient = require('./SpotifyClient.coffee');
 
-class Communicator extends EventEmitter
-	constructor: (@config) ->
-		@httpServer = new HttpServer(@config.httpPort);
-		@httpServer.on('request', @onHttpRequest)
-		@spotifyClient = new SpotifyClient(@config.spotifyPort);
-		@spotifyClient.on('endOfTrack', () => @emit('endOfTrack'));
+class SpotifyServer extends EventEmitter
+	constructor: (@port) ->
+		@server = net.createServer({}, @onNewClient);
+		@client = null;
+		@buffer = new SpotifyClientBuffer();
+		@buffer.on('command', @onCommandReady);
 
-	onHttpRequest: (clientId, request, response) =>
-		@emit('httpRequest', clientId, request, response)
+	send: (command) ->
+		if (@client?)
+			@client.write(command)
 
-	spotifyQuery: (cmd, callback) ->
-		return @spotifyClient.query cmd
+	onClientRead: (data) =>
+		@buffer.append(data);
 
-	run: () ->
-		@httpServer.run();
-		@spotifyClient.connect()
+	onClientEnd: (data) =>
+		@client =  null;
+		@buffer.clear();
 
-module.exports = Communicator;
+	onCommandReady: (cmd) =>
+		@emit('commandReceived', cmd);
+
+	onNewClient: (@client) =>
+		@client.on('data', @onClientRead);
+		@client.on('end', @onClientEnd);
+		@buffer.clear();
+		@emit('newClient')
+
+	run: () => @server.listen(@port);
+
+module.exports = SpotifyServer

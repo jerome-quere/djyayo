@@ -17,6 +17,19 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-class Controller
-	onLoad: (params) ->
-	onUnload: () ->
+EventEmitter = require('events').EventEmitter
+HttpServer = require('./HttpServer.coffee')
+SpotifyCommunicator = require('./SpotifyCommunicator.coffee');
+
+class HttpCommunicator extends EventEmitter
+	constructor: (@config) ->
+		@httpServer = new HttpServer(@config.httpPort);
+		@httpServer.on('request', @onHttpRequest)
+
+	onHttpRequest: (clientId, request, response) =>
+		@emit('httpRequest', clientId, request, response)
+
+	run: () ->
+		@httpServer.run();
+
+module.exports = HttpCommunicator;

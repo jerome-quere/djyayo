@@ -17,14 +17,9 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-class EventEmmiter
-	initEventEmmiter: () ->
-		if !@jqueryElem? then @jqueryElem = jQuery('<p></p>');
-
-	on: (eventName, cb) =>
-		@initEventEmmiter()
-		@jqueryElem.on(eventName, cb)
-
-	emit: (eventName) =>
-		@initEventEmmiter()
-		@jqueryElem.trigger(eventName)
+class WebService
+	constructor: ($http, $q)  ->
+		@q = $q
+		@http = $http
+	query: (method, data) ->
+		return @http({method: 'POST', url: "/#{method}", data: data, cache:false});
