@@ -27,12 +27,14 @@ SpotifyCommandFactory = require('./SpotifyCommandFactory.coffee')
 TrackQueue = require('./TrackQueue.coffee')
 Model = require('./Model.coffee')
 jstd = require('./jstd.js');
+WebSocketCommunicator = require('./WebSocketCommunicator.coffee');
 
 class Application
 
 	constructor: (@config) ->
 		@httpCom = new HttpCommunicator(@config);
 		@spotifyCom = new SpotifyCommunicator(@config);
+		@webSockCom = new WebSocketCommunicator(@httpCom.getNodeServer())
 		@httpCom.on('httpRequest', @onHttpRequest);
 		@spotifyCom.on('commandReceived', @onSpotifyCommand)
 		@clients = new jstd.map();
@@ -73,12 +75,14 @@ class Application
 	onUnvoteRequest: (client, request, response) =>
 		@trackQueue.unvote(client.id, request.getData().uri)
 		@onQueueRequest(client, request, response)
+		@webSockCom.broadcast('queueChanged');
 
 	onVoteRequest: (client, request, response) =>
 		@trackQueue.vote(client.id, request.getData().uri)
 		if (@currentTrack == null)
 			@playNextTrack()
 		@onQueueRequest(client, request, response)
+		@webSockCom.broadcast('queueChanged');
 
 	onQueueRequest: (client, request, response) =>
 		res = {}
@@ -127,6 +131,7 @@ class Application
 		if (@trackQueue.empty())
 			return;
 		@currentTrack = @trackQueue.pop();
+		@webSockCom.broadcast('queueChanged');
 		p = @spotifyCom.exec SpotifyCommandFactory.play(@currentTrack.getUri())
 		p.otherwise () => @playNextTrack()
 

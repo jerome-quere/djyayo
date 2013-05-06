@@ -12,7 +12,8 @@ FILES="coffee/Album.coffee			\
        coffee/TrackQueue.coffee			\
        coffee/TrackQueueElement.coffee		\
        coffee/User.coffee			\
-       coffee/WebService.coffee"
+       coffee/WebService.coffee			\
+       coffee/WebSocketClient.coffee"
 
 
      coffee -cwj ./script.js $FILES

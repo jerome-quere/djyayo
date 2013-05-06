@@ -31,7 +31,6 @@ class TrackQueue
 			@update(response.data)
 		p.then null, (e) =>
 			console.log(e)
-		@timeout(@refresh, 5000);
 
 	update: (response) =>
 		if response.currentTrack?
@@ -45,3 +44,5 @@ class TrackQueue
 			elem = new TrackQueueElement(@spotify, @user);
 			elem.loadFromWsData(track);
 			@queue.push(elem);
+
+		@user.updateFromTrackQueue(response.queue)

@@ -50,6 +50,8 @@ class HttpServer extends EventEmitter
 		@clients.push(client);
 		return	client.id
 
+	getNodeServer: () -> @server;
+
 	run: () ->
 		@server.listen(@port);
 

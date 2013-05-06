@@ -29,6 +29,8 @@ class HttpCommunicator extends EventEmitter
 	onHttpRequest: (clientId, request, response) =>
 		@emit('httpRequest', clientId, request, response)
 
+	getNodeServer: () -> @httpServer.getNodeServer();
+
 	run: () ->
 		@httpServer.run();
 

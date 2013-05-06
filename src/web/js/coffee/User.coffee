@@ -40,11 +40,18 @@ class User extends EventEmitter
 			@_delVote(uri)
 			@emitEvent('queueChanged', [httpRes.data]);
 
+	updateFromTrackQueue: (queue) =>
+		@votes = [];
+		for track in queue
+			for user in track.votes
+				if user.id == @id
+					@votes.push(track.uri)
+
 	haveMyVote: (uri) ->
 		return @votes.indexOf(uri) != -1;
 
 	_addVote: (uri) ->
-		if (@votes.indexOf(uri))
+		if (@votes.indexOf(uri) == -1)
 			@votes.push(uri);
 
 	_delVote: (uri) ->
