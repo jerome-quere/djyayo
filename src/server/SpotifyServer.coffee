@@ -38,6 +38,7 @@ class SpotifyServer extends EventEmitter
 	onClientEnd: (data) =>
 		@client =  null;
 		@buffer.clear();
+		@emit('disconnection');
 
 	onCommandReady: (cmd) =>
 		@emit('commandReceived', cmd);
@@ -46,7 +47,9 @@ class SpotifyServer extends EventEmitter
 		@client.on('data', @onClientRead);
 		@client.on('end', @onClientEnd);
 		@buffer.clear();
-		@emit('newClient')
+		@emit('connection')
+
+	isConnected: () => @client?
 
 	run: () => @server.listen(@port);
 

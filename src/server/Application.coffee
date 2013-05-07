@@ -37,6 +37,7 @@ class Application
 		@webSockCom = new WebSocketCommunicator(@httpCom.getNodeServer())
 		@httpCom.on('httpRequest', @onHttpRequest);
 		@spotifyCom.on('commandReceived', @onSpotifyCommand)
+		@spotifyCom.on('playerChanged', @onSpotifyPlayerChanged)
 		@clients = new jstd.map();
 		@trackQueue = new TrackQueue(this);
 		@currentTrack = null;
@@ -57,6 +58,7 @@ class Application
 		actions.push({pattern: "^/vote$", action: @onVoteRequest});
 		actions.push({pattern: "^/unvote$", action: @onUnvoteRequest});
 		actions.push({pattern: "^/me$", action: @onMeRequest});
+		actions.push({pattern: "^/player$", action: @onPlayerRequest});
 		actions.push({pattern: "^/album/[0-9a-zA-Z:]+$", action: @onAlbumRequest});
 		actions.push({pattern: "^/track/[0-9a-zA-Z:]+$", action: @onTrackRequest});
 		actions.push({pattern: "", action: @onStaticRequest});
@@ -65,6 +67,7 @@ class Application
 		for action in actions
 			regex = new RegExp("#{action.pattern}");
 			if (regex.test(url))
+				response.enableCrossDomain();
 				action.action(@getClientFromId(clientId), request, response)
 				break;
 
@@ -72,17 +75,20 @@ class Application
 		votes = @trackQueue.getVotes(client.id)
 		response.end(JSON.stringify({id:client.id, votes: votes}))
 
+	onPlayerRequest: (client, request, response) =>
+		response.end(JSON.stringify({player: @spotifyCom.getPlayerInfos()}))
+
 	onUnvoteRequest: (client, request, response) =>
 		@trackQueue.unvote(client.id, request.getData().uri)
 		@onQueueRequest(client, request, response)
-		@webSockCom.broadcast('queueChanged');
+		@webSockCom.queueChanged()
 
 	onVoteRequest: (client, request, response) =>
 		@trackQueue.vote(client.id, request.getData().uri)
 		if (@currentTrack == null)
 			@playNextTrack()
 		@onQueueRequest(client, request, response)
-		@webSockCom.broadcast('queueChanged');
+		@webSockCom.queueChanged()
 
 	onQueueRequest: (client, request, response) =>
 		res = {}
@@ -131,13 +137,15 @@ class Application
 		if (@trackQueue.empty())
 			return;
 		@currentTrack = @trackQueue.pop();
-		@webSockCom.broadcast('queueChanged');
+		@webSockCom.queueChanged()
 		p = @spotifyCom.exec SpotifyCommandFactory.play(@currentTrack.getUri())
 		p.otherwise () => @playNextTrack()
 
 	onSpotifyCommand: (command) =>
 		console.log("Spotify Command : #{command}");
 		@onEndOfTrack();
+
+	onSpotifyPlayerChanged: () => @webSockCom.playerChanged()
 
 
 	run : () ->

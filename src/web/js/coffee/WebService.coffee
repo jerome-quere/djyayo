@@ -22,4 +22,4 @@ class WebService
 		@q = $q
 		@http = $http
 	query: (method, data) ->
-		return @http({method: 'POST', url: "/#{method}", data: data, cache:false});
+		return @http.post("/#{method}", data, {cache:false});

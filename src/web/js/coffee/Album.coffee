@@ -35,5 +35,6 @@ class Album
 			@imgUrl = data.imgUrl;
 		else
 			@imgUrl = 'images/album.png'
-		@artist = new Artist();
-		@artist.loadFromWsData(data.artist)
+		if (data.artist? && data.artist)
+			@artist = new Artist();
+			@artist.loadFromWsData(data.artist)

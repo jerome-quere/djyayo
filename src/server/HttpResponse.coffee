@@ -31,6 +31,10 @@ class HttpResponse
 		@headers['Cache-Control'] = 'must-revalidate';
 		@headers['Expires'] = 'Fri, 03 Jan 2042 23:42:00 GMT'
 
+	enableCrossDomain: () =>
+		@headers['Access-Control-Allow-Origin'] = '*'
+		@headers['Access-Control-Request-Headers'] = 'origin, content-type, accept'
+
 	setCookie: (name, value) =>
 		if (@headers['Set-Cookie']?)
 			@headers['Set-Cookie'] = @headers['Set-Cookie'].concat "#{name}=#{value}";

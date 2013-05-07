@@ -28,6 +28,8 @@ spotifyDj.factory 'webService', ($http, $q) -> new WebService($http, $q)
 spotifyDj.factory 'spotify', ($cacheFactory, $q, webService) -> new Spotify($cacheFactory, $q, webService)
 spotifyDj.factory 'user', (webService) -> new User(webService)
 spotifyDj.factory 'trackQueue', (webService, spotify, user, $timeout) -> new TrackQueue(webService, spotify, user, $timeout)
-spotifyDj.factory 'webSocketClient', (trackQueue) -> new WebSocketClient(trackQueue)
+spotifyDj.factory 'player', (webService) -> new Player(webService)
+spotifyDj.factory 'webSocketClient', ($rootScope, trackQueue, player) -> new WebSocketClient($rootScope, trackQueue, player)
+
 
 spotifyDj.run (webSocketClient) ->

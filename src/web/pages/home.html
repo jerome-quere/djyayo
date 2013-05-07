@@ -1,6 +1,11 @@
 <div class="container-fluid">
   <div class="row-fluid">
     <div class="span12">
+      <div ng-hide="player.state">
+	<div class="listView-header listView-header-error">
+	  No Player Connected
+	</div>
+      </div>
       <div ng-show="trackQueue.currentTrack">
 	<div class="listView-header">
 	  Currently Playing
@@ -19,7 +24,7 @@
       </div>
       <ul class="listView">
 	<li ng-repeat="elem in trackQueue.queue">
-	  <img class="thumbmail" ng-src="{{elem.track.album.imgUrl}}" />
+	  <img class="thumbmail" ng-src="{{elem.track.album.imgUrl}}" onerror="$(this).attr('src', 'images/album.png')"/>
 	  <h2>{{elem.track.name}}</h2>
 	  <p>{{elem.track.artists[0].name}}</p>
 	  <span class="badge">{{elem.votes.length}} votes</span>

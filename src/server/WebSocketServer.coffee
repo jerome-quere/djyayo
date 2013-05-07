@@ -24,7 +24,7 @@ WebSocketClient = require('./WebSocketClient.coffee');
 class WebSocketServer
 
 	constructor: (httpServer) ->
-		@io = io.listen(httpServer);
+		@io = io.listen(httpServer, {"log level":2});
 		@io.on('connection', @onConnection);
 		@idGenerator = new IdGenerator();
 		@clients = [];
@@ -36,11 +36,10 @@ class WebSocketServer
 		socket.on('disconnect', () => @onDisconnect(id))
 
 	onDisconnect: (id) =>
-		console.log("Disconnect")
 		i = 0;
 		while (i < @clients.length)
 			if (@clients[i].getId() == id)
-				@clients.splice(id, 1);
+				@clients.splice(i, 1);
 				break;
 			i++
 

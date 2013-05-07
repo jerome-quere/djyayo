@@ -17,17 +17,16 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-WebSocketServer = require('./WebSocketServer.coffee');
 
-class WebSocketCommunicator
+class Player
+	constructor: (@webService) ->
+		@state = 0;
+		@refresh();
 
-	constructor: (httpServer) ->
-		@server = new WebSocketServer(httpServer);
+	refresh: () =>
+		p = @webService.query("player");
+		p.then (response) =>
+			@update(response.data.player)
 
-	queueChanged: () =>
-		@server.broadcast('queueChanged')
-
-	playerChanged: () =>
-		@server.broadcast('playerChanged')
-
-module.exports = WebSocketCommunicator
+	update: (data) ->
+		@state = data.state;

@@ -6,6 +6,7 @@ FILES="coffee/Album.coffee			\
        coffee/main.coffee			\
        coffee/Model.coffee			\
        coffee/Panel.coffee			\
+       coffee/Player.coffee			\
        coffee/SearchPanelController.coffee	\
        coffee/Spotify.coffee			\
        coffee/Track.coffee			\

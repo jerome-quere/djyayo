@@ -28,11 +28,14 @@ class SpotifyCommunicator extends EventEmitter
 
 	constructor: (@config) ->
 		@server = new SpotifyServer(@config.spotifyPort);
-		@server.on('newClient', @onNewClient)
+		@server.on('connection', @onConnection)
+		@server.on('disconnection', @onDisconnection)
 		@server.on('commandReceived', @onCommandReceived)
 
 	run: () ->
 		@server.run();
+
+	getPlayerInfos: () -> {state: @server.isConnected()}
 
 	search: (args, resolver) =>
 		p = HttpClient.get("http://ws.spotify.com/search/1/track.json?q=#{encodeURI(args.query)}");
@@ -83,10 +86,8 @@ class SpotifyCommunicator extends EventEmitter
 
 	buildLookupResut: (spRes) -> return (spRes.track);
 
-	onNewClient: () =>
-		@onCommandReceived('endOfTrack');
-
-	onCommandReceived: (cmd) =>
-		@emit('commandReceived', cmd)
+	onConnection: () => @emit('playerChanged');
+	onDisconnection: () => @emit('playerChanged');
+	onCommandReceived: (cmd) => @emit('commandReceived', cmd)
 
 module.exports = SpotifyCommunicator;

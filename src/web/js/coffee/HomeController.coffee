@@ -19,11 +19,12 @@
 
 class HomeController
 
-	constructor: ($scope, @trackQueue, @spotify, @user) ->
+	constructor: ($scope, @trackQueue, @player, @spotify, @user) ->
 		@scope = $scope;
 		@scope.trackQueue = @trackQueue;
 		@scope.spotify = @spotify
 		@scope.onTrackClick = @onTrackClick;
+		@scope.player = @player;
 
 	onSearchBtnClick: () ->
 		@searchPanel.show();
@@ -31,7 +32,6 @@ class HomeController
 	onTrackClick: (e) =>
 		if (!e?) then return;
 		uri = e.uri;
-		console.log(e);
 		if (e.haveMyVote)
 			@user.unvote(uri)
 		else

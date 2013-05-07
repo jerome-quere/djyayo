@@ -17,11 +17,12 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-
 class WebSocketClient
-	constructor: (@trackQueue) ->
+	constructor: ($rootScope, @trackQueue, @player) ->
+		@rootScope = $rootScope;
 		@socket = io.connect(document.location.hostname);
 		@socket.on('queueChanged', @onQueueChanged);
+		@socket.on('playerChanged', @onPlayerChanged);
 
-	onQueueChanged: () =>
-		@trackQueue.refresh()
+	onQueueChanged: () => @rootScope.$apply(() => @trackQueue.refresh());
+	onPlayerChanged: () => @rootScope.$apply(() => @player.refresh());

@@ -192,6 +192,18 @@ footer
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#6facd5', endColorstr='#497bae',GradientType=0 ); /* IE6-9 */
 }
 
+.listView-header-error
+{
+    background: #d87972; /* Old browsers */
+    background: -moz-linear-gradient(top, #d87972 0%, #af4949 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d87972), color-stop(100%,#af4949)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #d87972 0%,#af4949 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #d87972 0%,#af4949 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #d87972 0%,#af4949 100%); /* IE10+ */
+    background: linear-gradient(to bottom, #d87972 0%,#af4949 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d87972', endColorstr='#af4949',GradientType=0 ); /* IE6-9 */
+}
+
 
 .panel
 {
