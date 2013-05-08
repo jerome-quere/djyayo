@@ -41,6 +41,9 @@ class HttpResponse
 		else
 			@headers['Set-Cookie'] = "#{name}=#{value}; Path=/;";
 
+	setMIME: (value) =>
+		@headers['Content-Type'] = value
+
 	write : (str) =>
 		@writeBuffer(new Buffer(str));
 

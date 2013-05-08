@@ -20,12 +20,19 @@
 ChildProcess = require('child_process');
 fs = require('fs')
 
-handleRootRequest = (response) ->
-	child = ChildProcess.spawn('php', ['src/web/index.php']);
-	child.stdout.on 'data', (data) =>
-		response.writeBuffer(data)
-	child.on 'exit', () =>
-		response.end()
+MIMES = {}
+MIMES['html'] = 'text/html';
+MIMES['css'] = 'text/css';
+MIMES['js'] = 'text/javascript'
+MIMES['png'] = 'image/png';
+MIMES['jpg'] = 'image/jpg';
+
+
+getMIME = (path) ->
+	parts = path.split('.');
+	ext = parts[parts.length - 1];
+	if MIMES[ext]? then return MIMES[ext]
+	return MIMES['html']
 
 handleFileRequest = (request, response) ->
 	fileName = request.getUrl().split('?')[0]
@@ -38,8 +45,11 @@ handleFileRequest = (request, response) ->
 			response.end()
 		else
 			response.enableCache();
+			response.setMIME(getMIME(path))
 			response.writeBuffer(data)
 			response.end()
+
+
 
 handle = (request, response) ->
 	handleFileRequest(request, response)
