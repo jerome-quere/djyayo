@@ -24,7 +24,9 @@ spotifyDj.config ['$routeProvider', ($routeProvider) ->
 	$routeProvider.otherwise({redirectTo: '/home'});
 ]
 
-spotifyDj.factory 'webService', ($http, $q) -> new WebService($http, $q)
+
+spotifyDj.factory 'config', () -> new Config()
+spotifyDj.factory 'webService', ($http, $q, config) -> new WebService($http, $q, config)
 spotifyDj.factory 'spotify', ($cacheFactory, $q, webService) -> new Spotify($cacheFactory, $q, webService)
 spotifyDj.factory 'user', (webService) -> new User(webService)
 spotifyDj.factory 'trackQueue', (webService, spotify, user, $timeout) -> new TrackQueue(webService, spotify, user, $timeout)

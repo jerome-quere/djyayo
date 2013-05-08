@@ -17,10 +17,32 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-class WebService
-	constructor: ($http, $q, @config)  ->
-		@q = $q
-		@http = $http
 
-	query: (method, data) ->
-		return @http.post("#{@config.get('webservice.url')}/#{method}", data, {cache:false});
+class Config
+
+	constructor: () ->
+		@config = {}
+		@config['webservice'] = {}
+		@config['static'] = {}
+
+		@hostConfs = {};
+		@hostConfs['localhost'] = @loadLocalhostConf;
+		@hostConfs['dj.yayo.fr'] = @loadProdConf;
+		host = window.location.hostname;
+		if @hostConfs[host]? then @hostConfs[host]();
+
+	loadLocalhostConf: () =>
+		@config['webservice']['url'] = 'http://localhost:4242'
+
+	loadProdConf: () =>
+		@config['webservice']['url'] = 'http://dj.yayo.fr:4242'
+
+	get: (key) =>
+		parts = key.split('.');
+		obj = @config;
+		for part in parts
+			if !obj[part]?
+				obj = null
+				break;
+			obj = obj[part]
+		return obj

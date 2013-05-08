@@ -2,6 +2,7 @@
 
 FILES="coffee/Album.coffee			\
        coffee/Artist.coffee			\
+       coffee/Config.coffee			\
        coffee/HomeController.coffee		\
        coffee/main.coffee			\
        coffee/Model.coffee			\
