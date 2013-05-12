@@ -35,6 +35,7 @@ class HttpResponse
 		origin = if @request.headers.origin then @request.headers.origin else '*'
 		@headers['Access-Control-Allow-Origin'] = origin
 		@headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
+		@headers['Access-Control-Allow-Credentials'] = 'true';
 
 	setCookie: (name, value) =>
 		if (@headers['Set-Cookie']?)
