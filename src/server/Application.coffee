@@ -79,6 +79,8 @@ class Application
 				@users[user.id] = user;
 				session.login(user.id);
 			promise.ensure () => @onMeRequest(session, request, response)
+		else
+			@onMeRequest(session, request, response)
 
 	onLogoutRequest: (session, request, response) =>
 		session.logout();
