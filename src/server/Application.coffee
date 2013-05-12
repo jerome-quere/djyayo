@@ -72,7 +72,7 @@ class Application
 
 	onLoginRequest: (session, request, response) =>
 		data = request.getData();
-		if (data.method? and data.method == "facebook")
+		if (data? and data.method? and data.method == "facebook")
 			user = new User();
 			promise = user.loadFromFacebook(data.token);
 			promise.then () =>
