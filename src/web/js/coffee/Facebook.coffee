@@ -30,11 +30,12 @@ class Facebook
 				if (r.status == 'connected')
 					@scopeApply () ->  defer.resolve(r.authResponse.accessToken);
 				else
-					FB.login (r) =>
+					FB.login((r) =>
 						if (r.status == 'connected')
 							@scopeApply () -> defer.resolve(r.authResponse.accessToken);
 						else
 							@scopeApply () -> defer.reject("Not Connected");
+					, {scope: "user_photos"});
 		return (defer.promise)
 
 
