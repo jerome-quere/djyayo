@@ -32,7 +32,7 @@ class HttpServer extends EventEmitter
 		@idGenerator = new IdGenerator();
 
 	onRequest: (request, response) =>
-		response = new HttpResponse(response);
+		response = new HttpResponse(request, response);
 		request = new HttpRequest(request, response);
 		request.on("requestComplete", @onRequestComplete)
 

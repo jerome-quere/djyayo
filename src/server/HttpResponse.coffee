@@ -18,7 +18,7 @@
 ##
 
 class HttpResponse
-	constructor: (@response) ->
+	constructor: (@request, @response) ->
 		@code = 200
 		@headers = {}
 		@buffer = new Buffer("");
@@ -32,7 +32,8 @@ class HttpResponse
 		@headers['Expires'] = 'Fri, 03 Jan 2042 23:42:00 GMT'
 
 	enableCrossDomain: () =>
-		@headers['Access-Control-Allow-Origin'] = '*'
+		origin = if @request.headers.origin then @request.headers.origin else '*'
+		@headers['Access-Control-Allow-Origin'] = origin
 		@headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
 
 	setCookie: (name, value) =>

@@ -28,4 +28,4 @@ class WebService
 		return (JSON.parse(data));
 
 	query: (method, data) ->
-		return @http.post("#{@config.get('webservice.url')}/#{method}", data, {cache:false, transformResponse: @toJSON});
+		return @http.post("#{@config.get('webservice.url')}/#{method}", data, {cache:false, transformResponse: @toJSON, withCredentials: true});
