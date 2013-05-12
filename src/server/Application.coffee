@@ -67,7 +67,10 @@ class Application
 			if (regex.test(url))
 				response.enableCrossDomain();
 				response.setMIME('application/json');
-				action.action(session, request, response)
+				if (request.getMethod() == "POST" || request.getMethod() == "GET")
+					action.action(session, request, response)
+				else
+					response.end();
 				break;
 
 	onLoginRequest: (session, request, response) =>

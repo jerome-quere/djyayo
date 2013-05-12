@@ -25,6 +25,8 @@ class HttpRequest extends require('events').EventEmitter
 
 	getUrl: () => @request.url
 
+	getMethod: () => @request.method;
+
 	getCookies: () =>
 		cookies = {};
 		if (@request.headers.cookie?)
