@@ -21,23 +21,29 @@ class User extends EventEmitter
 
 	constructor: (@webService) ->
 		super;
-		@id = -1;
-		@votes = [];
+		@_clear();
 		@refresh();
+
+	loginWithFacebookToken: (token) =>
+		@webService.query('login', {method:"facebook", token:token}).then (httpRes) =>
+			@_update(httpRes.data);
+			@emitEvent('queueRefresh');
+
+	logout: () ->
+		@webService.query('logout').then (httpRes) =>
+			@_update(httpRes.data);
+			@emitEvent('queueRefresh');
 
 	refresh: () =>
 		@webService.query('me').then (httpRes) =>
-			@id = httpRes.data.id;
-			@votes = httpRes.data.votes;
+			@_update(httpRes.data);
 
 	vote: (uri) ->
 		@webService.query('vote', {uri: uri}).then (httpRes) =>
-			@_addVote(uri)
 			@emitEvent('queueChanged', [httpRes.data]);
 
 	unvote: (uri) ->
 		@webService.query('unvote', {uri: uri}).then (httpRes) =>
-			@_delVote(uri)
 			@emitEvent('queueChanged', [httpRes.data]);
 
 	updateFromTrackQueue: (queue) =>
@@ -50,11 +56,17 @@ class User extends EventEmitter
 	haveMyVote: (uri) ->
 		return @votes.indexOf(uri) != -1;
 
-	_addVote: (uri) ->
-		if (@votes.indexOf(uri) == -1)
-			@votes.push(uri);
+	_clear: () ->
+		@id = -1
+		@isLog = false;
+		@votes = [];
+		@name = '';
 
-	_delVote: (uri) ->
-		idx = @votes.indexOf(uri);
-		if (idx != -1)
-			@votes.splice(idx, 1);
+	_update: (userData) =>
+		if (!userData?)
+			@_clear();
+			return;
+		@id = userData.id;
+		@name = userData.name;
+		@imgUrl = userData.imgUrl;
+		@isLog = true;

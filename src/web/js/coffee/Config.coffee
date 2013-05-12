@@ -22,7 +22,8 @@ class Config
 
 	constructor: () ->
 		@config = {}
-		@config['webservice'] = {}
+		@config['website'] = {url:""}
+		@config['webservice'] = {url:""}
 		@config['static'] = {}
 
 		@hostConfs = {};
@@ -32,9 +33,11 @@ class Config
 		if @hostConfs[host]? then @hostConfs[host]();
 
 	loadLocalhostConf: () =>
+		@config['website']['url'] = 'http://localhost:4242'
 		@config['webservice']['url'] = 'http://localhost:4242'
 
 	loadProdConf: () =>
+		@config['website']['url'] = 'http://dj.yayo.fr:4242'
 		@config['webservice']['url'] = 'http://dj.yayo.fr:4242'
 
 	get: (key) =>

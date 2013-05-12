@@ -24,13 +24,14 @@ class TrackQueue
 		@timeout = $timeout;
 		@refresh()
 		@user.on('queueChanged', @update);
+		@user.on('queueRefresh', @refresh);
 
 	refresh: () =>
 		p = @webService.query('queue')
 		p.then (response) =>
 			@update(response.data)
 		p.then null, (e) =>
-			console.log(e)
+			console.trace(e)
 
 	update: (response) =>
 		if response.currentTrack?
@@ -39,10 +40,9 @@ class TrackQueue
 		else
 			@currentTrack = null;
 
+		@user.updateFromTrackQueue(response.queue)
 		@queue = [];
 		for track in response.queue
 			elem = new TrackQueueElement(@spotify, @user);
 			elem.loadFromWsData(track);
 			@queue.push(elem);
-
-		@user.updateFromTrackQueue(response.queue)

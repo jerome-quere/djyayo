@@ -22,6 +22,7 @@ EventEmitter = require('events').EventEmitter
 IdGenerator = require('./IdGenerator.coffee');
 HttpRequest = require('./HttpRequest.coffee');
 HttpResponse = require('./HttpResponse.coffee');
+crypto = require('crypto');
 
 class HttpServer extends EventEmitter
 
@@ -36,26 +37,39 @@ class HttpServer extends EventEmitter
 		request.on("requestComplete", @onRequestComplete)
 
 	onRequestComplete: (request, response) =>
-		clientId = @getClientIdFromRequest(request);
-		response.setCookie("clientId", clientId);
-		@emit('request', clientId, request, response)
+		client = @getClientFromRequest(request);
+		response.setCookie("sessionId", client.sessionId);
+		@emit('request', client.id, request, response)
 
-	getClientIdFromRequest: (request) =>
+	getClientFromRequest: (request) =>
 		cookies = request.getCookies()
-		if (cookies.clientId?)
-			for client in @clients
-				if "#{client.id}" == cookies.clientId
-					return client.id
-		client = {id: @idGenerator.next()};
+		if (cookies.sessionId?)
+			client = @getClientFromSessionId(cookies.sessionId);
+			if (client?) then return client;
+		clientId = @idGenerator.next()
+		hash = crypto.createHash('sha256');
+		hash.update("#{clientId}-SpotifyDJ");
+		sessionId = hash.digest('hex');
+		client = {id: clientId, sessionId: sessionId};
 		@clients.push(client);
-		return	client.id
+		return	client
+
+	getClientFromSessionId: (sessionId) ->
+		for client in @clients
+			if "#{client.sessionId}" == sessionId
+				return client
+		return null;
+
+	getClientIdFromSessionId: (sessionId) =>
+		client = @getClientFromSessionId(sessionId);
+		if (client?)
+			return client.id;
+		return (-1);
 
 	getNodeServer: () -> @server;
 
 	run: () ->
 		@server.listen(@port);
-
-
 
 
 module.exports = HttpServer

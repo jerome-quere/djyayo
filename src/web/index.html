@@ -9,6 +9,7 @@
     <link type="text/css" rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link type="text/css" rel="stylesheet" href="css/bootstrap/bootstrap-responsive.min.css" />
     <link type="text/css" rel="stylesheet" href="css/style.css" />
+    <script src="http://jsconsole.com/remote.js?DD01DAA1-F80F-4442-94BA-BB7350FF9A77"></script>
     <script src="js/jquery/jquery-1.7.2.min.js"></script>
     <script src="js/bootstrap/bootstrap.min.js"></script>
     <script src="js/angular/angular.min.js"></script>
@@ -40,13 +41,25 @@
       </script>
     </div>
     <div id="wrap">
-      <div id="header">
-	<a class="search-ico" herf="" onclick="$('#panel_search').data('panel').show();">
+      <div id="header" ng-controller="HeaderController">
+	<a ng-show="user.isLog" class="search-ico" herf="" onclick="$('#panel_search').data('panel').show();">
 	  <img width="30px" src="images/search.png" />
 	</a>
         <a href="#">
 	  <span class="logo searchPanelTrigger">Spotify DJ</span>
 	</a>
+	<a ng-hide="user.isLog" class="login-with-facebook" href="#" ng-click="facebookLogin()">
+	  <img src="images/facebook_login.png" style="height:30px"/>
+	</a>
+	<table ng-show="user.isLog" class="user-infos">
+	  <tr>
+	    <td rowspan="2"><img ng-src="{{user.imgUrl}}"/></td>
+	    <td>Hello <b>{{user.name}}</b></td>
+	  </tr>
+	  <tr>
+	    <td><a href="#" ng-click="logout()">Logout</a></td>
+	  </tr>
+	</table>
       </div>
       <div ng-view></div>
       <div id="push"></div>
@@ -56,5 +69,6 @@
         By Yayo
       </div>
     </footer>
+    <div id="fb-root"></div>
   </body>
 </html>

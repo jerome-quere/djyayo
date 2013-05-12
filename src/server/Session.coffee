@@ -17,8 +17,12 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-class Client
-	constructor: (@id) ->
+class Session
 
+	constructor: () -> @userId = -1;
+	isLog: () -> @userId != -1;
+	login: (@userId) ->
+	logout: () -> @userId = -1;
+	getUserId: () -> @userId;
 
-module.exports = Client
+module.exports = Session;

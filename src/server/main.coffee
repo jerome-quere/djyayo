@@ -17,13 +17,22 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-
-Config = require('./Config.coffee')
+nconf = require('nconf');
 Application = require('./Application.coffee');
+Logger = require('./Logger.coffee');
+
+nconf.argv();
+nconf.file(nconf.get('config'))
+nconf.defaults({
+'httpPort': 4242,
+'spotifyPort': 4343
+'FacebookAppKey': "YOUR_FACEBOOK_APP_KEY",
+'FacebookSecretKey': "YOUR_FACEBOOK_SECRET"
+});
+
 
 main = (argc, argv) ->
-	config = new Config(argc, argv);
-	application = new Application(config);
+	application = new Application();
 	application.run();
 
 main(process.argv.length, process.argv)

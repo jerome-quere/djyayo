@@ -41,6 +41,28 @@ body
     top: 5px;
 }
 
+.login-with-facebook
+{
+    position: absolute;
+    right: 10px;
+    top: 5px;
+}
+
+.user-infos
+{
+    position: absolute;
+    right: 10px;
+    color: #bbb;
+    line-height: 14px;
+    display: inline;
+    margin-top: 5px;
+}
+
+.user-infos img
+{
+    height: 30px;
+}
+
 #wrap
 {
     min-height: 100%;

@@ -17,25 +17,29 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-
+nconf = require('nconf');
 EventEmitter = require('events').EventEmitter
 When = require('when');
 SpotifyCommandFactory = require('./SpotifyCommandFactory.coffee')
 SpotifyServer = require('./SpotifyServer.coffee');
 HttpClient = require('./HttpClient.coffee');
+Logger = require('./Logger.coffee')
 
 class SpotifyCommunicator extends EventEmitter
 
-	constructor: (@config) ->
-		@server = new SpotifyServer(@config.spotifyPort);
+	constructor: () ->
+		@spotifyPort = nconf.get('spotifyPort');
+		@server = new SpotifyServer(@spotifyPort);
 		@server.on('connection', @onConnection)
 		@server.on('disconnection', @onDisconnection)
 		@server.on('commandReceived', @onCommandReceived)
 
 	run: () ->
 		@server.run();
+		Logger.info("Spotify server listening on: #{@spotifyPort}");
 
 	getPlayerInfos: () -> {state: @server.isConnected()}
+	isConnected: () -> @server.isConnected();
 
 	search: (args, resolver) =>
 		p = HttpClient.get("http://ws.spotify.com/search/1/track.json?q=#{encodeURI(args.query)}");

@@ -17,21 +17,29 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
+nconf = require('nconf');
 EventEmitter = require('events').EventEmitter
 HttpServer = require('./HttpServer.coffee')
+Session = require('./Session.coffee');
 SpotifyCommunicator = require('./SpotifyCommunicator.coffee');
+Logger = require('./Logger.coffee');
 
 class HttpCommunicator extends EventEmitter
-	constructor: (@config) ->
-		@httpServer = new HttpServer(@config.httpPort);
+	constructor: () ->
+		@httpPort = nconf.get('httpPort')
+		@httpServer = new HttpServer(@httpPort);
 		@httpServer.on('request', @onHttpRequest)
+		@sessionData = {};
 
 	onHttpRequest: (clientId, request, response) =>
-		@emit('httpRequest', clientId, request, response)
+		if (!@sessionData[clientId]?)
+			@sessionData[clientId] = new Session();
+		@emit('httpRequest', @sessionData[clientId], request, response)
 
 	getNodeServer: () -> @httpServer.getNodeServer();
-
+	getClientIdFromSessionId: (sessionId) -> @httpServer.getClientIdFromSessionId(sessionId);
 	run: () ->
 		@httpServer.run();
+		Logger.info("HTTP Server listening on: #{@httpPort}");
 
 module.exports = HttpCommunicator;

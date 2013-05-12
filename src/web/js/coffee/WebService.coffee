@@ -22,5 +22,10 @@ class WebService
 		@q = $q
 		@http = $http
 
+	toJSON: (data, header) ->
+		if (data == 'null')
+			return (null)
+		return (JSON.parse(data));
+
 	query: (method, data) ->
-		return @http.post("#{@config.get('webservice.url')}/#{method}", data, {cache:false});
+		return @http.post("#{@config.get('webservice.url')}/#{method}", data, {cache:false, transformResponse: @toJSON});

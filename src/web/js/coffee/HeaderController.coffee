@@ -17,9 +17,18 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-class Config
-	constructor: (argc, argv) ->
-		@httpPort = 4242
-		@spotifyPort = 4343;
 
-module.exports = Config;
+class HeaderController
+	constructor: ($scope, @user, @facebook) ->
+		$scope.user = @user;
+		$scope.facebookLogin = @facebookLogin;
+		$scope.logout = @logout;
+
+	facebookLogin: () =>
+		promise = @facebook.login();
+		promise.then (token) =>
+			@user.loginWithFacebookToken(token);
+
+	logout: () => @user.logout();
+
+window.HeaderController = HeaderController;
