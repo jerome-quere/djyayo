@@ -33,7 +33,7 @@ class HttpResponse
 
 	enableCrossDomain: () =>
 		@headers['Access-Control-Allow-Origin'] = '*'
-		@headers['Access-Control-Request-Headers'] = 'origin, content-type, accept'
+		@headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
 
 	setCookie: (name, value) =>
 		if (@headers['Set-Cookie']?)

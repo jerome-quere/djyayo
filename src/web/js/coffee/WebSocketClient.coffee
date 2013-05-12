@@ -18,9 +18,9 @@
 ##
 
 class WebSocketClient
-	constructor: ($rootScope, @trackQueue, @player) ->
+	constructor: ($rootScope, @config, @trackQueue, @player) ->
 		@rootScope = $rootScope;
-		@socket = io.connect(document.location.hostname);
+		@socket = io.connect(@config.get('webservice.url'))
 		@socket.on('queueChanged', @onQueueChanged);
 		@socket.on('playerChanged', @onPlayerChanged);
 

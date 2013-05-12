@@ -22,8 +22,8 @@ class Config
 
 	constructor: () ->
 		@config = {}
-		@config['website'] = {url:""}
-		@config['webservice'] = {url:""}
+		@config['website'] = {url:document.location.hostname}
+		@config['webservice'] = {url:document.location.hostname}
 		@config['static'] = {}
 
 		@hostConfs = {};
