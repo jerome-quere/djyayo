@@ -47,9 +47,14 @@
         <a href="#">
 	  <span class="logo searchPanelTrigger">Spotify DJ</span>
 	</a>
-	<a ng-hide="user.isLog" class="login-with-facebook" href="#" ng-click="facebookLogin()">
-	  <img src="images/facebook_login.png" style="height:30px"/>
-	</a>
+	<span class="login-button">
+	  <a ng-hide="user.isLog" href="#" ng-click="facebookLogin()">
+	    <img src="images/facebook_login.png" style="height:30px"/>
+	  </a>
+	  <a ng-hide="user.isLog" href="#" ng-click="googleLogin()">
+	    <img src="images/google_login.png" style="height:30px"/>
+	  </a>
+	</span>
 	<table ng-show="user.isLog" class="user-infos">
 	  <tr>
 	    <td rowspan="2"><img ng-src="{{user.imgUrl}}"/></td>

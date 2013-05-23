@@ -19,15 +19,21 @@
 
 
 class HeaderController
-	constructor: ($scope, @user, @facebook) ->
+	constructor: ($scope, @user, @facebook, @google) ->
 		$scope.user = @user;
 		$scope.facebookLogin = @facebookLogin;
+		$scope.googleLogin = @googleLogin;
 		$scope.logout = @logout;
 
 	facebookLogin: () =>
 		promise = @facebook.login();
 		promise.then (token) =>
 			@user.loginWithFacebookToken(token);
+
+	googleLogin: () =>
+		promise = @google.login();
+		promise.then (token) =>
+			@user.loginWithGoogleToken(token);
 
 	logout: () => @user.logout();
 

@@ -17,8 +17,9 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-Facebook = require('./Facebook.coffee');
 When = require('when')
+HttpClient = require('./HttpClient.coffee');
+nconf = require('nconf');
 
 class User
 	constructor: () ->
@@ -27,16 +28,34 @@ class User
 		@imgUrl = '';
 
 	loadFromFacebook: (token) ->
-		defer = When.defer();
-		Facebook.setAccessToken(token).api '/me', (err, data) =>
-			if (err?)
-				defer.resolver.reject(err);
-				return
-			@id = data.id
-			@name = data.first_name;
-			@imgUrl = "http://graph.facebook.com/#{data.id}/picture";
-			defer.resolver.resolve(true);
-		return defer.promise
+		promise = HttpClient.get("https://graph.facebook.com/me?access_token=#{token}");
+		promise = promise.then (data) =>
+			data = JSON.parse(data)
+			if (data.id?)
+				@id = data.id
+				@name = data.first_name;
+				@imgUrl = "http://graph.facebook.com/#{data.id}/picture";
+				return (true);
+			else
+				throw "Error"
+		return promise
+
+
+	loadFromGoogle: (token) ->
+		promise = HttpClient.get("https://www.googleapis.com/plus/v1/people/me?key=#{nconf.get('googleClientId')}&access_token=#{token}");
+		promise = promise.then((data) =>
+			data = JSON.parse(data)
+			if data.id?
+				@id = data.id
+				@imgUrl = data.image.url
+				@name = data.name.givenName
+				return true;
+			else
+				throw "Error"
+
+		)
+		return promise
+
 
 	getData: () -> {id: @id, name: @name, imgUrl: @imgUrl};
 

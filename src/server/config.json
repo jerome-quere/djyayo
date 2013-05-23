@@ -1,6 +1,5 @@
 {
-    "httpPort": 4242,
-    "spotifyPort": 4343,
-    "FacebookAppKey": "YOUR_FACEBOOK_APP_KEY",
-    "FacebookSecretKey": "YOUR_FACEBOOK_SECRET"
+  "httpPort": 4242,
+  "spotifyPort": 4342,
+  "googleClientId": "YOUR_GOOGLE_CLIENT_ID"
 }

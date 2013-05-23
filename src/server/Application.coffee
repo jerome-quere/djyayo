@@ -75,9 +75,12 @@ class Application
 
 	onLoginRequest: (session, request, response) =>
 		data = request.getData();
-		if (data? and data.method? and data.method == "facebook")
+		if (data? and data.method? and (data.method == "facebook" or data.method == "google"))
 			user = new User();
-			promise = user.loadFromFacebook(data.token);
+			if (data.method == "facebook")
+				promise = user.loadFromFacebook(data.token);
+			else
+				promise = user.loadFromGoogle(data.token);
 			promise.then () =>
 				@users[user.id] = user;
 				session.login(user.id);

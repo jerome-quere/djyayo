@@ -22,14 +22,11 @@ Application = require('./Application.coffee');
 Logger = require('./Logger.coffee');
 
 nconf.argv();
-nconf.file(nconf.get('config'))
+nconf.file({file: nconf.get('config')})
 nconf.defaults({
 'httpPort': 4242,
 'spotifyPort': 4343
-'FacebookAppKey': "YOUR_FACEBOOK_APP_KEY",
-'FacebookSecretKey': "YOUR_FACEBOOK_SECRET"
 });
-
 
 main = (argc, argv) ->
 	application = new Application();

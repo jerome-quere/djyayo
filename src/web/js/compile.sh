@@ -4,6 +4,7 @@ FILES="coffee/Album.coffee			\
        coffee/Artist.coffee			\
        coffee/Config.coffee			\
        coffee/Facebook.coffee			\
+       coffee/Google.coffee			\
        coffee/HeaderController.coffee		\
        coffee/HomeController.coffee		\
        coffee/main.coffee			\

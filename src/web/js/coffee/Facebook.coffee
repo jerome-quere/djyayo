@@ -55,7 +55,7 @@ class Facebook
 
 	onFacebookSDKLoaded: () =>
 		conf = {};
-		conf['appId'] = '114968378707310';
+		conf['appId'] = @config.get('facebook.appId')
 		conf['channelUrl'] = "#{@config.get('website.url')}/channel.html";
 		conf['status'] = true;
 		conf['cookie'] = true;

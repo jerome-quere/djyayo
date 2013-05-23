@@ -29,6 +29,11 @@ class User extends EventEmitter
 			@_update(httpRes.data);
 			@emitEvent('queueRefresh');
 
+	loginWithGoogleToken: (token) =>
+		@webService.query('login', {method:"google", token:token}).then (httpRes) =>
+			@_update(httpRes.data);
+			@emitEvent('queueRefresh');
+
 	logout: () ->
 		@webService.query('logout').then (httpRes) =>
 			@_update(httpRes.data);

@@ -24,6 +24,8 @@ class Config
 		@config = {}
 		@config['website'] = {url:document.location.hostname}
 		@config['webservice'] = {url:document.location.hostname}
+		@config['facebook'] = {appId: '114968378707310'}
+		@config['google'] = {clientId: "452000358943.apps.googleusercontent.com"}
 		@config['static'] = {}
 
 		@hostConfs = {};

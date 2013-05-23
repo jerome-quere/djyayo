@@ -18,12 +18,16 @@
 ##
 
 http = require('http');
+https = require('https');
 When =require('when')
 
 class HttpClient
 	@get: (url) ->
 		defer = When.defer()
-		get = http.get url, (res) =>
+		tool = http;
+		if (url.indexOf("https") == 0)
+			tool = https;
+		get = tool.get url, (res) =>
 			data = ''
 			resolver = defer.resolver
 			if (res.statusCode != 200)

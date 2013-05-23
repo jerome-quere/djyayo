@@ -30,6 +30,7 @@ spotifyDj.factory 'webService', ($http, $q, config) -> new WebService($http, $q,
 spotifyDj.factory 'spotify', ($cacheFactory, $q, webService) -> new Spotify($cacheFactory, $q, webService)
 spotifyDj.factory 'user', (webService) -> new User(webService)
 spotifyDj.factory 'facebook', ($rootScope, $q, config) -> new Facebook($rootScope, $q, config)
+spotifyDj.factory 'google', ($rootScope, $q, config) -> new Google($rootScope, $q, config)
 spotifyDj.factory 'trackQueue', (webService, spotify, user, $timeout) -> new TrackQueue(webService, spotify, user, $timeout)
 spotifyDj.factory 'player', (webService) -> new Player(webService)
 spotifyDj.factory 'webSocketClient', ($rootScope, config, trackQueue, player) -> new WebSocketClient($rootScope, config, trackQueue, player)
