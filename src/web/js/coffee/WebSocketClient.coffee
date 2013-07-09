@@ -21,8 +21,15 @@ class WebSocketClient
 	constructor: ($rootScope, @config, @trackQueue, @player) ->
 		@rootScope = $rootScope;
 		@socket = io.connect(@config.get('webservice.url'))
-		@socket.on('queueChanged', @onQueueChanged);
-		@socket.on('playerChanged', @onPlayerChanged);
+		@socket.on('command', @onCommand);
+
+	onCommand: (command) =>
+		console.log(command);
+		actions = {};
+		actions['queueChanged'] = @onQueueChanged;
+		actions['playerChanged'] = @onPlayerChanged;
+		if (actions[command.name]?)
+			actions[command.name]()
 
 	onQueueChanged: () => @rootScope.$apply(() => @trackQueue.refresh());
 	onPlayerChanged: () => @rootScope.$apply(() => @player.refresh());

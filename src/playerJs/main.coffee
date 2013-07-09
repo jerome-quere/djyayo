@@ -17,26 +17,10 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-Command = require('./Command.coffee');
-EventEmitter = require("events").EventEmitter
-WebSocketServer = require('./WebSocketServer.coffee');
+Application = require('./Application.coffee');
 
-class WebSocketCommunicator extends EventEmitter
+main = () ->
+	application = new Application()
+	application.run()
 
-	constructor: (httpServer) ->
-		@server = new WebSocketServer(httpServer);
-		@server.on('connect', @onConnect);
-
-	queueChanged: () =>
-		@server.broadcast(new Command('queueChanged'))
-
-	playerChanged: () =>
-		@server.broadcast(new Command('playerChanged'))
-
-	onConnect: (client) =>
-		client.on("command", (command) => @onCommand(client, command))
-
-	onCommand: (client, command) =>
-		@emit('command', client, command);
-
-module.exports = WebSocketCommunicator
+main()

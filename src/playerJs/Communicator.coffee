@@ -17,26 +17,27 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
+Config = require('./Config.coffee');
 Command = require('./Command.coffee');
-EventEmitter = require("events").EventEmitter
-WebSocketServer = require('./WebSocketServer.coffee');
+EventEmitter = require('events').EventEmitter
+io = require('socket.io-client');
 
-class WebSocketCommunicator extends EventEmitter
+class Communicator extends EventEmitter
+	constructor: () ->
+		@socket = null
 
-	constructor: (httpServer) ->
-		@server = new WebSocketServer(httpServer);
-		@server.on('connect', @onConnect);
+	run: () ->
+		@socket = io.connect(Config.get('host'), {port: Config.get('port')})
+		@socket.on('connect', @onConnect)
+		@socket.on('command', @onCommand)
 
-	queueChanged: () =>
-		@server.broadcast(new Command('queueChanged'))
+	endOfTrack: () ->
+		@socket.emit('command', new Command('endOfTrack'));
 
-	playerChanged: () =>
-		@server.broadcast(new Command('playerChanged'))
+	onConnect: () =>
+		console.log("Connected");
+		@socket.emit("command", new Command("iamaplayer"));
 
-	onConnect: (client) =>
-		client.on("command", (command) => @onCommand(client, command))
+	onCommand: (command) => @emit('command', new Command(command.name, command.args))
 
-	onCommand: (client, command) =>
-		@emit('command', client, command);
-
-module.exports = WebSocketCommunicator
+module.exports = Communicator

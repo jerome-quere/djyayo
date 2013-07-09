@@ -40,6 +40,8 @@ class TrackQueue
 		else
 			@currentTrack = null;
 
+		console.log(this);
+
 		@user.updateFromTrackQueue(response.queue)
 		@queue = [];
 		for track in response.queue

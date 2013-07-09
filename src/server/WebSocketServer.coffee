@@ -18,34 +18,37 @@
 ##
 
 io = require('socket.io')
+EventEmitter = require('events').EventEmitter
 IdGenerator = require('./IdGenerator.coffee');
 WebSocketClient = require('./WebSocketClient.coffee');
 
-class WebSocketServer
+class WebSocketServer extends EventEmitter
 
 	constructor: (httpServer) ->
 		@io = io.listen(httpServer, {"log level":2});
 		@io.on('connection', @onConnection);
 		@idGenerator = new IdGenerator();
-		@clients = [];
+		@clients = {};
 
 	onConnection: (socket) =>
 		id = @idGenerator.next();
 		client = new WebSocketClient(id, socket)
-		@clients.push(client);
-		socket.on('disconnect', () => @onDisconnect(id))
+		@clients[id] = client;
+		client.on('disconnect', () => @onDisconnect(client))
+		client.on('cmd', (data) => @onCommand(client, data))
+		@emit('connect', client)
 
-	onDisconnect: (id) =>
-		i = 0;
-		while (i < @clients.length)
-			if (@clients[i].getId() == id)
-				@clients.splice(i, 1);
-				break;
-			i++
+	onCommand: (client, data) =>
+		@emit('cmd', client, data)
 
-	broadcast: (eventName) =>
-		for client in @clients
-			client.send(eventName)
+	onDisconnect: (client) =>
+		delete @clients[client.getId()]
+		@emit('disconnect', client);
+
+	broadcast: (command) ->
+		for id, client of @clients
+			client.send(command)
+			console.log("I SEND", command, " to ", client.getId());
 
 
 module.exports = WebSocketServer;

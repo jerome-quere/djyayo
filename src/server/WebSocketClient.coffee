@@ -17,11 +17,23 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-class WebSocketClient
+Command = require('./Command.coffee');
+EventEmitter = require("events").EventEmitter
+
+class WebSocketClient extends EventEmitter
+
 	constructor: (@id, @socket) ->
+		@socket.on('disconnect', @onDisconnect);
+		@socket.on('command', @onCommand);
 
 	getId: () -> @id
-	send: (eventName) ->
-		@socket.emit(eventName);
+	send: (command) ->
+		@socket.emit('command', command.toObj());
+
+	onDisconnect: () =>
+		@emit('disconnect')
+
+	onCommand: (data) =>
+		@emit('command', new Command(data.name, data.args))
 
 module.exports = WebSocketClient;

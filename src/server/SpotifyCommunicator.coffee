@@ -18,28 +18,24 @@
 ##
 
 nconf = require('nconf');
+Command = require('./Command.coffee');
 EventEmitter = require('events').EventEmitter
 When = require('when');
 SpotifyCommandFactory = require('./SpotifyCommandFactory.coffee')
-SpotifyServer = require('./SpotifyServer.coffee');
 HttpClient = require('./HttpClient.coffee');
 Logger = require('./Logger.coffee')
 
 class SpotifyCommunicator extends EventEmitter
 
 	constructor: () ->
-		@spotifyPort = nconf.get('spotifyPort');
-		@server = new SpotifyServer(@spotifyPort);
-		@server.on('connection', @onConnection)
-		@server.on('disconnection', @onDisconnection)
-		@server.on('commandReceived', @onCommandReceived)
+		@player = null
 
-	run: () ->
-		@server.run();
-		Logger.info("Spotify server listening on: #{@spotifyPort}");
+	setPlayer: (@player) ->
+		@player.on('disconnect', @onDisconnect)
+		@player.on('endOfTrack', @onEndOfTrack)
+		@playerChanged()
 
-	getPlayerInfos: () -> {state: @server.isConnected()}
-	isConnected: () -> @server.isConnected();
+	getPlayerInfos: () -> {state: @player?}
 
 	search: (args, resolver) =>
 		p = HttpClient.get("http://ws.spotify.com/search/1/track.json?q=#{encodeURI(args.query)}");
@@ -49,7 +45,7 @@ class SpotifyCommunicator extends EventEmitter
 		p.otherwise (error) ->
 			resolver.reject(error);
 
-	play: (args, resolver) => @server.send("play #{args.uri}\n");
+	play: (args, resolver) => @player.play(args.uri);
 
 	lookup: (args, resolver) =>
 		console.log("http://ws.spotify.com/lookup/1/.json?uri=#{encodeURI(args.uri)}");
@@ -68,8 +64,8 @@ class SpotifyCommunicator extends EventEmitter
 		actions['lookup'] = @lookup
 		actions['play'] = @play
 		deferer = When.defer()
-		if actions[cmd.cmd]?
-			actions[cmd.cmd](cmd.args, deferer.resolver);
+		if actions[cmd.getName()]?
+			actions[cmd.getName()](cmd.getArgs(), deferer.resolver);
 		else
 			deferer.resolver.reject("Command Not found #{cmd.cmd}");
 		return (deferer.promise);
@@ -90,8 +86,12 @@ class SpotifyCommunicator extends EventEmitter
 
 	buildLookupResut: (spRes) -> return (spRes.track);
 
-	onConnection: () => @emit('playerChanged');
-	onDisconnection: () => @emit('playerChanged');
-	onCommandReceived: (cmd) => @emit('commandReceived', cmd)
+	playerChanged: () -> @emit('command',  new Command('playerChanged'))
+
+	onDisconnect: () =>
+		@player = null;
+		@playerChanged()
+
+	onEndOfTrack: () => @emit('command', new Command('endOfTrack'))
 
 module.exports = SpotifyCommunicator;

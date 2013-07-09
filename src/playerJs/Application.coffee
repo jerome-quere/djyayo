@@ -17,12 +17,34 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-Command = require("./Command.coffee")
+Communicator = require("./Communicator.coffee");
+Config = require('./Config.coffee')
+Player = require('./Player.coffee');
 
-class SpotifyCommandFactory
+class Application
+	constructor: () ->
+		@com = new Communicator()
+		@player = new Player();
+		@player.on('endOfTrack', @onEndOfTrack);
+		@com.on('command', @onCommand);
 
-	@search: (query)-> new Command("search", {query: query})
-	@play: (uri)	-> new Command("play", {uri: uri})
-	@lookup: (uri)	-> new Command("lookup", {uri: uri})
+	run: () ->
+		p = @player.connect(Config.get('login'), Config.get('password'))
+		p.then () =>
+			@com.run()
+		p.then null, (err) =>
+			console.log(err)
 
-module.exports = SpotifyCommandFactory;
+	onPlayCommand: (args) =>
+		@player.play(args.uri);
+
+	onEndOfTrack: () => @com.endOfTrack();
+
+	onCommand: (command) =>
+		actions = {}
+		actions['play'] = @onPlayCommand;
+		if (actions[command.getName()]?)
+			actions[command.getName()](command.getArgs());
+
+
+module.exports = Application

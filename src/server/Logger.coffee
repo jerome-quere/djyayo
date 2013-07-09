@@ -25,16 +25,16 @@ class Logger
 		str = "DEBUG  #{@_getDate()} - #{@_getStr(args)}"
 		console.log(str);
 
-	info: (args...) ->
-		str = "INFO   #{@_getDate()} - #{@_getStr(args)}"
-		console.log(str);
-
 	warn: (args...) ->
 		str = "WARN   #{@_getDate()} - #{@_getStr(args)}"
 		console.log(str);
 
 	error: (args...) ->
 		str = "ERROR  #{@_getDate()} - #{@_getStr(args)}"
+		console.log(str);
+
+	info: (args...) ->
+		str = "INFO   #{@_getDate()} - #{@_getStr(args)}"
 		console.log(str);
 
 	_getDate: () ->

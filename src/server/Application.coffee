@@ -28,6 +28,7 @@ TrackQueue = require('./TrackQueue.coffee')
 Model = require('./Model.coffee')
 WebSocketCommunicator = require('./WebSocketCommunicator.coffee');
 Logger = require('./Logger.coffee');
+SpotifyPlayer = require('./SpotifyPlayer.coffee');
 
 class Application
 
@@ -36,8 +37,8 @@ class Application
 		@spotifyCom = new SpotifyCommunicator();
 		@webSockCom = new WebSocketCommunicator(@httpCom.getNodeServer())
 		@httpCom.on('httpRequest', @onHttpRequest);
-		@spotifyCom.on('commandReceived', @onSpotifyCommand)
-		@spotifyCom.on('playerChanged', @onSpotifyPlayerChanged)
+		@spotifyCom.on('command', @onSpotifyCommand)
+		@webSockCom.on('command', @onWebSocketCommand);
 		@users = {}
 		@trackQueue = new TrackQueue(this);
 		@currentTrack = null;
@@ -61,7 +62,7 @@ class Application
 		actions.push({pattern: "^/track/[0-9a-zA-Z:]+$", action: @onTrackRequest});
 		actions.push({pattern: "", action: @onStaticRequest});
 		url = request.getUrl()
-		Logger.debug("HTTP: #{url}", request.getData());
+		Logger.debug("HTTP: #{url}", " #{JSON.stringify(request.getData())}");
 		for action in actions
 			regex = new RegExp("#{action.pattern}");
 			if (regex.test(url))
@@ -114,7 +115,7 @@ class Application
 	onVoteRequest: (session, request, response) =>
 		if (session.isLog())
 			@trackQueue.vote(session.getUserId(), request.getData().uri)
-			if (@currentTrack == null && @spotifyCom.isConnected())
+			if (@currentTrack == null && @spotifyCom.getPlayerInfos().state)
 				@playNextTrack()
 			@webSockCom.queueChanged()
 		@onQueueRequest(session, request, response)
@@ -163,28 +164,35 @@ class Application
 	playNextTrack: () ->
 		if (@currentTrack != null)
 			@currentTrack = null;
-		if (@trackQueue.empty())
-			return;
-		@currentTrack = @trackQueue.pop();
+		if (!@trackQueue.empty())
+			@currentTrack = @trackQueue.pop();
+			p = @spotifyCom.exec SpotifyCommandFactory.play(@currentTrack.getUri())
+			p.otherwise () => @playNextTrack()
 		@webSockCom.queueChanged()
-		p = @spotifyCom.exec SpotifyCommandFactory.play(@currentTrack.getUri())
-		p.otherwise () => @playNextTrack()
 
 	onSpotifyCommand: (command) =>
-		console.log("Spotify Command : #{command}");
-		@onEndOfTrack();
+		console.log("Spotify Command :", command);
+		if (command.getName() == "endOfTrack")
+			@onEndOfTrack();
+		if (command.getName() == "playerChanged")
+			@onSpotifyPlayerChanged()
 
 	onSpotifyPlayerChanged: () =>
-		if (@currentTrack != null && !@spotifyCom.isConnected())
+		if (@currentTrack != null && !@spotifyCom.getPlayerInfos().state)
 			@currentTrack = null;
 			@webSockCom.queueChanged()
-		if (@currentTrack == null && @spotifyCom.isConnected())
+		if (@currentTrack == null && @spotifyCom.getPlayerInfos().state)
 			@playNextTrack();
 		@webSockCom.playerChanged()
 
+	onIAmAPlayerCommand: (client) =>
+		@spotifyCom.setPlayer(new SpotifyPlayer(client));
+
+	onWebSocketCommand: (client, command) =>
+		if (command.getName() == "iamaplayer")
+			@onIAmAPlayerCommand(client)
 
 	run : () ->
 		@httpCom.run()
-		@spotifyCom.run()
 
 module.exports = Application;
