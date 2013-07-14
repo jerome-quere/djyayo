@@ -42,7 +42,7 @@ handleFileRequest = (request, response) ->
 	fs.readFile path, (err, data) ->
 		if (err)
 			response.setCode(404)
-			response.end()
+			response.end(JSON.stringify({code:404, message: "Not Found", data: null}))
 		else
 			response.enableCache();
 			response.setMIME(getMIME(path))

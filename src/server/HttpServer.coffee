@@ -39,7 +39,8 @@ class HttpServer extends EventEmitter
 	onRequestComplete: (request, response) =>
 		client = @getClientFromRequest(request);
 		response.setCookie("sessionId", client.sessionId);
-		@emit('request', client.id, request, response)
+		request.setClientId(client.sessionId)
+		@emit('request', request, response)
 
 	getClientFromRequest: (request) =>
 		cookies = request.getCookies()
@@ -67,6 +68,7 @@ class HttpServer extends EventEmitter
 		return (-1);
 
 	getNodeServer: () -> @server;
+	getPort: () -> return @port;
 
 	run: () ->
 		@server.listen(@port);

@@ -17,27 +17,15 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-Config = require('./Config.coffee');
-Command = require('./Command.coffee');
-EventEmitter = require('events').EventEmitter
-io = require('socket.io-client');
+class LocationManager
+	constructor: (@$scope, @$location, @user) ->
+		@$scope.user = @user;
+		@user.refresh().then () =>
+			@onUserChange()
+			@$scope.$watch('user.isLog', @onUserChange);
 
-class Communicator extends EventEmitter
-	constructor: () ->
-		@socket = null
-
-	run: () ->
-		@socket = io.connect(Config.get('host'), {port: Config.get('port')})
-		@socket.on('connect', @onConnect)
-		@socket.on('command', @onCommand)
-
-	endOfTrack: () ->
-		@socket.emit('command', new Command('endOfTrack'));
-
-	onConnect: () =>
-		console.log("Connected");
-		@socket.emit("command", new Command("iamaplayer"));
-
-	onCommand: (command) => @emit('command', new Command(command.name, command.args))
-
-module.exports = Communicator
+	onUserChange: () =>
+		if (@user.isLog and @$location.path() == '/login')
+			@$location.path('/roomSelect');
+		if (@user.isLog == false)
+			@$location.path('/login');

@@ -17,35 +17,17 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-SpotifyCommandFactory = require("./SpotifyCommandFactory.coffee");
+class LoginController
+	constructor: (@$scope, @user, @facebook, @google) ->
+		@$scope.facebookLogin = @facebookLogin;
+		@$scope.googleLogin = @googleLogin;
 
+	facebookLogin: () =>
+		promise = @facebook.login();
+		promise.then (token) =>
+			@user.loginWithFacebookToken(token);
 
-class TrackQueueElement
-
-	constructor: (@trackUri) ->
-		@clients = []
-
-	vote: (clientId) ->
-		if (@clients.indexOf(clientId) == -1)
-			@clients.push(clientId)
-
-	unvote: (clientId) =>
-		if ((idx = @clients.indexOf(clientId)) != -1)
-			@clients.splice(idx, 1);
-
-	getUri: () -> @trackUri
-
-	getNbVotes: () -> @clients.length
-
-	getVotes: () ->
-		res = []
-		for id in @clients
-			res.push({id:id});
-		return res
-
-	hasVote: (clientId) ->
-		return @clients.indexOf(clientId) != -1
-
-	getData: () -> {votes: @getVotes(), uri: @trackUri}
-
-module.exports = TrackQueueElement;
+	googleLogin: () =>
+		promise = @google.login();
+		promise.then (token) =>
+			@user.loginWithGoogleToken(token);

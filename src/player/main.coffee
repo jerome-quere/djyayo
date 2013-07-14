@@ -17,35 +17,14 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-SpotifyCommandFactory = require("./SpotifyCommandFactory.coffee");
+nconf = require('nconf');
+Application = require('./Application.coffee');
 
+nconf.argv();
+nconf.defaults({'host': 'localhost', 'port': 4242, 'login': 'YOUR_USER_NAME', 'password': 'YOUR_PASSWORD', 'room': 'defaultRoom'});
 
-class TrackQueueElement
+main = () ->
+	application = new Application()
+	application.run()
 
-	constructor: (@trackUri) ->
-		@clients = []
-
-	vote: (clientId) ->
-		if (@clients.indexOf(clientId) == -1)
-			@clients.push(clientId)
-
-	unvote: (clientId) =>
-		if ((idx = @clients.indexOf(clientId)) != -1)
-			@clients.splice(idx, 1);
-
-	getUri: () -> @trackUri
-
-	getNbVotes: () -> @clients.length
-
-	getVotes: () ->
-		res = []
-		for id in @clients
-			res.push({id:id});
-		return res
-
-	hasVote: (clientId) ->
-		return @clients.indexOf(clientId) != -1
-
-	getData: () -> {votes: @getVotes(), uri: @trackUri}
-
-module.exports = TrackQueueElement;
+main()

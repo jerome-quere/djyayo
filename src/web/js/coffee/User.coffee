@@ -19,19 +19,21 @@
 
 class User extends EventEmitter
 
-	constructor: (@webService) ->
+	constructor: (@webService, @$location) ->
 		super;
 		@_clear();
 		@refresh();
 
+	getId: () -> @id;
+
 	loginWithFacebookToken: (token) =>
-		@webService.query('login', {method:"facebook", token:token}).then (httpRes) =>
-			@_update(httpRes.data);
+		@webService.query('login', {method:"facebook", token:token}).then (data) =>
+			@_update(data);
 			@emitEvent('queueRefresh');
 
 	loginWithGoogleToken: (token) =>
-		@webService.query('login', {method:"google", token:token}).then (httpRes) =>
-			@_update(httpRes.data);
+		@webService.query('login', {method:"google", token:token}).then (data) =>
+			@_update(data);
 			@emitEvent('queueRefresh');
 
 	logout: () ->
@@ -40,26 +42,9 @@ class User extends EventEmitter
 			@emitEvent('queueRefresh');
 
 	refresh: () =>
-		@webService.query('me').then (httpRes) =>
-			@_update(httpRes.data);
-
-	vote: (uri) ->
-		@webService.query('vote', {uri: uri}).then (httpRes) =>
-			@emitEvent('queueChanged', [httpRes.data]);
-
-	unvote: (uri) ->
-		@webService.query('unvote', {uri: uri}).then (httpRes) =>
-			@emitEvent('queueChanged', [httpRes.data]);
-
-	updateFromTrackQueue: (queue) =>
-		@votes = [];
-		for track in queue
-			for user in track.votes
-				if user.id == @id
-					@votes.push(track.uri)
-
-	haveMyVote: (uri) ->
-		return @votes.indexOf(uri) != -1;
+		p = @webService.query('me').then (data) =>
+			@_update(data);
+		return p;
 
 	_clear: () ->
 		@id = -1

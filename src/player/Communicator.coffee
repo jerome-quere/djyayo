@@ -17,35 +17,27 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-SpotifyCommandFactory = require("./SpotifyCommandFactory.coffee");
+Config = require('./Config.coffee');
+Command = require('./Command.coffee');
+EventEmitter = require('events').EventEmitter
+io = require('socket.io-client');
 
+class Communicator extends EventEmitter
+	constructor: () ->
+		@socket = null
 
-class TrackQueueElement
+	run: () ->
+		@socket = io.connect(Config.get('host'), {port: Config.get('port')})
+		@socket.on('connect', @onConnect)
+		@socket.on('command', @onCommand)
 
-	constructor: (@trackUri) ->
-		@clients = []
+	endOfTrack: () ->
+		@socket.emit('command', new Command('endOfTrack'));
 
-	vote: (clientId) ->
-		if (@clients.indexOf(clientId) == -1)
-			@clients.push(clientId)
+	onConnect: () =>
+		console.log("Connected");
+		@socket.emit("command", new Command("iamaplayer", {room:Config.get('room')}));
 
-	unvote: (clientId) =>
-		if ((idx = @clients.indexOf(clientId)) != -1)
-			@clients.splice(idx, 1);
+	onCommand: (command) => @emit('command', new Command(command.name, command.args))
 
-	getUri: () -> @trackUri
-
-	getNbVotes: () -> @clients.length
-
-	getVotes: () ->
-		res = []
-		for id in @clients
-			res.push({id:id});
-		return res
-
-	hasVote: (clientId) ->
-		return @clients.indexOf(clientId) != -1
-
-	getData: () -> {votes: @getVotes(), uri: @trackUri}
-
-module.exports = TrackQueueElement;
+module.exports = Communicator

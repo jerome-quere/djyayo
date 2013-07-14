@@ -22,11 +22,7 @@ Application = require('./Application.coffee');
 Logger = require('./Logger.coffee');
 
 nconf.argv();
-nconf.file({file: nconf.get('config')})
-nconf.defaults({
-'httpPort': 4242,
-'spotifyPort': 4343
-});
+nconf.defaults({'httpPort': 4242});
 
 main = (argc, argv) ->
 	application = new Application();

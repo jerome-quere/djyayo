@@ -17,11 +17,8 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-nconf = require('nconf');
-Command = require('./Command.coffee');
 EventEmitter = require('events').EventEmitter
 When = require('when');
-SpotifyCommandFactory = require('./SpotifyCommandFactory.coffee')
 HttpClient = require('./HttpClient.coffee');
 Logger = require('./Logger.coffee')
 
@@ -30,13 +27,6 @@ class SpotifyCommunicator extends EventEmitter
 	constructor: () ->
 		@player = null
 
-	setPlayer: (@player) ->
-		@player.on('disconnect', @onDisconnect)
-		@player.on('endOfTrack', @onEndOfTrack)
-		@playerChanged()
-
-	getPlayerInfos: () -> {state: @player?}
-
 	search: (args, resolver) =>
 		p = HttpClient.get("http://ws.spotify.com/search/1/track.json?q=#{encodeURI(args.query)}");
 		p.then (data) =>
@@ -44,8 +34,6 @@ class SpotifyCommunicator extends EventEmitter
 			resolver.resolve(@buildSearchResult(data));
 		p.otherwise (error) ->
 			resolver.reject(error);
-
-	play: (args, resolver) => @player.play(args.uri);
 
 	lookup: (args, resolver) =>
 		console.log("http://ws.spotify.com/lookup/1/.json?uri=#{encodeURI(args.uri)}");
@@ -57,18 +45,6 @@ class SpotifyCommunicator extends EventEmitter
 		p.otherwise (error) ->
 			console.log("ERROR #{error}");
 			resolver.reject(error);
-
-	exec: (cmd) ->
-		actions = {};
-		actions['search'] = @search
-		actions['lookup'] = @lookup
-		actions['play'] = @play
-		deferer = When.defer()
-		if actions[cmd.getName()]?
-			actions[cmd.getName()](cmd.getArgs(), deferer.resolver);
-		else
-			deferer.resolver.reject("Command Not found #{cmd.cmd}");
-		return (deferer.promise);
 
 	buildSearchResult: (spRes) =>
 		res = {};
@@ -86,12 +62,5 @@ class SpotifyCommunicator extends EventEmitter
 
 	buildLookupResut: (spRes) -> return (spRes.track);
 
-	playerChanged: () -> @emit('command',  new Command('playerChanged'))
-
-	onDisconnect: () =>
-		@player = null;
-		@playerChanged()
-
-	onEndOfTrack: () => @emit('command', new Command('endOfTrack'))
 
 module.exports = SpotifyCommunicator;

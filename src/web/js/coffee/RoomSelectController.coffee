@@ -17,24 +17,16 @@
 # along with SpotifyDj.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-Command = require("./Command.coffee")
-EventEmitter = require("events").EventEmitter
+class RoomSelectController
+	constructor: (@$scope, @$location, @webService) ->
+		@$scope.roomName = "";
+		@$scope.error = false;
+		@$scope.selectRoom = @onSelectRoom
 
-class SpotifyPlayer extends EventEmitter
-	constructor: (@client) ->
-		@client.on('disconnect', @onDisconnect)
-		@client.on('command', @onCommand)
-
-	play: (uri) =>
-		@client.send(new Command('play', {uri:uri}))
-
-	getId: () -> @client.getId()
-
-	onCommand: (command) =>
-		if (command.getName() == "endOfTrack")
-			@emit('endOfTrack');
-
-	onDisconnect: () =>
-		@emit('disconnect')
-
-module.exports = SpotifyPlayer
+	onSelectRoom: () =>
+		roomName = @$scope.roomName;
+		promise = @webService.query "room/#{roomName}"
+		promise.then (data) =>
+			@$location.path("/room/#{data.name}");
+		promise.then null, (data) =>
+			@$scope.error = true

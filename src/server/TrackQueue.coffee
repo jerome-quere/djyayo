@@ -18,11 +18,10 @@
 ##
 
 TrackQueueElement = require('./TrackQueueElement.coffee');
-jstd = require('./jstd.js');
 
 class TrackQueue
 
-	constructor: (@app) ->
+	constructor: () ->
 		@tracks = []
 
 	empty: () ->
@@ -49,12 +48,11 @@ class TrackQueue
 			if (@tracks[idx].getNbVotes() == 0)
 				@tracks.splice(idx, 1);
 
-
 	getNext: () ->
 		@tracks.sort((a, b) -> a.getNbVotes() - b.getNbVotes())
 		return (@track.pop())
 
-	getQueue: () ->
+	getData: () ->
 		queue = []
 		@_sort()
 		for elem in @tracks

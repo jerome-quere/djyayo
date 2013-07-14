@@ -19,9 +19,13 @@
 
 class HttpRequest extends require('events').EventEmitter
 	constructor: (@request, @response) ->
+		@clientId = -1;
 		@data = "";
 		@request.on('data', @onData);
 		@request.on('end', @onEnd);
+
+	setClientId: (@clientId) -> this
+	getClientId: () -> @clientId
 
 	getUrl: () => @request.url
 
@@ -42,7 +46,10 @@ class HttpRequest extends require('events').EventEmitter
 
 	onEnd: () =>
 		if (@data != "")
-			@data = JSON.parse(@data);
+			try
+				@data = JSON.parse(@data);
+			catch e
+				@data = null
 		else
 			@data = null;
 		@emit('requestComplete', this, @response);

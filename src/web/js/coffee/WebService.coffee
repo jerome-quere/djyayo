@@ -22,10 +22,10 @@ class WebService
 		@q = $q
 		@http = $http
 
-	toJSON: (data, header) ->
-		if (data == 'null')
-			return (null)
-		return (JSON.parse(data));
 
 	query: (method, data) ->
-		return @http.post("#{@config.get('webservice.url')}/#{method}", data, {cache:false, transformResponse: @toJSON, withCredentials: true});
+		return @http.post("#{@config.get('webservice.url')}/#{method}", data, {cache:false, twithCredentials: true}).then (httpRes) ->
+			if (httpRes.data.code == 200)
+				return httpRes.data.data
+			else
+				throw httpRes.data.message

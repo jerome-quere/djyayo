@@ -43,9 +43,15 @@ body
 
 .login-button
 {
-    position: absolute;
-    right: 10px;
-    top: 5px;
+    text-align: center;
+}
+
+.login-button img
+{
+    width: 70%;
+    max-width: 450px;
+    margin-bottom: 20px;
+    cursor: pointer;
 }
 
 .user-infos
@@ -277,4 +283,10 @@ footer
     min-height: 1.4em;
     line-height: 1.4em;
     font-size: 16px;
+}
+
+.alert
+{
+    max-width: 90%;
+    margin:auto;
 }

@@ -6,11 +6,14 @@ FILES="coffee/Album.coffee			\
        coffee/Facebook.coffee			\
        coffee/Google.coffee			\
        coffee/HeaderController.coffee		\
-       coffee/HomeController.coffee		\
+       coffee/LocationManager.coffee		\
+       coffee/LoginController.coffee		\
        coffee/main.coffee			\
        coffee/Model.coffee			\
        coffee/Panel.coffee			\
        coffee/Player.coffee			\
+       coffee/RoomController.coffee		\
+       coffee/RoomSelectController.coffee	\
        coffee/SearchPanelController.coffee	\
        coffee/Spotify.coffee			\
        coffee/Track.coffee			\

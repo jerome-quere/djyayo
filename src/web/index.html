@@ -44,17 +44,6 @@
 	<a ng-show="user.isLog" class="search-ico" herf="" onclick="$('#panel_search').data('panel').show();">
 	  <img width="30px" src="images/search.png" />
 	</a>
-        <a href="#">
-	  <span class="logo searchPanelTrigger">Spotify DJ</span>
-	</a>
-	<span class="login-button">
-	  <a ng-hide="user.isLog" href="#" ng-click="facebookLogin()">
-	    <img src="images/facebook_login.png" style="height:30px"/>
-	  </a>
-	  <a ng-hide="user.isLog" href="#" ng-click="googleLogin()">
-	    <img src="images/google_login.png" style="height:30px"/>
-	  </a>
-	</span>
 	<table ng-show="user.isLog" class="user-infos">
 	  <tr>
 	    <td rowspan="2"><img ng-src="{{user.imgUrl}}"/></td>
@@ -68,11 +57,6 @@
       <div ng-view></div>
       <div id="push"></div>
     </div>
-    <footer>
-      <div style="text-align: center;line-height: 42px; color: #fff">
-        By Yayo
-      </div>
-    </footer>
     <div id="fb-root"></div>
   </body>
 </html>

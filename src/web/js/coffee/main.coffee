@@ -19,22 +19,24 @@
 
 spotifyDj = angular.module('spotifyDj', [])
 
-spotifyDj.config ['$routeProvider', ($routeProvider) ->
-	$routeProvider.when('/home', {templateUrl:"./pages/home.html", controller: HomeController})
-	$routeProvider.otherwise({redirectTo: '/home'});
-]
+
+spotifyDj.config ($routeProvider) ->
+	$routeProvider.when('/login', {templateUrl:"./pages/login.html", controller: LoginController})
+	$routeProvider.when('/roomSelect', {templateUrl:"./pages/roomSelect.html", controller: RoomSelectController})
+	$routeProvider.when('/room/:room', {templateUrl:"./pages/room.html", controller: RoomController})
+	$routeProvider.otherwise({redirectTo: '/roomSelect'});
 
 
 spotifyDj.factory 'config', () -> new Config()
 spotifyDj.factory 'webService', ($http, $q, config) -> new WebService($http, $q, config)
 spotifyDj.factory 'spotify', ($cacheFactory, $q, webService) -> new Spotify($cacheFactory, $q, webService)
-spotifyDj.factory 'user', (webService) -> new User(webService)
+spotifyDj.factory 'user', (webService, $location) -> new User(webService, $location)
 spotifyDj.factory 'facebook', ($rootScope, $q, config) -> new Facebook($rootScope, $q, config)
 spotifyDj.factory 'google', ($rootScope, $q, config) -> new Google($rootScope, $q, config)
 spotifyDj.factory 'trackQueue', (webService, spotify, user, $timeout) -> new TrackQueue(webService, spotify, user, $timeout)
 spotifyDj.factory 'player', (webService) -> new Player(webService)
-spotifyDj.factory 'webSocketClient', ($rootScope, config, trackQueue, player) -> new WebSocketClient($rootScope, config, trackQueue, player)
+#spotifyDj.factory 'webSocketClient', ($rootScope, config, trackQueue, player) -> new WebSocketClient($rootScope, config, trackQueue, player)
+spotifyDj.factory 'locationManager', ($rootScope, $location, user) -> new LocationManager($rootScope, $location, user);
 
 
-spotifyDj.run (webService, webSocketClient, facebook) ->
-	window.webService = webService;
+spotifyDj.run (locationManager) ->

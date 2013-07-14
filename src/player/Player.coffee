@@ -28,12 +28,14 @@ class Player extends EventEmitter
 	constructor: () ->
 		@spotify = null;
 
-	connect: (username, password) ->
+	connect: (login, password) ->
 		defered = When.defer()
-		Spotify.login Config.get('login'), Config.get('password'), (err, spotify) =>
+		Spotify.login login, password, (err, spotify) =>
 			if (err)
 				defered.resolver.reject(err)
+				return;
 			@spotify = spotify
+			console.log("Contry : #{@spotify.country}");
 			defered.resolver.resolve(true);
 		return defered.promise;
 

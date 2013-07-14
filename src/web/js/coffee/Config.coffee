@@ -29,14 +29,14 @@ class Config
 		@config['static'] = {}
 
 		@hostConfs = {};
-		@hostConfs['localhost'] = @loadLocalhostConf;
+		@hostConfs['freebox.yayo.fr'] = @loadLocalhostConf;
 		@hostConfs['dj.yayo.fr'] = @loadProdConf;
 		host = window.location.hostname;
 		if @hostConfs[host]? then @hostConfs[host]();
 
 	loadLocalhostConf: () =>
-		@config['website']['url'] = 'http://localhost:4242'
-		@config['webservice']['url'] = 'http://localhost:4242'
+		@config['website']['url'] = 'http://freebox.yayo.fr:4242'
+		@config['webservice']['url'] = 'http://freebox.yayo.fr:4242'
 
 	loadProdConf: () =>
 		@config['website']['url'] = 'http://dj.yayo.fr:4242'

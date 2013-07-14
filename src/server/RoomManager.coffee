@@ -17,10 +17,18 @@
 # along with SpotifyDj.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-class Config
+Room = require('./Room.coffee');
+
+class RoomManager
 	constructor: () ->
-		@config = {port: 4242, host: 'localhost', login: 'yayo56', password: 'epitech42'}
+		@rooms = {};
 
-	get: (name) -> @config[name]
+	create: (name) ->
+		if (/^[a-zA-Z_-]+$/.test(name))
+			@rooms[name] = new Room(name);
+			return (@rooms[name]);
+		return null;
 
-module.exports = new Config()
+	get: (name) -> if @rooms[name]? then @rooms[name] else null
+
+module.exports = new RoomManager();

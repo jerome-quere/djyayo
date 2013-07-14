@@ -1,0 +1,9 @@
+<form class="form-vertical" style="text-align:center">
+  <h3>Enter the room name</h3>
+  <input type="text" ng-model="roomName" style="height: 40px;font-size: 30px" class="input-xlarge"/><br/>
+  <input type="submit" ng-click="selectRoom()" class="btn btn-primary btn-large" value="Join the room" />
+</form>
+
+<div ng-show="error" class="alert alert-error">
+  The room doesn't exist
+</div>

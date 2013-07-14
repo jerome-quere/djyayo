@@ -18,45 +18,11 @@
 ##
 
 When = require('when')
-HttpClient = require('./HttpClient.coffee');
-nconf = require('nconf');
 
 class User
-	constructor: () ->
-		@id = -1;
-		@name = '';
-		@imgUrl = '';
+	constructor: (@id, @name, @imgUrl) ->
 
-	loadFromFacebook: (token) ->
-		promise = HttpClient.get("https://graph.facebook.com/me?access_token=#{token}");
-		promise = promise.then (data) =>
-			data = JSON.parse(data)
-			if (data.id?)
-				@id = data.id
-				@name = data.first_name;
-				@imgUrl = "http://graph.facebook.com/#{data.id}/picture";
-				return (true);
-			else
-				throw "Error"
-		return promise
-
-
-	loadFromGoogle: (token) ->
-		promise = HttpClient.get("https://www.googleapis.com/plus/v1/people/me?key=#{nconf.get('googleClientId')}&access_token=#{token}");
-		promise = promise.then((data) =>
-			data = JSON.parse(data)
-			if data.id?
-				@id = data.id
-				@imgUrl = data.image.url
-				@name = data.name.givenName
-				return true;
-			else
-				throw "Error"
-
-		)
-		return promise
-
-
+	getId: () -> @id;
 	getData: () -> {id: @id, name: @name, imgUrl: @imgUrl};
 
 module.exports = User

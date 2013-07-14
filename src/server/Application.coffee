@@ -17,181 +17,154 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-User = require('./User.coffee');
 HttpCommunicator = require('./HttpCommunicator.coffee')
-SpotifyCommunicator = require('./SpotifyCommunicator.coffee')
-ChildProcess = require('child_process');
-fs = require('fs')
-StaticContent = require('./StaticContent.coffee')
-SpotifyCommandFactory = require('./SpotifyCommandFactory.coffee')
-TrackQueue = require('./TrackQueue.coffee')
-Model = require('./Model.coffee')
-WebSocketCommunicator = require('./WebSocketCommunicator.coffee');
+HttpErrors = require('./HttpErrors.coffee');
 Logger = require('./Logger.coffee');
+Model = require('./Model.coffee')
+RoomManager = require('./RoomManager.coffee');
+RouteManager = require('./RouteManager.coffee');
 SpotifyPlayer = require('./SpotifyPlayer.coffee');
+StaticContent = require('./StaticContent.coffee')
+UserManager = require('./UserManager.coffee')
+WebSocketCommunicator = require('./WebSocketCommunicator.coffee');
 
 class Application
 
 	constructor: () ->
-		@httpCom = new HttpCommunicator();
-		@spotifyCom = new SpotifyCommunicator();
-		@webSockCom = new WebSocketCommunicator(@httpCom.getNodeServer())
-		@httpCom.on('httpRequest', @onHttpRequest);
-		@spotifyCom.on('command', @onSpotifyCommand)
-		@webSockCom.on('command', @onWebSocketCommand);
 		@users = {}
-		@trackQueue = new TrackQueue(this);
-		@currentTrack = null;
+		@httpCom = new HttpCommunicator();
+		@webSockCom = new WebSocketCommunicator(@httpCom.getNodeServer())
+		@routeManager = @buildRouteManager()
+		@httpCom.on('httpRequest', @onHttpRequest);
+		@webSockCom.on('command', @onWebSocketCommand);
 
-	getUserFromId: (userId) ->
-		if (@users[userId]?)
-			return @users[userId];
-		return null;
+
+	buildRouteManager: () ->
+		rm = new RouteManager();
+		rm.addRoute('login', @onLoginRequest);
+		rm.addRoute('logout', @onLogoutRequest);
+		rm.addRoute("room/$room/search", @onSearchRequest);
+		rm.addRoute("createRoom", @onCreateRoomRequest);
+		rm.addRoute("room/$room/queue", @onQueueRequest);
+		rm.addRoute("room/$room/vote", @onVoteRequest);
+		rm.addRoute("room/$room/unvote", @onUnvoteRequest);
+		rm.addRoute("me", @onMeRequest);
+		rm.addRoute("room/$room", @onRoomRequest);
+		rm.addRoute("album/$uri", @onAlbumRequest);
+		rm.addRoute("track/$uri", @onTrackRequest);
+		return rm;
 
 	onHttpRequest: (session, request, response) =>
-		actions = [];
-		actions.push({pattern: "^/login$", action: @onLoginRequest});
-		actions.push({pattern: "^/logout$", action: @onLogoutRequest});
-		actions.push({pattern: "^/search$", action: @onSearchRequest});
-		actions.push({pattern: "^/queue$", action: @onQueueRequest});
-		actions.push({pattern: "^/vote$", action: @onVoteRequest});
-		actions.push({pattern: "^/unvote$", action: @onUnvoteRequest});
-		actions.push({pattern: "^/me$", action: @onMeRequest});
-		actions.push({pattern: "^/player$", action: @onPlayerRequest});
-		actions.push({pattern: "^/album/[0-9a-zA-Z:]+$", action: @onAlbumRequest});
-		actions.push({pattern: "^/track/[0-9a-zA-Z:]+$", action: @onTrackRequest});
-		actions.push({pattern: "", action: @onStaticRequest});
-		url = request.getUrl()
-		Logger.debug("HTTP: #{url}", " #{JSON.stringify(request.getData())}");
-		for action in actions
-			regex = new RegExp("#{action.pattern}");
-			if (regex.test(url))
-				response.enableCrossDomain();
-				response.setMIME('application/json');
-				if (request.getMethod() == "POST" || request.getMethod() == "GET")
-					action.action(session, request, response)
-				else
-					response.end();
-				break;
+		response.enableCrossDomain();
+		response.setMIME('application/json');
+		if (request.getMethod() not in ["POST","GET"])
+			response.end();
+		promise = @routeManager.exec(session, request, response)
+		if (!promise?)
+			@onStaticRequest(session, request, response)
+			return;
+		promise.then (data) -> response.end(JSON.stringify({code: 200, message: "OK", data: data}));
+		promise.then null, (error) ->
+			console.log(error);
+			response.end(JSON.stringify({code: 500, message: error, data: null}));
 
 	onLoginRequest: (session, request, response) =>
 		data = request.getData();
-		if (data? and data.method? and (data.method == "facebook" or data.method == "google"))
-			user = new User();
+		if (data? and data.method? and data.method in ["facebook", "google"])
 			if (data.method == "facebook")
-				promise = user.loadFromFacebook(data.token);
+				promise = UserManager.loadFromFacebook(data.token);
 			else
-				promise = user.loadFromGoogle(data.token);
-			promise.then () =>
-				@users[user.id] = user;
+				promise = UserManager.loadFromGoogle(data.token);
+			return promise.then (user) =>
 				session.login(user.id);
-			promise.ensure () => @onMeRequest(session, request, response)
+				return @onMeRequest(session, request, response)
 		else
-			@onMeRequest(session, request, response)
+			throw HttpErrors.badParams()
 
 	onLogoutRequest: (session, request, response) =>
 		session.logout();
-		@onMeRequest(session, request, response)
+		return {};
 
 	onMeRequest: (session, request, response) =>
 		if (!session.isLog())
-			response.end(JSON.stringify(null))
-			return;
-		user = @getUserFromId(session.getUserId())
-		votes = @trackQueue.getVotes(user.id)
-		data = user.getData();
-		data['votes'] = votes;
-		response.end(JSON.stringify(data))
+			return null;
+		user = UserManager.get(session.getUserId())
+		return user.getData();
 
-	onPlayerRequest: (session, request, response) =>
-		response.end(JSON.stringify({player: @spotifyCom.getPlayerInfos()}))
-
-	onUnvoteRequest: (session, request, response) =>
-		if (session.isLog())
-			@trackQueue.unvote(session.getUserId(), request.getData().uri)
-			@webSockCom.queueChanged()
-		@onQueueRequest(session, request, response)
-
-	onVoteRequest: (session, request, response) =>
-		if (session.isLog())
-			@trackQueue.vote(session.getUserId(), request.getData().uri)
-			if (@currentTrack == null && @spotifyCom.getPlayerInfos().state)
-				@playNextTrack()
-			@webSockCom.queueChanged()
-		@onQueueRequest(session, request, response)
-
-	onQueueRequest: (session, request, response) =>
-		res = {}
-		res.queue = @trackQueue.getQueue();
-		res.currentTrack = if (@currentTrack?) then @currentTrack.getData() else null;
-		response.end(JSON.stringify(res))
-
-	onSearchRequest: (session, request, response) =>
+	onCreateRoomRequest: (session, request, response) =>
 		data = request.getData();
-		p = @spotifyCom.exec SpotifyCommandFactory.search(data.query)
-		p.then (data) => response.end(JSON.stringify({results:data}))
+		room = null;
+		if (data.name?)
+			room = RoomManager.create(data.name)
+			if (room?)
+				return room.getData();
+		throw HttpErrors.badParams()
 
-	onAlbumRequest: (session, request, response) =>
-		url = request.getUrl();
-		data = new RegExp("^/album/\([0-9a-zA-Z:]+\)$").exec(url);
-		albumUri = data[1];
-		p = Model.getAlbum(albumUri);
-		p.then (album) ->
+	onRoomRequest: (session, request, response, data) =>
+		room = RoomManager.get(data.room);
+		if (!room?)
+			throw HttpErrors.invalidRoomName()
+		console.log(room.getData());
+		return room.getData();
+
+	onUnvoteRequest: (session, request, response, data) =>
+		post = request.getData();
+		room = RoomManager.get(data.room)
+		if !room? then throw HttpErrors.invalidRoomName()
+		if !session.isLog() then throw HttpErrors.mustBeLoggedIn()
+		if !post.uri then throw HttpErrors.badParams()
+		room.unvote(session.getUserId(), post.uri);
+		return @onQueueRequest(session, request, response, data)
+
+	onVoteRequest: (session, request, response, data) =>
+		post = request.getData();
+		room = RoomManager.get(data.room)
+		if !room? then throw HttpErrors.invalidRoomName()
+		if !session.isLog() then throw HttpErrors.mustBeLoggedIn()
+		if !post.uri then throw HttpErrors.badParams()
+		room.vote(session.getUserId(), post.uri);
+		return @onQueueRequest(session, request, response, data)
+
+	onQueueRequest: (session, request, response, data) =>
+		room = RoomManager.get(data.room)
+		console.log(room);
+		if !room? then throw HttpErrors.invalidRoomName()
+		return room.getQueueData();
+
+	onSearchRequest: (session, request, response, data) =>
+		room = RoomManager.get(data.room)
+		post = request.getData();
+		if !room? then throw HttpErrors.invalidRoomName()
+		if !post.query then throw HttpErrors.badParams()
+		return room.search(data.query).then (data) =>
+			return {results:data}
+
+	onAlbumRequest: (session, request, response, data) =>
+		p = Model.getAlbum(data.uri);
+		return p.then (album) ->
 			response.enableCache()
-			response.end(JSON.stringify({album:album}))
-		p.otherwise () ->
-			response.end(JSON.stringify(null))
+			return {album:album}
 
-	onTrackRequest: (session, request, response) =>
-		url = request.getUrl();
-		data = new RegExp("^/track/\([0-9a-zA-Z:]+\)$").exec(url);
-		trackUri = data[1];
-		p = Model.getTrack(trackUri);
-		p.then (track) ->
+	onTrackRequest: (session, request, response, data) =>
+		p = Model.getTrack(data.uri);
+		return p.then (track) ->
 			response.enableCache()
 			response.end(JSON.stringify({track:track}))
-		p.otherwise (e) ->
-			console.log(e)
-			response.end(JSON.stringify(null))
-
 
 	onStaticRequest: (session, request, response) ->
 		StaticContent.handle(request, response);
 
-	onEndOfTrack: () =>
-		@playNextTrack()
-
-	playNextTrack: () ->
-		if (@currentTrack != null)
-			@currentTrack = null;
-		if (!@trackQueue.empty())
-			@currentTrack = @trackQueue.pop();
-			p = @spotifyCom.exec SpotifyCommandFactory.play(@currentTrack.getUri())
-			p.otherwise () => @playNextTrack()
-		@webSockCom.queueChanged()
-
-	onSpotifyCommand: (command) =>
-		console.log("Spotify Command :", command);
-		if (command.getName() == "endOfTrack")
-			@onEndOfTrack();
-		if (command.getName() == "playerChanged")
-			@onSpotifyPlayerChanged()
-
-	onSpotifyPlayerChanged: () =>
-		if (@currentTrack != null && !@spotifyCom.getPlayerInfos().state)
-			@currentTrack = null;
-			@webSockCom.queueChanged()
-		if (@currentTrack == null && @spotifyCom.getPlayerInfos().state)
-			@playNextTrack();
-		@webSockCom.playerChanged()
-
-	onIAmAPlayerCommand: (client) =>
-		@spotifyCom.setPlayer(new SpotifyPlayer(client));
+	onIAmAPlayerCommand: (client, command) =>
+		if (!command.getArgs().room?)
+			return;
+		roomName = command.getArgs().room;
+		if (!(room = RoomManager.get(roomName)))
+			room = RoomManager.create(roomName);
+		room.addPlayer(new SpotifyPlayer(client));
 
 	onWebSocketCommand: (client, command) =>
 		if (command.getName() == "iamaplayer")
-			@onIAmAPlayerCommand(client)
-
+			@onIAmAPlayerCommand(client, command)
 	run : () ->
 		@httpCom.run()
 

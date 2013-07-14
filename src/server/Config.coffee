@@ -17,24 +17,10 @@
 # along with SpotifyDj.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-Command = require("./Command.coffee")
-EventEmitter = require("events").EventEmitter
+nconf = require('nconf');
 
-class SpotifyPlayer extends EventEmitter
-	constructor: (@client) ->
-		@client.on('disconnect', @onDisconnect)
-		@client.on('command', @onCommand)
+class Config
+	constructor: () ->
+	get: (name) -> nconf.get(name);
 
-	play: (uri) =>
-		@client.send(new Command('play', {uri:uri}))
-
-	getId: () -> @client.getId()
-
-	onCommand: (command) =>
-		if (command.getName() == "endOfTrack")
-			@emit('endOfTrack');
-
-	onDisconnect: () =>
-		@emit('disconnect')
-
-module.exports = SpotifyPlayer
+module.exports = new Config();

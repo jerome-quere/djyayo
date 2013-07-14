@@ -18,13 +18,9 @@
 ##
 
 class TrackQueue
-	constructor: (@webService, @spotify, @user, $timeout) ->
+	constructor: (@webService, @spotify, @user, @$timeout, @roomName) ->
 		@queue = []
 		@currentTrack = {}
-		@timeout = $timeout;
-		@refresh()
-		@user.on('queueChanged', @update);
-		@user.on('queueRefresh', @refresh);
 
 	refresh: () =>
 		p = @webService.query('queue')
@@ -39,8 +35,6 @@ class TrackQueue
 			@currentTrack.loadFromWsData(response.currentTrack);
 		else
 			@currentTrack = null;
-
-		console.log(this);
 
 		@user.updateFromTrackQueue(response.queue)
 		@queue = [];
