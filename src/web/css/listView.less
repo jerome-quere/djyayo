@@ -1,0 +1,149 @@
+.listView
+{
+    ._listView(white, 80px);
+}
+
+.listView-mini
+{
+   ._listView(#111, 50px);
+}
+
+
+._listView (@color, @liHeight)
+{
+    @bgColor1: @color;
+    @bgColor2: darken(@color, 5%);
+    @bgHoverColor1: contrast(@color, darken(@color, 5%), lighten(@color, 10%));
+    @bgHoverColor2: contrast(@color, darken(@color, 15%), lighten(@color, 2%));
+    @borderColor: darken(@color, 20%);
+    @textColor:contrast(@color, black, white);
+
+    ul
+    {
+	margin: 0px;
+	padding: 0px;
+	list-style-type : none;
+
+	li
+	{
+	    width: 100%;
+	    height: @liHeight;
+	    padding: 0px;
+	    margin: 0px;
+	    position: relative;
+	    clear: both;
+	    border-bottom: 1px solid @borderColor;
+	    .gradient(@bgColor1, @bgColor2);
+
+	    &:hover
+	    {
+		.gradient(@bgHoverColor1, @bgHoverColor2);
+	    }
+
+	    a
+	    {
+		text-decoration: none;
+	    }
+
+	    .thumbmail
+	    {
+		height: @liHeight;
+		width: @liHeight;
+		float: left;
+	    }
+
+	    i.thumbmail
+	    {
+		line-height: @liHeight;
+		font-size: @liHeight*0.5;
+		color: @textColor;
+		padding-left: @liHeight*0.2
+	    }
+
+	    h2
+	    {
+		padding-left: 20px;
+		padding-right: 10%;
+		font-size: (@liHeight / ( 2 *1.7 ) );
+		font-weight: bold;
+		margin: 0;
+		padding-top: (@liHeight / 4);
+		text-overflow: ellipsis;
+		overflow: hidden;
+		white-space: nowrap;
+		line-height: (@liHeight / 2);
+		color: @textColor;
+	    }
+
+	    h3
+	    {
+		padding-left: 20px;
+		padding-right: 20%;
+		font-size: (@liHeight / ( 3 *1.7 ) );
+		font-weight: bold;
+		margin: 0;
+		padding-top: (@liHeight / 8);
+		text-overflow: ellipsis;
+		overflow: hidden;
+		white-space: nowrap;
+		line-height: (@liHeight / 2);
+		color: @textColor;
+	    }
+
+	    p
+	    {
+		padding-left: 20px;
+		padding-right: 120px;
+		font-size: (@liHeight / (4 * 1.7));
+		line-height: (@liHeight / 4);
+		font-weight: normal;
+		margin: 0;
+		text-overflow: ellipsis;
+		overflow: hidden;
+		white-space: nowrap;
+	    }
+
+	    span
+	    {
+		font-size: 12px;
+		position: absolute;
+		right: 40px;
+		top: 50%;
+		margin-top: -6px;
+		display: block;
+	    }
+
+	    .icon
+	    {
+		width: 20px;
+		height: 20px;
+		position: absolute;
+		top: 50%;
+		right: 10px;
+		margin-top: -10px;
+		color: @textColor;
+		font-size: @liHeight * 0.4;
+	    }
+	}
+    }
+
+    .listView-header
+    {
+	color: #fff;
+	padding: .5em 15px;
+	font-size: 14px;
+	font-weight: bold;
+	margin: 0;
+	position: relative;
+	overflow: visible;
+	text-align: left;
+	border-top-width: 1px;
+	.gradient(#6facd5; #497bae);
+    }
+
+    .listView-header-error
+    {
+	.listView-header;
+	.gradient(#d87972; #af4949);
+    }
+}

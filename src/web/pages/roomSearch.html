@@ -1,0 +1,21 @@
+<div class="input-group">
+  <span class="input-group-addon"><i class="icon-search"></i></span>
+  <input type="text" placeholder="Search" class="form-control" ng-change="search()" ng-model="searchInput">
+</div>
+<ul class="nav nav-tabs">
+  <li style="width: 33%"><a>Artists</a></li>
+  <li style="width: 33%"><a>Albums</a></li>
+  <li class="active" style="width: 34%"><a>Tracks</a></li>
+</ul>
+<div class="listView">
+  <ul class="listView">
+    <li ng-repeat="track in searchResults.tracks">
+      <img class="thumbmail" ng-src="{{track.album.imgUrl}}" onerror="$(this).attr('src', 'images/album.png')"/>
+      <h3>{{track.name}}</h3>
+      <p>{{track.artists[0].name}}</p>
+      <span class="badge">{{track.nbVotes}}</span>
+      <img class="icon" ng-show="track.haveMyVote" src="images/star_full.png" ng-click="unvote(track)"/>
+      <img class="icon" ng-show="!track.haveMyVote" src="images/star_empty.png" ng-click="vote(track)"/>
+    </li>
+  </ul>
+</div>
