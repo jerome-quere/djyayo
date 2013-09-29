@@ -19,10 +19,13 @@
 
 Config = require('./Config.coffee');
 EventEmitter = require('events').EventEmitter
+fn = require('when/function');
 lame = require('lame');
 Speaker = require('speaker');
 Spotify = require('spotify-web');
 When = require('when');
+xml2js = require 'xml2js'
+
 
 class Player extends EventEmitter
 	constructor: () ->
@@ -45,8 +48,41 @@ class Player extends EventEmitter
 		@spotify.get uri, (err, track) =>
 			if (err) then throw err;
 			console.log('Playing: %s - %s', track.artist[0].name, track.name);
-
 			track.play().pipe(new lame.Decoder()).pipe(new Speaker()).on 'finish', () =>
 						@onEndOfTrack()
+
+
+	search: (query) ->
+		defer = When.defer()
+		@spotify.search query, (err, res) =>
+			if (err?)
+				defer.reject(err);
+			else
+				parser = new xml2js.Parser()
+				parser.parseString res, (err, xml) =>
+					if err then return defer.reject(err);
+					defer.resolve(fn.call(@buildSearchResult, xml));
+		return defer.promise;
+
+
+
+	buildSearchResult: (xml) ->
+		res = {}
+		res.tracks = [];
+		if (xml.result.tracks[0])
+			for track in xml.result.tracks[0].track
+				t = {}
+				t.name = track.title[0];
+				t.uri = Spotify.id2uri('track', track.id[0]);
+				t.artists = [{name:track.artist[0], uri:Spotify.id2uri('artist', track['artist-id'][0])}]
+				t.album = {}
+				t.album.name = track.album[0]
+				t.album.uri = Spotify.id2uri('album', track['album-id'][0]);
+				t.album.imgUrl = null;
+				if (track['cover']?)
+					t.album.imgUrl = "https://d3rt1990lpmkn.cloudfront.net/300/#{track['cover'][0]}";
+				res.tracks.push(t);
+		return res;
+
 
 module.exports = Player

@@ -17,12 +17,8 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-nconf = require('nconf');
 Application = require('./Application.coffee');
 Logger = require('./Logger.coffee');
-
-nconf.argv();
-nconf.defaults({'httpPort': 4242});
 
 main = (argc, argv) ->
 	application = new Application();

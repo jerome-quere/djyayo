@@ -7,31 +7,50 @@
     <meta name="author" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link type="text/css" rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
-    <link type="text/css" rel="stylesheet" href="css/bootstrap/bootstrap-responsive.min.css" />
-    <link type="text/css" rel="stylesheet" href="css/style.css" />
+    <link type="text/css" rel="stylesheet/less" href="css/style.less" />
+    <link type="text/css" rel="stylesheet" href="css/social-buttons.css" />
+    <link type="text/css" rel="stylesheet" href="css/font-awesome/font-awesome.min.css" />
     <script src="js/jquery/jquery-1.7.2.min.js"></script>
     <script src="js/bootstrap/bootstrap.min.js"></script>
+    <script src="js/less/less-1.4.1.min.js"></script>
     <script src="js/angular/angular.min.js"></script>
+    <script src="js/angular/angular-route.min.js"></script>
     <script src="js/EventEmmiter/EventEmitter-4.0.3.min.js"></script>
     <script src="js/socket.io/socket.io.js"></script>
     <script src="js/script.js"></script>
   </head>
   <body>
     <div id="panels">
-      <div id="panel_search" class="panel" ng-controller="SearchPanelController">
-	<div class="list-search">
-	  <form class="form-search">
-	    <input type="text" class="search-query" ng-change="search()" ng-model="searchInput" />
-	  </form>
+      <div id="panel_menu" class="panel" ng-controller="MenuPanelController">
+	<div class="listView-mini">
+	  <ul class="listView-mini">
+	    <li>
+	      <img class="thumbmail" ng-src="{{user.imgUrl}}"/>
+	      <h2>Hello {{user.name}} !</h2>
+	      <a href="#" ng-click="logout()" class="icon">
+		<i class="icon-signout" ></i>
+	      </a>
+	    </li>
+	    <li ng-show="room.name">
+	      <a href="#" ng-click="changeRoom()">
+		<i class="thumbmail icon-reply"></i>
+		<h2>Change Room</h2>
+	      </a>
+	    </li>
+	    <li ng-show="room.name">
+	      <a href="#/room/{{room.name}}">
+		<i class="thumbmail icon-music"></i>
+		<h2>Track Queue</h2>
+	      </a>
+	    </li>
+	    <li ng-show="room.name">
+	      <a href="#/room/{{room.name}}/search">
+		<i class="thumbmail icon-search"></i>
+		<h2>Search</h2>
+	      </a>
+	    </li>
+	  </ul>
 	</div>
-	<ul class="listView listView-nothumbs">
-	  <li ng-repeat="track in results" ng-click="onTrackClick(track)">
-	    <h2>{{track.name}}</h2>
-	    <p>{{track.artist.name}}</p>
-	    <img class="icon" ng-show="track.haveMyVote" src="images/star_full.png" />
-	    <img class="icon" ng-show="!track.haveMyVote" src="images/star_empty.png"/>
-	  </li>
-	</ul>
       </div>
       <script>
 	$(function() {
@@ -41,12 +60,12 @@
     </div>
     <div id="wrap">
       <div id="header" ng-controller="HeaderController">
-	<a ng-show="user.isLog" class="search-ico" herf="" onclick="$('#panel_search').data('panel').show();">
-	  <img width="30px" src="images/search.png" />
+	<a ng-show="user.isLog" class="menu-ico" herf="" onclick="$('#panel_menu').data('panel').show();">
+	  <img src="images/menu.png" />
 	</a>
 	<table ng-show="user.isLog" class="user-infos">
 	  <tr>
-	    <td rowspan="2"><img ng-src="{{user.imgUrl}}"/></td>
+	    <td rowspan="2"></td>
 	    <td>Hello <b>{{user.name}}</b></td>
 	  </tr>
 	  <tr>

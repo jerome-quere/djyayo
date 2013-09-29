@@ -54,44 +54,46 @@ class Application
 		rm.addRoute("track/$uri", @onTrackRequest);
 		return rm;
 
-	onHttpRequest: (session, request, response) =>
+	onHttpRequest: (request, response) =>
 		response.enableCrossDomain();
 		response.setMIME('application/json');
 		if (request.getMethod() not in ["POST","GET"])
 			response.end();
-		promise = @routeManager.exec(session, request, response)
+		promise = @routeManager.exec(request, response)
 		if (!promise?)
-			@onStaticRequest(session, request, response)
+			@onStaticRequest(request, response)
 			return;
-		promise.then (data) -> response.end(JSON.stringify({code: 200, message: "OK", data: data}));
+		promise.then (data) -> response.end(JSON.stringify({code: 200, msg: "Success", data: data}));
 		promise.then null, (error) ->
-			console.log(error);
-			response.end(JSON.stringify({code: 500, message: error, data: null}));
+			code = if (error.code?) then error.code else 500;
+			msg = if (error.msg?) then error.msg else "" + error;
+			if (error.stack) then console.log(error.stack);
+			response.end(JSON.stringify({code: code, msg: msg, data: null}));
 
-	onLoginRequest: (session, request, response) =>
-		data = request.getData();
+	onLoginRequest: (request, response) =>
+		data = request.getQuery();
 		if (data? and data.method? and data.method in ["facebook", "google"])
 			if (data.method == "facebook")
 				promise = UserManager.loadFromFacebook(data.token);
 			else
 				promise = UserManager.loadFromGoogle(data.token);
 			return promise.then (user) =>
-				session.login(user.id);
-				return @onMeRequest(session, request, response)
+				request.getSession().login(user.id);
+				return @onMeRequest(request, response)
 		else
 			throw HttpErrors.badParams()
 
-	onLogoutRequest: (session, request, response) =>
-		session.logout();
+	onLogoutRequest: (request, response) =>
+		request.getSession().logout();
 		return {};
 
-	onMeRequest: (session, request, response) =>
-		if (!session.isLog())
+	onMeRequest: (request, response) =>
+		if (!request.getSession().isLog())
 			return null;
-		user = UserManager.get(session.getUserId())
+		user = UserManager.get(request.getSession().getUserId())
 		return user.getData();
 
-	onCreateRoomRequest: (session, request, response) =>
+	onCreateRoomRequest: (request, response) =>
 		data = request.getData();
 		room = null;
 		if (data.name?)
@@ -100,65 +102,65 @@ class Application
 				return room.getData();
 		throw HttpErrors.badParams()
 
-	onRoomRequest: (session, request, response, data) =>
+	onRoomRequest: (request, response, data) =>
 		room = RoomManager.get(data.room);
 		if (!room?)
 			throw HttpErrors.invalidRoomName()
 		console.log(room.getData());
 		return room.getData();
 
-	onUnvoteRequest: (session, request, response, data) =>
+	onUnvoteRequest: (request, response, data) =>
 		post = request.getData();
 		room = RoomManager.get(data.room)
 		if !room? then throw HttpErrors.invalidRoomName()
-		if !session.isLog() then throw HttpErrors.mustBeLoggedIn()
+		if !request.getSession().isLog() then throw HttpErrors.mustBeLoggedIn()
 		if !post.uri then throw HttpErrors.badParams()
-		room.unvote(session.getUserId(), post.uri);
-		return @onQueueRequest(session, request, response, data)
+		room.unvote(request.getSession().getUserId(), post.uri);
+		return @onQueueRequest(request, response, data)
 
-	onVoteRequest: (session, request, response, data) =>
-		post = request.getData();
+	onVoteRequest: (request, response, data) =>
+		get = request.getQuery();
 		room = RoomManager.get(data.room)
 		if !room? then throw HttpErrors.invalidRoomName()
-		if !session.isLog() then throw HttpErrors.mustBeLoggedIn()
-		if !post.uri then throw HttpErrors.badParams()
-		room.vote(session.getUserId(), post.uri);
-		return @onQueueRequest(session, request, response, data)
+		if !request.getSession().isLog() then throw HttpErrors.mustBeLoggedIn()
+		if !get.uri then throw HttpErrors.badParams()
+		room.vote(request.getSession().getUserId(), get.uri);
+		return @onRoomRequest(request, response, data)
 
-	onQueueRequest: (session, request, response, data) =>
+	onQueueRequest: (request, response, data) =>
 		room = RoomManager.get(data.room)
 		console.log(room);
 		if !room? then throw HttpErrors.invalidRoomName()
 		return room.getQueueData();
 
-	onSearchRequest: (session, request, response, data) =>
+	onSearchRequest: (request, response, data) =>
 		room = RoomManager.get(data.room)
-		post = request.getData();
+		get = request.getQuery();
 		if !room? then throw HttpErrors.invalidRoomName()
-		if !post.query then throw HttpErrors.badParams()
-		return room.search(data.query).then (data) =>
-			return {results:data}
+		if !get.query then throw HttpErrors.badParams()
+		return room.search(get.query)
 
-	onAlbumRequest: (session, request, response, data) =>
+	onAlbumRequest: (request, response, data) =>
 		p = Model.getAlbum(data.uri);
 		return p.then (album) ->
 			response.enableCache()
 			return {album:album}
 
-	onTrackRequest: (session, request, response, data) =>
+	onTrackRequest: (request, response, data) =>
 		p = Model.getTrack(data.uri);
 		return p.then (track) ->
 			response.enableCache()
 			response.end(JSON.stringify({track:track}))
 
-	onStaticRequest: (session, request, response) ->
+	onStaticRequest: (request, response) ->
 		StaticContent.handle(request, response);
 
 	onIAmAPlayerCommand: (client, command) =>
 		if (!command.getArgs().room?)
 			return;
 		roomName = command.getArgs().room;
-		if (!(room = RoomManager.get(roomName)))
+		room = RoomManager.get(roomName);
+		if (!room)
 			room = RoomManager.create(roomName);
 		room.addPlayer(new SpotifyPlayer(client));
 

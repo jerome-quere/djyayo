@@ -18,18 +18,16 @@
 ##
 
 class Model
-	@getAlbumImg: (albumUri) =>
-		obs = ko.observable('images/album.png')
-		if (!albumUri?)
-			return obs;
-		promise = CacheManager.get("albumImg/#{albumUri}", () => @_loadAlbumImg(albumUri));
-		promise.then (data) ->
-			obs(data)
-		return (obs)
+	constructor: (@webService) ->
 
-	@_loadAlbumImg: (albumUri) ->
+	getAlbumImg: (albumUri, dest, key) =>
+		dest[key] = 'images/album.png';
+		p = CacheManager.get("albumImg/#{albumUri}", () => @_loadAlbumImg(albumUri));
+		p.then (data) ->
+			dest[key] = data;
+
+	_loadAlbumImg: (albumUri) ->
 		defer = jQuery.Deferred()
-		albumId = albumUri.split(':')[2];
-		window.application.ws("album/#{albumId}").then (data) =>
-			if (data and data.album?) then defer.resolve(data.album.imgUri) else defer.reject("Not Found")
+		@webService.query("album/#{albumUri}").then (data) =>
+			if (data and data.album?) then defer.resolve(data.album.imgUrl) else defer.reject("Not Found")
 		return (defer.promise());

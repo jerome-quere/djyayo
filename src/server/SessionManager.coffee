@@ -23,9 +23,9 @@ class SessionManager
 	constructor: () ->
 		@sessions = {}
 
-	get: (request) ->
-		if (request.getClientId() not of @sessions)
-			@sessions[request.getClientId()] = new Session();
-		return @sessions[request.getClientId()];
+	get: (clientId) ->
+		if (clientId not of @sessions)
+			@sessions[clientId] = new Session();
+		return @sessions[clientId];
 
 module.exports = new SessionManager();

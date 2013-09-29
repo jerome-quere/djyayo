@@ -22,9 +22,15 @@ class WebService
 		@q = $q
 		@http = $http
 
+	_buildQueryString: (params) =>
+		tmp = [];
+		for key, value of params
+			tmp.push("#{key}=#{encodeURI(value)}");
+		if (tmp.length == 0) then return ''
+		return "?#{tmp.join('&')}";
 
 	query: (method, data) ->
-		return @http.post("#{@config.get('webservice.url')}/#{method}", data, {cache:false, twithCredentials: true}).then (httpRes) ->
+		return @http.get("#{@config.get('webservice.url')}/#{method}#{@_buildQueryString(data)}", {cache:false, twithCredentials: true}).then (httpRes) ->
 			if (httpRes.data.code == 200)
 				return httpRes.data.data
 			else

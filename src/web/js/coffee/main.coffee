@@ -17,26 +17,28 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-spotifyDj = angular.module('spotifyDj', [])
+spotifyDj = angular.module('spotifyDj', ['ngRoute'])
 
 
 spotifyDj.config ($routeProvider) ->
 	$routeProvider.when('/login', {templateUrl:"./pages/login.html", controller: LoginController})
 	$routeProvider.when('/roomSelect', {templateUrl:"./pages/roomSelect.html", controller: RoomSelectController})
-	$routeProvider.when('/room/:room', {templateUrl:"./pages/room.html", controller: RoomController})
+	$routeProvider.when('/room/:room', {templateUrl:"./pages/roomTrackQueue.html", controller: RoomTrackQueueController})
+	$routeProvider.when('/room/:room/search', {templateUrl:"./pages/roomSearch.html", controller: RoomSearchController})
 	$routeProvider.otherwise({redirectTo: '/roomSelect'});
-
 
 spotifyDj.factory 'config', () -> new Config()
 spotifyDj.factory 'webService', ($http, $q, config) -> new WebService($http, $q, config)
+spotifyDj.factory 'model', (webService) -> new Model(webService)
 spotifyDj.factory 'spotify', ($cacheFactory, $q, webService) -> new Spotify($cacheFactory, $q, webService)
 spotifyDj.factory 'user', (webService, $location) -> new User(webService, $location)
+spotifyDj.factory 'room', (webService, model, user) -> new Room(webService, model, user)
+spotifyDj.factory 'locationManager', ($rootScope, $location, user) -> new LocationManager($rootScope, $location, user);
 spotifyDj.factory 'facebook', ($rootScope, $q, config) -> new Facebook($rootScope, $q, config)
 spotifyDj.factory 'google', ($rootScope, $q, config) -> new Google($rootScope, $q, config)
-spotifyDj.factory 'trackQueue', (webService, spotify, user, $timeout) -> new TrackQueue(webService, spotify, user, $timeout)
 spotifyDj.factory 'player', (webService) -> new Player(webService)
 #spotifyDj.factory 'webSocketClient', ($rootScope, config, trackQueue, player) -> new WebSocketClient($rootScope, config, trackQueue, player)
-spotifyDj.factory 'locationManager', ($rootScope, $location, user) -> new LocationManager($rootScope, $location, user);
+
 
 
 spotifyDj.run (locationManager) ->

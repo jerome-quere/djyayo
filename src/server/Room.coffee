@@ -59,6 +59,11 @@ class Room
 	unvote: (clientId, uri) ->
 		@trackQueue.unvote(clientId, uri)
 
+	search: (query) =>
+		@players[0].search(query).then (data) =>
+			if data == null then throw "Error on search";
+			return data;
+
 	getData: () ->
 		data = {}
 		data.name = @name;

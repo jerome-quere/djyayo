@@ -21,7 +21,6 @@ Config = require('./Config.coffee');
 EventEmitter = require('events').EventEmitter
 HttpServer = require('./HttpServer.coffee')
 Logger = require('./Logger.coffee');
-SessionManager = require('./SessionManager.coffee');
 
 class HttpCommunicator extends EventEmitter
 	constructor: () ->
@@ -29,8 +28,7 @@ class HttpCommunicator extends EventEmitter
 		@httpServer.on('request', @onHttpRequest)
 
 	onHttpRequest: (request, response) =>
-		session = SessionManager.get(request);
-		@emit('httpRequest', session, request, response)
+		@emit('httpRequest', request, response)
 
 	getNodeServer: () -> @httpServer.getNodeServer();
 	run: () ->

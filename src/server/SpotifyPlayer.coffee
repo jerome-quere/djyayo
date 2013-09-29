@@ -19,22 +19,43 @@
 
 Command = require("./Command.coffee")
 EventEmitter = require("events").EventEmitter
+When = require('when');
 
 class SpotifyPlayer extends EventEmitter
 	constructor: (@client) ->
 		@client.on('disconnect', @onDisconnect)
 		@client.on('command', @onCommand)
+		@toDo = [];
 
 	play: (uri) =>
 		@client.send(new Command('play', {uri:uri}))
 
 	getId: () -> @client.getId()
 
-	onCommand: (command) =>
+	onCommand: (command, args) =>
 		if (command.getName() == "endOfTrack")
 			@emit('endOfTrack');
+		else
+			@toDo[0].defer.resolve(command.getArgs());
+			@toDo.shift();
+			@_execToDo()
 
 	onDisconnect: () =>
 		@emit('disconnect')
+
+	search: (query) =>
+		@_pingPong(new Command('search', {query:query}));
+
+	_execToDo: () =>
+		if (@toDo.length == 0 ) then return;
+		@client.send(@toDo[0].cmd);
+
+
+	_pingPong: (cmd) =>
+		defer = When.defer();
+		@toDo.push({cmd:cmd, defer:defer});
+		if (@toDo.length == 1)
+			@_execToDo();
+		return defer.promise;
 
 module.exports = SpotifyPlayer

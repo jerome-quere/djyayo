@@ -27,13 +27,11 @@ class SpotifyCommunicator extends EventEmitter
 	constructor: () ->
 		@player = null
 
-	search: (args, resolver) =>
+	search: (args) =>
 		p = HttpClient.get("http://ws.spotify.com/search/1/track.json?q=#{encodeURI(args.query)}");
-		p.then (data) =>
+		return p.then (data) =>
 			data = JSON.parse(data);
-			resolver.resolve(@buildSearchResult(data));
-		p.otherwise (error) ->
-			resolver.reject(error);
+			return @buildSearchResult(data);
 
 	lookup: (args, resolver) =>
 		console.log("http://ws.spotify.com/lookup/1/.json?uri=#{encodeURI(args.uri)}");
@@ -54,6 +52,7 @@ class SpotifyCommunicator extends EventEmitter
 			t.name = spT.name;
 			t.uri = spT.href;
 			t.artists = [];
+			t.album = {uri:spT.album.href, name: spT.album.name}
 			for spA in spT.artists
 				t.artists.push({name: spA.name, uri: spA.href});
 			res.tracks.push(t);

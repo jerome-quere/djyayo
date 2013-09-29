@@ -24,10 +24,10 @@ class RoomManager
 		@rooms = {};
 
 	create: (name) ->
-		if (/^[a-zA-Z_-]+$/.test(name))
+		if (/^[a-z0-9A-Z_-]+$/.test(name))
 			@rooms[name] = new Room(name);
 			return (@rooms[name]);
-		return null;
+		throw "Can't create room [#{name}]"
 
 	get: (name) -> if @rooms[name]? then @rooms[name] else null
 

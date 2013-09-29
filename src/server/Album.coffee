@@ -30,12 +30,11 @@ class Album
 
 	loadImgUrl: () =>
 		defer = When.defer()
-		albumId = @uri.split(':')[2];
-		url = "http://open.spotify.com/album/#{albumId}"
+		url = "https://embed.spotify.com/oembed/?url=#{@uri}"
 		promise = HttpClient.get(url)
-		promise = promise.then (html) =>
-			regex = new RegExp('http:\/\/o.scdn.co\/300\/[^"]+');
-			@imgUrl = regex.exec(html)[0]
+		promise = promise.then (data) =>
+			data = JSON.parse(data);
+			@imgUrl = data.thumbnail_url;
 			defer.resolver.resolve(true);
 		promise.otherwise(defer.resolver.reject);
 		return (defer.promise);

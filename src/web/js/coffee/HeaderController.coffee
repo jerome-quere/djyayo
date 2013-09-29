@@ -23,6 +23,7 @@ class HeaderController
 		$scope.user = @user;
 		$scope.logout = @logout;
 
-	logout: () => @user.logout();
+	logout: () =>
+		@user.logout();
 
 window.HeaderController = HeaderController;

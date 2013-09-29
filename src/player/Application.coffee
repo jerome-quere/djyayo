@@ -38,11 +38,21 @@ class Application
 	onPlayCommand: (args) =>
 		@player.play(args.uri);
 
+
+	onSearchCommand: (args) =>
+		p = @player.search(args.query)
+		p = p.then (res) =>
+			@com.searchResult({results: res})
+		p.otherwise (err) =>
+			console.log(err.stack);
+			@com.searchResult(null)
+
 	onEndOfTrack: () => @com.endOfTrack();
 
 	onCommand: (command) =>
 		actions = {}
 		actions['play'] = @onPlayCommand;
+		actions['search'] = @onSearchCommand;
 		if (actions[command.getName()]?)
 			actions[command.getName()](command.getArgs());
 

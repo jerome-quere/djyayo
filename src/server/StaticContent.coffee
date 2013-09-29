@@ -26,6 +26,10 @@ MIMES['css'] = 'text/css';
 MIMES['js'] = 'text/javascript'
 MIMES['png'] = 'image/png';
 MIMES['jpg'] = 'image/jpg';
+MIMES['eot'] = 'application/vnd.ms-fontobject';
+MIMES['svg'] = 'image/svg+xml';
+MIMES['ttf'] = 'application/x-font-ttf';
+MIMES['woff'] = 'application/font-woff';
 
 
 getMIME = (path) ->

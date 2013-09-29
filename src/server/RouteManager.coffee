@@ -35,15 +35,18 @@ class RouteManager
 			patern = patern.replace(/\$[a-z]+/g, '([a-zA-Z0-9:_-]*)');
 		@routes[patern] = {callback: callback, data: data, vars: vars};
 
-	exec: (session, req, res) ->
+	exec: (req, res) ->
 		for patern, route of @routes
 			data = {}
-			matches = new RegExp("^/#{patern}$").exec(req.getUrl())
+			url = req.getUrl();
+			while url[url.length - 1] == '/'
+				url = url.slice(0, url.length - 1);
+			matches = new RegExp("^/#{patern}$").exec(url)
 			if (matches?)
 				data = route['data']
 				for id, name of route.vars
 					data[name] = matches[id]
-				return fn.call(route.callback, session, req, res, data)
+				return fn.call(route.callback, req, res, data)
 		return null
 
 module.exports = RouteManager

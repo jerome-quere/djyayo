@@ -17,19 +17,22 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
+SessionManager = require('./SessionManager.coffee');
+Url = require('url');
+
 class HttpRequest extends require('events').EventEmitter
 	constructor: (@request, @response) ->
 		@clientId = -1;
 		@data = "";
 		@request.on('data', @onData);
 		@request.on('end', @onEnd);
+		@url = Url.parse(@request.url, true);
 
 	setClientId: (@clientId) -> this
 	getClientId: () -> @clientId
-
-	getUrl: () => @request.url
-
+	getUrl: () => @url.pathname;
 	getMethod: () => @request.method;
+	getQuery: () => @url.query;
 
 	getCookies: () =>
 		cookies = {};
@@ -39,7 +42,6 @@ class HttpRequest extends require('events').EventEmitter
 				cookies[ parts[0].trim() ] = ( parts[1] || '' ).trim();
 		return cookies
 
-	getParam: () => {}
 
 	onData: (buffer) =>
 		@data = @data.concat(buffer);
@@ -54,12 +56,8 @@ class HttpRequest extends require('events').EventEmitter
 			@data = null;
 		@emit('requestComplete', this, @response);
 
-	getData: () =>
-		return @data
-
-	@request
-	@response
-	@data;
+	getData: () => @data
+	getSession: () => SessionManager.get(@getClientId())
 
 
 module.exports = HttpRequest;

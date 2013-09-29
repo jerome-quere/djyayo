@@ -2,6 +2,7 @@
 
 FILES="coffee/Album.coffee			\
        coffee/Artist.coffee			\
+       coffee/CacheManager.coffee		\
        coffee/Config.coffee			\
        coffee/Facebook.coffee			\
        coffee/Google.coffee			\
@@ -9,12 +10,14 @@ FILES="coffee/Album.coffee			\
        coffee/LocationManager.coffee		\
        coffee/LoginController.coffee		\
        coffee/main.coffee			\
+       coffee/MenuPanelController.coffee	\
        coffee/Model.coffee			\
        coffee/Panel.coffee			\
        coffee/Player.coffee			\
-       coffee/RoomController.coffee		\
+       coffee/Room.coffee			\
+       coffee/RoomSearchController.coffee	\
        coffee/RoomSelectController.coffee	\
-       coffee/SearchPanelController.coffee	\
+       coffee/RoomTrackQueueController.coffee	\
        coffee/Spotify.coffee			\
        coffee/Track.coffee			\
        coffee/TrackQueue.coffee			\

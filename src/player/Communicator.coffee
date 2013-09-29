@@ -31,6 +31,9 @@ class Communicator extends EventEmitter
 		@socket.on('connect', @onConnect)
 		@socket.on('command', @onCommand)
 
+	searchResult: (res) ->
+		@socket.emit('command', new Command('searchResults', res));
+
 	endOfTrack: () ->
 		@socket.emit('command', new Command('endOfTrack'));
 

@@ -21,9 +21,12 @@
 class Config
 
 	constructor: () ->
+		proto = window.location.protocol;
+		host = window.location.hostname;
+		port = if (location.port) then ":#{location.port}" else "";
 		@config = {}
-		@config['website'] = {url:document.location.hostname}
-		@config['webservice'] = {url:document.location.hostname}
+		@config['website'] = {url:"#{proto}//#{host}#{port}"}
+		@config['webservice'] = {url: "#{proto}//#{host}#{port}"}
 		@config['facebook'] = {appId: '114968378707310'}
 		@config['google'] = {clientId: "452000358943.apps.googleusercontent.com"}
 		@config['static'] = {}
@@ -31,7 +34,6 @@ class Config
 		@hostConfs = {};
 		@hostConfs['freebox.yayo.fr'] = @loadLocalhostConf;
 		@hostConfs['dj.yayo.fr'] = @loadProdConf;
-		host = window.location.hostname;
 		if @hostConfs[host]? then @hostConfs[host]();
 
 	loadLocalhostConf: () =>

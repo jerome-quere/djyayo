@@ -26,6 +26,9 @@ class LocationManager
 
 	onUserChange: () =>
 		if (@user.isLog and @$location.path() == '/login')
-			@$location.path('/roomSelect');
+			@goTo('/roomSelect');
 		if (@user.isLog == false)
-			@$location.path('/login');
+			@goTo('/login');
+
+	goTo: (path) =>
+		@$location.path(path);

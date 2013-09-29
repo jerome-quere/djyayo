@@ -17,10 +17,10 @@
 # along with SpotifyDj.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-nconf = require('nconf');
-
 class Config
 	constructor: () ->
-	get: (name) -> nconf.get(name);
+		@config = {}
+		@config['httpPort'] = 4242;
+	get: (name) -> if (@config[name]?) then @config[name] else null
 
 module.exports = new Config();
