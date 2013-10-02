@@ -80,9 +80,6 @@ if (isset($argv[1]) && $argv[1] == '-v')
 	<a ng-show="user.isLog" class="menu-ico" herf="" onclick="$('#panel_menu').data('panel').show();">
 	  <i class="icon-reorder"></i>
 	</a>
-	<p style="text-align:center; font-size: 20px; line-height: 40px;color: white">
-	  <i>SpotifyDJ by Yayo (BETA)</i>
-	</p>
 	<table ng-show="user.isLog" class="user-infos">
 	  <tr>
 	    <td rowspan="2"></td>
