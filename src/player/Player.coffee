@@ -26,7 +26,6 @@ Spotify = require('spotify-web');
 When = require('when');
 xml2js = require 'xml2js'
 
-
 class Player extends EventEmitter
 	constructor: () ->
 		@spotify = null;
@@ -45,11 +44,15 @@ class Player extends EventEmitter
 	onEndOfTrack: () => @emit('endOfTrack')
 
 	play: (uri) ->
+		defer = When.defer();
 		@spotify.get uri, (err, track) =>
-			if (err) then throw err;
-			console.log('Playing: %s - %s', track.artist[0].name, track.name);
-			track.play().pipe(new lame.Decoder()).pipe(new Speaker()).on 'finish', () =>
-						@onEndOfTrack()
+			defer.resolve(fn.call((err, track) =>
+				if (err) then throw err;
+				console.log('Playing: %s - %s', track.artist[0].name, track.name);
+				track.play().pipe(new lame.Decoder()).pipe(new Speaker()).on 'finish', () =>
+					@onEndOfTrack()
+			, err, track));
+		return defer.promise;
 
 
 	search: (query) ->
@@ -63,8 +66,6 @@ class Player extends EventEmitter
 					if err then return defer.reject(err);
 					defer.resolve(fn.call(@buildSearchResult, xml));
 		return defer.promise;
-
-
 
 	buildSearchResult: (xml) ->
 		res = {}
@@ -83,6 +84,5 @@ class Player extends EventEmitter
 					t.album.imgUrl = "https://d3rt1990lpmkn.cloudfront.net/300/#{track['cover'][0]}";
 				res.tracks.push(t);
 		return res;
-
 
 module.exports = Player

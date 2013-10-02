@@ -32,3 +32,5 @@ class LocationManager
 
 	goTo: (path) =>
 		@$location.path(path);
+
+LocationManager.$inject = ['$scope', '$location', 'user']

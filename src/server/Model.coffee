@@ -39,7 +39,6 @@ class Model
 	@_loadAlbum: (albumUri) ->
 		defer = When.defer();
 		url = "http://ws.spotify.com/lookup/1/.json?uri=#{albumUri}"
-		console.log("Album Uri is", url)
 		promise = HttpClient.get(url)
 		promise = promise.then (jsonStr) =>
 			data = JSON.parse(jsonStr)
@@ -54,7 +53,6 @@ class Model
 	@_loadTrack: (trackUri) ->
 		defer = When.defer()
 		url = "http://ws.spotify.com/lookup/1/.json?uri=#{trackUri}"
-		console.log("Track Uri is", url)
 		promise = HttpClient.get(url)
 		promise = promise.then (jsonStr) =>
 			data = JSON.parse(jsonStr)
@@ -69,7 +67,6 @@ class Model
 	@_loadArtist: (artistUri) ->
 		defer = When.defer()
 		url = "http://ws.spotify.com/lookup/1/.json?uri=#{artistUri}"
-		console.log("Aritst Uri is", url)
 		promise = HttpClient.get(url)
 		promise = promise.then (jsonStr) =>
 			data = JSON.parse(jsonStr)

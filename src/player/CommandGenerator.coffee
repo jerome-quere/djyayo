@@ -17,15 +17,14 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
+Command = require('./Command.coffee');
 
-class HeaderController
-	constructor: ($scope, @user) ->
-		$scope.user = @user;
-		$scope.logout = @logout;
+class CommandGenerator
+	@endOfTrack: () -> return new Command('endOfTrack');
+	@error: (code, msg) ->
+		code = if code then code else 500
+		msg = if msg then msg else "Unknow Error";
+		return new Command('error', {code: code, msg: msg});
+	@success: (args) -> return new Command('success', args);
 
-	logout: () =>
-		@user.logout();
-
-
-HeaderController.$inject = ['$scope', 'user']
-window.HeaderController = HeaderController;
+module.exports = CommandGenerator;

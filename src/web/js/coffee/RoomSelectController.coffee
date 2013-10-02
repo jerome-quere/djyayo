@@ -30,3 +30,5 @@ class RoomSelectController
 			@locationManager.goTo("/room/#{roomName}");
 		promise.catch (data) =>
 			@$scope.error = true
+
+RoomSelectController.$inject = ['$scope', 'locationManager', 'webService', 'user']

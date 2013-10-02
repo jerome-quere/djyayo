@@ -27,5 +27,5 @@ FILES="coffee/Album.coffee			\
        coffee/WebSocketClient.coffee"
 
 
-     coffee -cwj ./script.js $FILES
+     coffee -cj ./script.js $FILES
 

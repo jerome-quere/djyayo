@@ -22,7 +22,7 @@ SpotifyCommandFactory = require("./SpotifyCommandFactory.coffee");
 
 class TrackQueueElement
 
-	constructor: (@trackUri) ->
+	constructor: (@track) ->
 		@clients = []
 
 	vote: (clientId) ->
@@ -33,7 +33,7 @@ class TrackQueueElement
 		if ((idx = @clients.indexOf(clientId)) != -1)
 			@clients.splice(idx, 1);
 
-	getUri: () -> @trackUri
+	getUri: () -> @track.uri
 
 	getNbVotes: () -> @clients.length
 
@@ -46,6 +46,6 @@ class TrackQueueElement
 	hasVote: (clientId) ->
 		return @clients.indexOf(clientId) != -1
 
-	getData: () -> {votes: @getVotes(), uri: @trackUri}
+	getData: () -> {votes: @getVotes(), track: @track}
 
 module.exports = TrackQueueElement;

@@ -17,7 +17,7 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-class Room
+class Room extends EventEmitter
 	constructor: (@webService, @model, @user) ->
 		@_clear()
 
@@ -28,31 +28,40 @@ class Room
 		@trackQueue = null;
 		@currentTrack = null;
 
-	enter: (@name) -> return @refreshTrackQueue()
+	enter: (@name) =>
+		@emitEvent('enter');
+		return @refreshTrackQueue()
 	exit: () -> @_clear();
+
+	haveMyVote: (uri) =>
+		for elem in @trackQueue
+			if elem.track.uri == uri
+				for vote in elem.votes
+					if (vote.id == @user.getId())
+						return true;
+		return false;
 
 	buildTrackQueue: (roomData) ->
 		res = []
 		for elem in roomData.queue
 			data = {};
-			data.uri = elem.uri;
-			data.trackName =  if (elem.track) then elem.track.name else '...' ;
-			data.artistName = if (elem.track) then elem.track.artists[0].name else '...';
-			data.albumImg = if (elem.track) then @model.getAlbumImg(elem.track.album.uri) else null;
-			data.nbVotes = elem.nbVotes;
-			data.haveMyVote = @user.getId() in elem.votes;
+			data.track = elem.track;
+			data.votes = elem.votes;
+			data.haveMyVote = false;
+			for user in elem.votes
+				if (@user.getId() == user.id)
+					data.haveMyVote = true;
+					break;
 			res.push(data);
 		return res;
 
 	buildCurrentTrack: (roomData) ->
 		if (!roomData.currentTrack)
 			return null;
-		track = roomData.currentTrack
-		res.uri = track.uri;
-		res.trackName = if (track.track) then track.track.name else '...' ;
-		res.artistName = if (track.track) then track.track.artists[0].name else '...';
-		res.albumImg = if (track.track) then Model.getAlbumImg(track.track.album.uri) else Model.getAlbumImg(null);
-		return res;
+		data = {};
+		data.track = roomData.currentTrack.track;
+		data.votes = roomData.currentTrack.votes;
+		return data;
 
 	buildPlayer: (roomData) -> roomData.players.length != 0;
 
@@ -63,20 +72,23 @@ class Room
 			@player = @buildPlayer(data);
 			@trackQueue = @buildTrackQueue(data);
 			@currentTrack = @buildCurrentTrack(data);
-			console.log(this);
 
 	buildSearchResult: (searchResults) ->
 		res = {tracks:[]};
 		for track in searchResults.tracks
 			data = track;
 			data.nbVotes = 0;
-			data.haveMyVote = false;
+			data.haveMyVote = @haveMyVote(track.uri);
 			res.tracks.push(data);
 		return res;
 
 
 	vote: (uri) =>
 		@webService.query("room/#{@name}/vote", {uri:uri}).then (data) =>
+			@trackQueue = @buildTrackQueue(data);
+
+	unvote: (uri) =>
+		@webService.query("room/#{@name}/unvote", {uri:uri}).then (data) =>
 			@trackQueue = @buildTrackQueue(data);
 
 	search: (query) ->

@@ -34,7 +34,7 @@ class Album
 		promise = HttpClient.get(url)
 		promise = promise.then (data) =>
 			data = JSON.parse(data);
-			@imgUrl = data.thumbnail_url;
+			@imgUrl = data.thumbnail_url.replace('cover', '300');
 			defer.resolver.resolve(true);
 		promise.otherwise(defer.resolver.reject);
 		return (defer.promise);

@@ -23,6 +23,8 @@ class MenuPanelController
 		@$scope.room = @room;
 		@$scope.logout = @logout;
 		@$scope.changeRoom = @changeRoom;
+		@$scope.goToTrackQueue = @goToTrackQueue;
+		@$scope.goToSearch = @goToSearch;
 
 	logout: () =>
 		@user.logout();
@@ -31,6 +33,17 @@ class MenuPanelController
 	changeRoom: () =>
 		@room.exit();
 		@locationManager.goTo('/roomSelect');
+		$('#panel_menu').data('panel').hide();
 
+	goToTrackQueue: () =>
+		@locationManager.goTo("/room/#{@room.name}");
+		$('#panel_menu').data('panel').hide();
+
+	goToSearch: () =>
+		@locationManager.goTo("/room/#{@room.name}/search");
+		$('#panel_menu').data('panel').hide();
+
+
+MenuPanelController.$inject = ['$scope', 'webService', 'locationManager', 'room', 'user'];
 
 window.MenuPanelController = MenuPanelController;

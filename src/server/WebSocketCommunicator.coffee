@@ -27,12 +27,6 @@ class WebSocketCommunicator extends EventEmitter
 		@server = new WebSocketServer(httpServer);
 		@server.on('connect', @onConnect);
 
-	queueChanged: () =>
-		@server.broadcast(new Command('queueChanged'))
-
-	playerChanged: () =>
-		@server.broadcast(new Command('playerChanged'))
-
 	onConnect: (client) =>
 		client.on("command", (command) => @onCommand(client, command))
 

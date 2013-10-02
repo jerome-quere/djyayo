@@ -23,12 +23,13 @@ class RoomTrackQueueController
 		@room.enter($routeParams.room).catch () =>
 			@locationManager.goTo('/roomSelect');
 		@$scope.room = @room;
-		@$scope.onTrackClick = @onTrackClick;
+		@$scope.onTrackClick = @onTrackClick
 
-	onTrackClick: (e) =>
-		if (!e?) then return;
-		uri = e.uri;
-		if (e.haveMyVote)
-			@unvote(uri)
+
+	onTrackClick: (elem) =>
+		if (elem.haveMyVote)
+			@room.unvote(elem.track.uri)
 		else
-			@vote(uri);
+			@room.vote(elem.track.uri)
+
+RoomTrackQueueController.$inject = ['$scope', '$routeParams', 'locationManager', 'webService', 'spotify', 'user', 'room', '$timeout']

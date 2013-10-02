@@ -28,8 +28,15 @@ class HttpResponse
 		@headers['Content-Type'] = contentType
 
 	enableCache: () =>
-		@headers['Cache-Control'] = 'must-revalidate';
+		@headers['Cache-Control'] = 'public';
 		@headers['Expires'] = 'Fri, 03 Jan 2042 23:42:00 GMT'
+		@headers['Pragma'] = 'public';
+		delete @headers['Set-Cookie'];
+
+	disableCache: () =>
+		@headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+		@headers['Pragma'] = 'no-cache';
+		@headers['Expires'] = 0;
 
 	enableCrossDomain: () =>
 		origin = if @request.headers.origin then @request.headers.origin else '*'

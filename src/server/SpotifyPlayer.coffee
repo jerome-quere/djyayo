@@ -28,7 +28,7 @@ class SpotifyPlayer extends EventEmitter
 		@toDo = [];
 
 	play: (uri) =>
-		@client.send(new Command('play', {uri:uri}))
+		@_pingPong(new Command('play', {uri:uri}))
 
 	getId: () -> @client.getId()
 
@@ -36,7 +36,10 @@ class SpotifyPlayer extends EventEmitter
 		if (command.getName() == "endOfTrack")
 			@emit('endOfTrack');
 		else
-			@toDo[0].defer.resolve(command.getArgs());
+			if (command.getName() == 'success')
+				@toDo[0].defer.resolve(command.getArgs());
+			else
+				@toDo[0].defer.reject(command.getArgs());
 			@toDo.shift();
 			@_execToDo()
 
@@ -49,7 +52,6 @@ class SpotifyPlayer extends EventEmitter
 	_execToDo: () =>
 		if (@toDo.length == 0 ) then return;
 		@client.send(@toDo[0].cmd);
-
 
 	_pingPong: (cmd) =>
 		defer = When.defer();

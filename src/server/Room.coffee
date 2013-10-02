@@ -17,6 +17,7 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
+Command = require('./Command.coffee');
 SpotifyCommunicator = require('./SpotifyCommunicator.coffee');
 TrackQueue = require('./TrackQueue.coffee');
 
@@ -26,6 +27,7 @@ class Room
 		@spotifyCom = new SpotifyCommunicator();
 		@trackQueue = new TrackQueue(this);
 		@currentTrack = null;
+		@clients = [];
 
 	addPlayer: (player) ->
 		@players.push(player);
@@ -33,6 +35,15 @@ class Room
 			@players[0].on('endOfTrack', @onEndOfTrack);
 			@playNextTrack()
 		player.on('disconnect', () => @onPlayerDisconnect(player));
+		@changed();
+
+
+	addClient: (client) ->
+		@clients.push(client);
+
+	delClient: (client) ->
+		if ((idx == @client.indexOf(client)) != -1)
+			@players.splice(idx, 1);
 
 	onPlayerDisconnect: (player) ->
 		idx = @players.indexOf(player);
@@ -43,30 +54,41 @@ class Room
 			@currentTrack = null;
 		else
 			@playNextTrack()
+		@changed();
 
 	onEndOfTrack: () =>
 		@playNextTrack()
 
 	playNextTrack: () ->
-		if (@currentTrack != null)
-			@currentTrack = null;
+		@currentTrack = null;
 		if (!@trackQueue.empty())
 			@currentTrack = @trackQueue.pop();
 			p.play(@currentTrack.getUri()) for p in @players;
+		@changed();
 
-	vote: (clientId, uri) ->
-		@trackQueue.vote(clientId, uri);
+	vote: (clientId, track) ->
+		@trackQueue.vote(clientId, track);
+		if (@currentTrack == null and @players.length != 0)
+			@playNextTrack();
+		@changed();
+
 	unvote: (clientId, uri) ->
 		@trackQueue.unvote(clientId, uri)
+		@changed();
 
 	search: (query) =>
 		@players[0].search(query).then (data) =>
-			if data == null then throw "Error on search";
 			return data;
+
+
+	changed: () =>
+		for client in @clients
+			client.send(new Command('roomChanged'));
 
 	getData: () ->
 		data = {}
 		data.name = @name;
+		if (@currentTrack?) then data.currentTrack = @currentTrack.getData();
 		data.players = for p in @players
 			{id: p.getId()}
 		data.queue = @trackQueue.getData()

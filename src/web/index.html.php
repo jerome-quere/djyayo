@@ -1,3 +1,10 @@
+<?php
+
+$DEBUG = false;
+if (isset($argv[1]) && $argv[1] == '-v')
+  $DEBUG = true;
+
+?>
 <!DOCTYPE html>
 <html lang="en" ng-app="spotifyDj">
   <head>
@@ -5,7 +12,8 @@
     <title>Spotify - Dj</title>
     <meta name="author" content="Yayo<contact@jeromequere.com>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-          <link type="text/css" rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <?if ($DEBUG):?>
+      <link type="text/css" rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
       <link type="text/css" rel="stylesheet" href="css/font-awesome/font-awesome.min.css" />
       <link type="text/css" rel="stylesheet/less" href="css/less/style.less" />
       <link type="text/css" rel="stylesheet" href="css/social-buttons.min.css" />
@@ -17,7 +25,17 @@
       <script src="js/angular/angular.min.js"></script>
       <script src="js/angular/angular-route.min.js"></script>
       <script src="js/script.js"></script>
-      </head>
+    <?else:?>
+      <link type="text/css" rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" />
+      <link type="text/css" rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" />
+      <link type="text/css" rel="stylesheet" href="css/style.min.css" />
+      <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+      <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+      <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0-rc.2/angular.min.js"></script>
+      <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0-rc.2/angular-route.min.js"></script>
+      <script src="js/script.min.js"></script>
+    <?endif;?>
+  </head>
   <body>
     <div id="panels">
       <div id="panel_menu" class="panel" ng-controller="MenuPanelController">

@@ -30,15 +30,15 @@ class TrackQueue
 	indexOf: (trackUri) ->
 		i = 0
 		while (i < @tracks.length)
-			if (@tracks[i].getUri() == trackUri)
+			if (@tracks[i].track.uri == trackUri)
 				return (i)
 			i++
 		return (-1)
 
-	vote: (clientId, trackUri) ->
-		if ((idx = @indexOf(trackUri)) != -1)
+	vote: (clientId, track) ->
+		if ((idx = @indexOf(track.uri)) != -1)
 			return @tracks[idx].vote(clientId)
-		elem = new TrackQueueElement(trackUri)
+		elem = new TrackQueueElement(track)
 		elem.vote(clientId)
 		@tracks.push(elem);
 

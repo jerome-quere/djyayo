@@ -8,35 +8,31 @@
 	<div ng-show="!room.currentTrack" class="listView-header">
 	  No current track
 	</div>
-	<div ng-show="room.currentTrack">
-	  <div ng-hide="room.player" class="listView-header">
-	    Currently Playing
-	  </div>
-	  <ul>
-	    <li>
-	      <img class="thumbmail" ng-src="{{trackQueue.currentTrack.track.album.imgUrl}}" />
-	      <h2>{room.currentTrack.track.name}</h2>
-	      <p>{room.currentTrack.track.artists[0].name}</p>
-	      <span class="badge">{{room.currentTrack.votes.length}} votes</span>
-	    </li>
-	  </ul>
+	<div ng-show="room.currentTrack" class="listView-header">
+	  Currently Playing
 	</div>
+	<ul ng-show="room.currentTrack">
+	  <li>
+	    <img class="thumbmail" ng-src="{{room.currentTrack.track.album.imgUrl}}" onerror="$(this).attr('src', 'images/album.png')" />
+	    <h3>{{room.currentTrack.track.name}}</h3>
+	    <p>{{room.currentTrack.track.artists[0].name}}</p>
+	    <span class="badge">{{room.currentTrack.votes.length}}</span>
+	  </li>
+	</ul>
 	<div class="listView-header" ng-show="room.trackQueue">
 	  To Come ...
 	</div>
+	<ul class="listView">
+	  <li ng-repeat="elem in room.trackQueue" ng-click="onTrackClick(elem)">
+	    <img class="thumbmail" ng-src="{{elem.track.album.imgUrl}}" onerror="$(this).attr('src', 'images/album.png')"/>
+	    <h3>{{elem.track.name}}</h3>
+	    <p>{{elem.track.artists[0].name}}</p>
+	    <span class="badge">{{elem.votes.length}}</span>
+	    <img class="icon" ng-show="elem.haveMyVote"  src="images/star_full.png" />
+	    <img class="icon" ng-show="!elem.haveMyVote" src="images/star_empty.png"/>
+	  </li>
+	</ul>
       </div>
-
-
-      <ul class="listView">
-	<li ng-repeat="elem in trackQueue.queue">
-	  <img class="thumbmail" ng-src="{{elem.track.album.imgUrl}}" onerror="$(this).attr('src', 'images/album.png')"/>
-	  <h2>{{elem.track.name}}</h2>
-	  <p>{{elem.track.artists[0].name}}</p>
-	  <span class="badge">{{elem.votes.length}} votes</span>
-	  <img class="icon" ng-show="elem.haveMyVote" ng-click="onTrackClick(elem)" src="images/star_full.png" />
-	  <img class="icon" ng-show="!elem.haveMyVote" ng-click="onTrackClick(elem)" src="images/star_empty.png"/>
-	</li>
-      </ul>
     </div>
   </div>
 </div>

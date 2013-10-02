@@ -17,9 +17,11 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
+CommandGenerator = require('./CommandGenerator.coffee');
 Communicator = require("./Communicator.coffee");
 Config = require('./Config.coffee')
 Player = require('./Player.coffee');
+fn = require('when/function');
 
 class Application
 	constructor: () ->
@@ -36,25 +38,23 @@ class Application
 			console.log(err)
 
 	onPlayCommand: (args) =>
-		@player.play(args.uri);
-
+		@player.play(args.uri).then () => CommandGenerator.success();
 
 	onSearchCommand: (args) =>
-		p = @player.search(args.query)
-		p = p.then (res) =>
-			@com.searchResult({results: res})
-		p.otherwise (err) =>
-			console.log(err.stack);
-			@com.searchResult(null)
+		return @player.search(args.query).then (res) =>
+			return CommandGenerator.success({results: res});
 
-	onEndOfTrack: () => @com.endOfTrack();
+	onEndOfTrack: () => @com.send(CommandGenerator.endOfTrack());
 
 	onCommand: (command) =>
 		actions = {}
 		actions['play'] = @onPlayCommand;
 		actions['search'] = @onSearchCommand;
 		if (actions[command.getName()]?)
-			actions[command.getName()](command.getArgs());
-
+			promise = fn.call(actions[command.getName()], command.getArgs())
+			promise.then (response) => @com.send(response);
+			promise.otherwise (e) =>
+				if (e.stack) then console.log(e.stack);
+				@com.send(CommandGenerator.error());
 
 module.exports = Application

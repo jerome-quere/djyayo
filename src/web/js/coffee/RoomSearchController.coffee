@@ -18,26 +18,38 @@
 ##
 
 class RoomSearchController
-	constructor: (@$scope, @room, $routeParams) ->
+	constructor: (@$scope, @room, $routeParams, @$timeout) ->
 		@room.enter($routeParams.room)
 		@$scope.searchInput = "";
 		@$scope.searchResults = null;
-		@$scope.search = @search;
-		@$scope.vote = @vote;
-		@$scope.unvote = @unvote;
+		@$scope.onInputChange = @onInputChange;
+		@$scope.trackClick = @onTrackClick;
+		@timer = null;
+
+
+	onInputChange: () =>
+		value = @$scope.searchInput;
+		if (@timer?)
+			@$timeout.cancel(@timer)
+			@timer = null;
+		@timer = @$timeout(@search, 500);
 
 	search: () =>
-		if (@$scope.searchInput.length < 3)
-			@$scope.searchResults = null
 		query = @$scope.searchInput;
+		if (query == "")
+			@$scope.searchResults = null;
+			return;
 		p = @room.search(query);
 		p.then (searchResults) =>
 			if (query == @$scope.searchInput)
 				@$scope.searchResults = searchResults;
 
-	vote: (track) =>
-		@room.vote(track.uri);
-		track.haveMyVote = true;
+	onTrackClick: (track) =>
+		if (track.haveMyVote)
+			@room.unvote(track.uri);
+			track.haveMyVote = false;
+		else
+			@room.vote(track.uri);
+			track.haveMyVote = true;
 
-	unvote: (track) =>
-		track.haveMyVote = false;
+RoomSearchController.$inject = ['$scope', 'room', '$routeParams', '$timeout'];

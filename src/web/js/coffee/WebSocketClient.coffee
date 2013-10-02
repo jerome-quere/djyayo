@@ -18,18 +18,18 @@
 ##
 
 class WebSocketClient
-	constructor: ($rootScope, @config, @trackQueue, @player) ->
+	constructor: ($rootScope, @config, @room) ->
 		@rootScope = $rootScope;
 		@socket = io.connect(@config.get('webservice.url'))
 		@socket.on('command', @onCommand);
+		@room.on('enter', @onChangeRoom);
 
 	onCommand: (command) =>
 		console.log(command);
 		actions = {};
-		actions['queueChanged'] = @onQueueChanged;
-		actions['playerChanged'] = @onPlayerChanged;
+		actions['roomChanged'] = @onRoomChanged;
 		if (actions[command.name]?)
 			actions[command.name]()
 
-	onQueueChanged: () => @rootScope.$apply(() => @trackQueue.refresh());
-	onPlayerChanged: () => @rootScope.$apply(() => @player.refresh());
+	onRoomChanged: () => @rootScope.$apply(() => @room.refreshTrackQueue());
+	onChangeRoom: () => @socket.emit('command', {name: 'changeRoom', args:{room: @room.name}});

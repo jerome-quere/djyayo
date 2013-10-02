@@ -31,3 +31,5 @@ class LoginController
 		promise = @google.login();
 		promise.then (token) =>
 			@user.loginWithGoogleToken(token);
+
+LoginController.$inject = ['$scope', 'user', 'facebook', 'google']

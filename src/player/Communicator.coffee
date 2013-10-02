@@ -31,16 +31,16 @@ class Communicator extends EventEmitter
 		@socket.on('connect', @onConnect)
 		@socket.on('command', @onCommand)
 
-	searchResult: (res) ->
-		@socket.emit('command', new Command('searchResults', res));
-
-	endOfTrack: () ->
-		@socket.emit('command', new Command('endOfTrack'));
+	send: (cmd) =>
+		console.log("Send", cmd);
+		@socket.emit('command', cmd);
 
 	onConnect: () =>
 		console.log("Connected");
 		@socket.emit("command", new Command("iamaplayer", {room:Config.get('room')}));
 
-	onCommand: (command) => @emit('command', new Command(command.name, command.args))
+	onCommand: (command) =>
+		console.log("Read", command);
+		@emit('command', new Command(command.name, command.args))
 
 module.exports = Communicator

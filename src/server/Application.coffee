@@ -57,6 +57,7 @@ class Application
 	onHttpRequest: (request, response) =>
 		response.enableCrossDomain();
 		response.setMIME('application/json');
+		response.disableCache();
 		if (request.getMethod() not in ["POST","GET"])
 			response.end();
 		promise = @routeManager.exec(request, response)
@@ -106,17 +107,16 @@ class Application
 		room = RoomManager.get(data.room);
 		if (!room?)
 			throw HttpErrors.invalidRoomName()
-		console.log(room.getData());
 		return room.getData();
 
 	onUnvoteRequest: (request, response, data) =>
-		post = request.getData();
+		get = request.getQuery();
 		room = RoomManager.get(data.room)
 		if !room? then throw HttpErrors.invalidRoomName()
 		if !request.getSession().isLog() then throw HttpErrors.mustBeLoggedIn()
-		if !post.uri then throw HttpErrors.badParams()
-		room.unvote(request.getSession().getUserId(), post.uri);
-		return @onQueueRequest(request, response, data)
+		if !get.uri then throw HttpErrors.badParams()
+		room.unvote(request.getSession().getUserId(), get.uri);
+		return @onRoomRequest(request, response, data)
 
 	onVoteRequest: (request, response, data) =>
 		get = request.getQuery();
@@ -124,14 +124,9 @@ class Application
 		if !room? then throw HttpErrors.invalidRoomName()
 		if !request.getSession().isLog() then throw HttpErrors.mustBeLoggedIn()
 		if !get.uri then throw HttpErrors.badParams()
-		room.vote(request.getSession().getUserId(), get.uri);
-		return @onRoomRequest(request, response, data)
-
-	onQueueRequest: (request, response, data) =>
-		room = RoomManager.get(data.room)
-		console.log(room);
-		if !room? then throw HttpErrors.invalidRoomName()
-		return room.getQueueData();
+		return Model.getTrack(get.uri).then (track) =>
+			room.vote(request.getSession().getUserId(), track)
+			return @onRoomRequest(request, response, data)
 
 	onSearchRequest: (request, response, data) =>
 		room = RoomManager.get(data.room)
@@ -164,9 +159,16 @@ class Application
 			room = RoomManager.create(roomName);
 		room.addPlayer(new SpotifyPlayer(client));
 
+	onChangeRoomCommand: (client, command) =>
+		room = RoomManager.get(command.getArgs().room);
+		if (!room) then return;
+		room.addClient(client);
+
 	onWebSocketCommand: (client, command) =>
 		if (command.getName() == "iamaplayer")
 			@onIAmAPlayerCommand(client, command)
+		if (command.getName() == "changeRoom")
+			@onChangeRoomCommand(client, command);
 	run : () ->
 		@httpCom.run()
 
