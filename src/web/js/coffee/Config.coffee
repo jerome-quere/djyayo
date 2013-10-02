@@ -41,8 +41,8 @@ class Config
 		@config['webservice']['url'] = 'http://freebox.yayo.fr:4242'
 
 	loadProdConf: () =>
-		@config['website']['url'] = 'http://dj.yayo.fr:4242'
-		@config['webservice']['url'] = 'http://dj.yayo.fr:4242'
+		@config['website']['url'] = 'http://dj.yayo.fr:4545'
+		@config['webservice']['url'] = 'http://dj.yayo.fr:4545'
 
 	get: (key) =>
 		parts = key.split('.');

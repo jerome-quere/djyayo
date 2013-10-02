@@ -20,7 +20,7 @@
 class Config
 	constructor: () ->
 		@config = {}
-		@config['httpPort'] = 4242;
+		@config['httpPort'] = 4545;
 	get: (name) -> if (@config[name]?) then @config[name] else null
 
 module.exports = new Config();
