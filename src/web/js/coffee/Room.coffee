@@ -67,7 +67,6 @@ class Room extends EventEmitter
 
 	refreshTrackQueue: () ->
 		p = @webService.query("room/#{@name}");
-		p.catch () => @_clear();
 		return p.then (data) =>
 			@player = @buildPlayer(data);
 			@trackQueue = @buildTrackQueue(data);
