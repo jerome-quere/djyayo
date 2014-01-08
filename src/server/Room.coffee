@@ -18,13 +18,11 @@
 ##
 
 Command = require('./Command.coffee');
-SpotifyCommunicator = require('./SpotifyCommunicator.coffee');
 TrackQueue = require('./TrackQueue.coffee');
 
 class Room
 	constructor: (@name) ->
 		@players = []
-		@spotifyCom = new SpotifyCommunicator();
 		@trackQueue = new TrackQueue(this);
 		@currentTrack = null;
 		@clients = [];

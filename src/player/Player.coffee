@@ -20,24 +20,19 @@
 Config = require('./Config.coffee');
 EventEmitter = require('events').EventEmitter
 fn = require('when/function');
-lame = require('lame');
-Speaker = require('speaker');
-Spotify = require('spotify-web');
+spotify = require('./spotify.js')({ appkeyFile: Config.get('spKey') })
 When = require('when');
-xml2js = require 'xml2js'
+
 
 class Player extends EventEmitter
 	constructor: () ->
-		@spotify = null;
+		spotify.player.on("player_end_of_track", @onEndOfTrack);
 
 	connect: (login, password) ->
 		defered = When.defer()
-		Spotify.login login, password, (err, spotify) =>
-			if (err)
-				defered.resolver.reject(err)
-				return;
-			@spotify = spotify
-			console.log("Contry : #{@spotify.country}");
+		spotify.login login, password, false, false
+		spotify.ready () =>
+			console.log("Spotify connected")
 			defered.resolver.resolve(true);
 		return defered.promise;
 
@@ -45,43 +40,34 @@ class Player extends EventEmitter
 
 	play: (uri) ->
 		defer = When.defer();
-		@spotify.get uri, (err, track) =>
-			defer.resolve(fn.call((err, track) =>
-				if (err) then throw err;
-				console.log('Playing: %s - %s', track.artist[0].name, track.name);
-				track.play().pipe(new lame.Decoder()).pipe(new Speaker()).on 'finish', () =>
-					@onEndOfTrack()
-			, err, track));
+		track = spotify.createFromLink(uri)
+		if !track? then defer.reject("Invalid URI")
+		spotify.player.play(track)
+		console.log('Playing: %s - %s', track.artists[0].name, track.name);
 		return defer.promise;
 
 
 	search: (query) ->
 		defer = When.defer()
-		@spotify.search query, (err, res) =>
+		search = new spotify.Search(query);
+		search.execute (err, res) =>
 			if (err?)
 				defer.reject(err);
 			else
-				parser = new xml2js.Parser()
-				parser.parseString res, (err, xml) =>
-					if err then return defer.reject(err);
-					defer.resolve(fn.call(@buildSearchResult, xml));
+				defer.resolve(@buildSearchResult(res))
 		return defer.promise;
 
-	buildSearchResult: (xml) ->
+	buildSearchResult: (result) ->
 		res = {}
 		res.tracks = [];
-		if (xml.result.tracks[0])
-			for track in xml.result.tracks[0].track
+		for track in result.tracks
 				t = {}
-				t.name = track.title[0];
-				t.uri = Spotify.id2uri('track', track.id[0]);
-				t.artists = [{name:track.artist[0], uri:Spotify.id2uri('artist', track['artist-id'][0])}]
+				t.name = track.name
+				t.uri = track.link
+				t.artists = [{name:track.artists[0].name, uri:track.artists[0].link}]
 				t.album = {}
-				t.album.name = track.album[0]
-				t.album.uri = Spotify.id2uri('album', track['album-id'][0]);
-				t.album.imgUrl = null;
-				if (track['cover']?)
-					t.album.imgUrl = "https://d3rt1990lpmkn.cloudfront.net/300/#{track['cover'][0]}";
+				t.album.name = track.album.name
+				t.album.uri = track.album.link
 				res.tracks.push(t);
 		return res;
 

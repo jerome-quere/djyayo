@@ -19,7 +19,9 @@
 
 Command = require("./Command.coffee")
 EventEmitter = require("events").EventEmitter
+HttpClient = require("./HttpClient.coffee");
 When = require('when');
+Model = require('./Model.coffee');
 
 class SpotifyPlayer extends EventEmitter
 	constructor: (@client) ->
@@ -47,7 +49,18 @@ class SpotifyPlayer extends EventEmitter
 		@emit('disconnect')
 
 	search: (query) =>
-		@_pingPong(new Command('search', {query:query}));
+		@_pingPong(new Command('search', {query:query})).then (res) =>
+			promises = for track in res.results.tracks
+				do (track) =>
+					Model.getAlbum(track.album.uri).then (href) ->
+						track.album.imgUrl = href;
+			count = promises.length
+			defer = When.defer()
+			for p in promises
+				p.finally () =>
+					if (--count == 0) then defer.resolve(res);
+			return defer.promise
+
 
 	_execToDo: () =>
 		if (@toDo.length == 0 ) then return;

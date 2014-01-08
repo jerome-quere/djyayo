@@ -21,8 +21,16 @@ When = require('when');
 
 class CacheManager
 
+	@timer = null;
+
 	@initCache: () ->
 		if !@cache? then @cache = {}
+		if !@timer? then @timer= setTimeout(CacheManager.onTimeout, 1000 * 60 * 10)
+
+	@onTimeout: () =>
+		@cache = null;
+		@timer = null;
+		@initCache()
 
 	@get : (key, loader) ->
 		@initCache()

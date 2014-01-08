@@ -21,7 +21,7 @@ nconf = require('nconf');
 Application = require('./Application.coffee');
 
 nconf.argv();
-nconf.defaults({'host': 'localhost', 'port': 4242, 'login': 'YOUR_USER_NAME', 'password': 'YOUR_PASSWORD', 'room': 'defaultRoom'});
+nconf.defaults({'host': 'localhost', 'port': 4242, 'login': 'YOUR_USER_NAME', 'password': 'YOUR_PASSWORD', 'room': 'defaultRoom', 'spKey': 'spotify_appkey.key'});
 
 main = () ->
 	application = new Application()
