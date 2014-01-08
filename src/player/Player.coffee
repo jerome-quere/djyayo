@@ -44,6 +44,7 @@ class Player extends EventEmitter
 		if !track? then defer.reject("Invalid URI")
 		spotify.player.play(track)
 		console.log('Playing: %s - %s', track.artists[0].name, track.name);
+		defer.resolve(true);
 		return defer.promise;
 
 

@@ -44,7 +44,9 @@ class Application
 		return @player.search(args.query).then (res) =>
 			return CommandGenerator.success({results: res});
 
-	onEndOfTrack: () => @com.send(CommandGenerator.endOfTrack());
+	onEndOfTrack: () =>
+		console.log("END OF TRAK SEND")
+		@com.send(CommandGenerator.endOfTrack());
 
 	onCommand: (command) =>
 		actions = {}
