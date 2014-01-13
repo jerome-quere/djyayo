@@ -50,16 +50,17 @@ class SpotifyPlayer extends EventEmitter
 
 	search: (query) =>
 		@_pingPong(new Command('search', {query:query})).then (res) =>
-			promises = for track in res.results.tracks
-				do (track) =>
-					Model.getAlbum(track.album.uri).then (album) ->
-						track.album.imgUrl = album.imgUrl;
-			count = promises.length
-			defer = When.defer()
-			for p in promises
-				p.finally () =>
-					if (--count == 0) then defer.resolve(res);
-			return defer.promise
+			#promises = for track in res.results.tracks
+			#	do (track) =>
+			#		Model.getAlbum(track.album.uri).then (album) ->
+			#			track.album.imgUrl = album.imgUrl;
+			#count = promises.length
+			#defer = When.defer()
+			#for p in promises
+			#	p.finally () =>
+			#		if (--count == 0) then defer.resolve(res);
+			#return defer.promise
+			return res;
 
 
 	_execToDo: () =>
