@@ -19,13 +19,16 @@
 
 
 class HeaderController
-	constructor: ($scope, @user) ->
-		$scope.user = @user;
-		$scope.logout = @logout;
+	constructor: (@$scope, @user, @$location) ->
+		@user.on('login', @$scope, @onUserChanged)
+		@user.on('logout', @$scope, @onUserChanged)
+		@onUserChanged()
 
-	logout: () =>
-		@user.logout();
+	onUserChanged: () =>
+		@$scope.isLog = @user.isLog()
+		@$scope.name = @user.getName()
+		@$scope.userImgUrl = @user.getImgUrl()
 
 
-HeaderController.$inject = ['$scope', 'user']
+HeaderController.$inject = ['$scope', 'user', '$location']
 window.HeaderController = HeaderController;

@@ -19,8 +19,10 @@
 
 class Room extends EventEmitter
 	constructor: (@webService, @model, @user) ->
+		@user.on('logout', @exit);
 		@_clear()
 
+	getName: () -> @name
 
 	_clear: () ->
 		@name = null;
@@ -29,9 +31,12 @@ class Room extends EventEmitter
 		@currentTrack = null;
 
 	enter: (@name) =>
-		@emitEvent('enter');
+		@emit('enter');
 		return @refreshTrackQueue()
-	exit: () -> @_clear();
+
+	exit: () =>
+		@_clear();
+		@emit('exit')
 
 	haveMyVote: (uri) =>
 		for elem in @trackQueue
@@ -76,6 +81,10 @@ class Room extends EventEmitter
 		res = {tracks:[]};
 		for track in searchResults.tracks
 			data = track;
+			track.album.imgUrl = "images/album.png";
+			do (track) =>
+				@model.getAlbumImg(data.album.uri).then (url) ->
+					track.album.imgUrl = url;
 			data.nbVotes = 0;
 			data.haveMyVote = @haveMyVote(track.uri);
 			res.tracks.push(data);

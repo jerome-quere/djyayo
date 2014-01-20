@@ -19,6 +19,9 @@
 	    <span class="badge">{{room.currentTrack.votes.length}}</span>
 	  </li>
 	</ul>
+	<div class="spacer center" ng-hide="room.trackQueue">
+	  <i> What's next ? <a href="#/room/{{room.name}}/search">vote for the next song</a> !
+	</div>
 	<div class="listView-header" ng-show="room.trackQueue">
 	  To Come ...
 	</div>

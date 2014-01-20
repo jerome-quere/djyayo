@@ -1,6 +1,6 @@
 <div class="input-group">
   <span class="input-group-addon"><i class="icon-search"></i></span>
-  <input type="text" placeholder="Search" class="form-control" ng-change="onInputChange()" ng-model="searchInput">
+  <input name="search" type="text" placeholder="Search" class="form-control" ng-change="onInputChange()" ng-model="searchInput">
 </div>
 <!--
 <ul class="nav nav-tabs">
@@ -10,7 +10,7 @@
 </ul>
 -->
 <div class="listView">
-  <ul class="listView">
+  <ul>
     <li ng-repeat="track in searchResults.tracks" ng-click="trackClick(track)">
       <img class="thumbmail" ng-src="{{track.album.imgUrl}}" onerror="$(this).attr('src', 'images/album.png')"/>
       <h3>{{track.name}}</h3>
@@ -19,4 +19,10 @@
       <img class="icon" ng-show="!track.haveMyVote" src="images/star_empty.png" />
     </li>
   </ul>
+  <div class="center spacer" ng-hide="searchResults">
+    <i>
+      Sorry no result found <br/>
+      <a href="" ng-click="onTryThisClick()">Try this</a>
+    </i>
+  </div>
 </div>

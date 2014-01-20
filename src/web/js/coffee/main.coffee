@@ -18,7 +18,7 @@
 ##
 
 
-spotifyDj = angular.module('spotifyDj', ['ngRoute'])
+spotifyDj = angular.module('spotifyDj', ['ngRoute', 'ngCookies'])
 
 spotifyDj.config ['$routeProvider', ($routeProvider) ->
 	$routeProvider.when('/login', {templateUrl:"./pages/login.html", controller: LoginController})
@@ -32,7 +32,7 @@ spotifyDj.factory 'config', () -> new Config()
 spotifyDj.factory 'webService', ['$http', '$q', 'config', ($http, $q, config) -> new WebService($http, $q, config)]
 spotifyDj.factory 'model', ['webService', (webService) -> new Model(webService)]
 spotifyDj.factory 'spotify', ['$cacheFactory', '$q', 'webService', ($cacheFactory, $q, webService) -> new Spotify($cacheFactory, $q, webService)]
-spotifyDj.factory 'user', ['webService', '$location', (webService, $location) -> new User(webService, $location)]
+spotifyDj.factory 'user', ['webService', '$location', '$cookies', (webService, $location, $cookies) -> new User(webService, $location, $cookies)]
 spotifyDj.factory 'room', ['webService', 'model', 'user', (webService, model, user) -> new Room(webService, model, user)]
 spotifyDj.factory 'locationManager', ['$rootScope', '$location', 'user', ($rootScope, $location, user) -> new LocationManager($rootScope, $location, user)]
 spotifyDj.factory 'facebook', ['$rootScope', '$q', 'config', ($rootScope, $q, config) -> new Facebook($rootScope, $q, config)]

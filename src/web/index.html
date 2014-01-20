@@ -5,43 +5,56 @@
     <title>Spotify - Dj</title>
     <meta name="author" content="Yayo<contact@jeromequere.com>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-          <link type="text/css" rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" />
-      <link type="text/css" rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" />
-      <link type="text/css" rel="stylesheet" href="css/style.min.css" />
-      <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-      <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-      <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0-rc.2/angular.min.js"></script>
-      <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0-rc.2/angular-route.min.js"></script>
-      <script src="js/script.min.js"></script>
-      </head>
+    <link rel="icon" type="image/png" href="images/favicon.png" />
+    <link rel="apple-touch-icon" href="images/touch-icon-iphone.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="images/touch-icon-ipad.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="images/touch-icon-iphone-retina.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="images/touch-icon-ipad-retina.png" />
+    <link type="text/css" rel="stylesheet" href="css/vendor.css" />
+    <link type="text/css" rel="stylesheet" href="css/style.css" />
+    <script src="js/vendor.js"></script>
+    <script src="js/script.js"></script>
+  </head>
   <body>
     <div id="panels">
       <div id="panel_menu" class="panel" ng-controller="MenuPanelController">
 	<div class="listView-mini">
-	  <ul class="listView-mini">
+	  <ul>
 	    <li>
-	      <img class="thumbmail" ng-src="{{user.imgUrl}}"/>
-	      <h2>Hello {{user.name}} !</h2>
-	      <a href="#" ng-click="logout()" class="icon">
-		<i class="icon-signout" ></i>
-	      </a>
+	      <img class="thumbmail" ng-src="{{userImgUrl}}"/>
+	      <h2>Hello {{userName}} !</h2>
 	    </li>
-	    <li ng-show="room.name">
-	      <a href="#" ng-click="changeRoom()">
-		<i class="thumbmail icon-reply"></i>
-		<h2>Change Room</h2>
-	      </a>
-	    </li>
-	    <li ng-show="room.name">
+	  </ul>
+	  <div class="listView-header" ng-show="roomName">
+	    You are in {{roomName}}
+	  </div>
+	  <ul ng-show="roomName">
+	    <li>
 	      <a href="javascript:" ng-click="goToTrackQueue()">
 		<i class="thumbmail icon-music"></i>
-		<h2>Track Queue</h2>
+		<h2>Go to track queue</h2>
 	      </a>
 	    </li>
-	    <li ng-show="room.name">
+	    <li ng-show="roomName">
 	      <a href="javascript:" ng-click="goToSearch()">
 		<i class="thumbmail icon-search"></i>
-		<h2>Search</h2>
+		<h2>Go to search</h2>
+	      </a>
+	    </li>
+	    <li ng-show="roomName">
+	      <a href="javascript:" ng-click="changeRoom()">
+		<i class="thumbmail icon-reply"></i>
+		<h2>Leave Room</h2>
+	      </a>
+	    </li>
+	  </ul>
+	  <div class="listView-header">
+	  </div>
+	  <ul>
+	    <li>
+	      <a href="javascript:" ng-click="logout()">
+		<i class="thumbmail icon-power-off"></i>
+		<h2>Logout</h2>
 	      </a>
 	    </li>
 	  </ul>
@@ -55,16 +68,14 @@
     </div>
     <div id="wrap">
       <div id="header" ng-controller="HeaderController">
-	<a ng-show="user.isLog" class="menu-ico" herf="" onclick="$('#panel_menu').data('panel').show();">
+	<a ng-show="isLog" class="menu-ico" href="javascript:" onclick="$('#panel_menu').data('panel').show();">
 	  <i class="icon-reorder"></i>
 	</a>
-	<table ng-show="user.isLog" class="user-infos">
+	<table ng-show="isLog" class="user-infos">
 	  <tr>
-	    <td rowspan="2"></td>
-	    <td>Hello <b>{{user.name}}</b></td>
-	  </tr>
-	  <tr>
-	    <td><a href="#" ng-click="logout()">Logout</a></td>
+	    <td>
+	      <img ng-src="{{userImgUrl}}" />
+	    </td>
 	  </tr>
 	</table>
       </div>

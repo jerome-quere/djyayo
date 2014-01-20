@@ -32,16 +32,16 @@ class Config
 		@config['static'] = {}
 
 		@hostConfs = {};
-		@hostConfs['freebox.yayo.fr'] = @loadLocalhostConf;
+		@hostConfs['archlinux'] = @loadLocalhostConf;
 		@hostConfs['dj.yayo.fr'] = @loadProdConf;
 		if @hostConfs[host]? then @hostConfs[host]();
 
 	loadLocalhostConf: () =>
-		@config['website']['url'] = 'http://freebox.yayo.fr:4242'
-		@config['webservice']['url'] = 'http://freebox.yayo.fr:4242'
+		@config['website']['url'] = 'http://archlinux:8000'
+		@config['webservice']['url'] = 'http://archlinux:4545'
 
 	loadProdConf: () =>
-		@config['website']['url'] = 'http://dj.yayo.fr:4545'
+		@config['website']['url'] = 'http://dj.yayo.fr'
 		@config['webservice']['url'] = 'http://dj.yayo.fr:4545'
 
 	get: (key) =>

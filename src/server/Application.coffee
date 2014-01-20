@@ -17,6 +17,7 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
+SessionManager = require('./SessionManager.coffee');
 HttpCommunicator = require('./HttpCommunicator.coffee')
 HttpErrors = require('./HttpErrors.coffee');
 Logger = require('./Logger.coffee');
@@ -24,7 +25,7 @@ Model = require('./Model.coffee')
 RoomManager = require('./RoomManager.coffee');
 RouteManager = require('./RouteManager.coffee');
 SpotifyPlayer = require('./SpotifyPlayer.coffee');
-StaticContent = require('./StaticContent.coffee')
+Testor = require('./Testor.coffee');
 UserManager = require('./UserManager.coffee')
 WebSocketCommunicator = require('./WebSocketCommunicator.coffee');
 
@@ -37,7 +38,7 @@ class Application
 		@routeManager = @buildRouteManager()
 		@httpCom.on('httpRequest', @onHttpRequest);
 		@webSockCom.on('command', @onWebSocketCommand);
-
+		@sessionManager = new SessionManager();
 
 	buildRouteManager: () ->
 		rm = new RouteManager();
@@ -62,14 +63,22 @@ class Application
 			response.end();
 		promise = @routeManager.exec(request, response)
 		if (!promise?)
-			@onStaticRequest(request, response)
+			response.end(JSON.stringify(HttpErrors.notFound()));
 			return;
 		promise.then (data) -> response.end(JSON.stringify({code: 200, msg: "Success", data: data}));
-		promise.then null, (error) ->
+		promise.otherwise (error) ->
 			code = if (error.code?) then error.code else 500;
 			msg = if (error.msg?) then error.msg else "" + error;
 			if (error.stack) then console.log(error.stack);
 			response.end(JSON.stringify({code: code, msg: msg, data: null}));
+
+
+	getAndTestSession: (request, th = true) =>
+		token = Testor(request.getQuery()['access_token'], HttpErrors.mustBeLoggedIn()).isMD5().toString();
+		session = @sessionManager.get(token);
+		if (session == null && th == true)
+			throw HttpErrors.mustBeLoggedIn();
+		return session;
 
 	onLoginRequest: (request, response) =>
 		data = request.getQuery();
@@ -79,8 +88,8 @@ class Application
 			else
 				promise = UserManager.loadFromGoogle(data.token);
 			return promise.then (user) =>
-				request.getSession().login(user.id);
-				return @onMeRequest(request, response)
+				token = @sessionManager.create(user);
+				return {access_token:token};
 		else
 			throw HttpErrors.badParams()
 
@@ -89,10 +98,8 @@ class Application
 		return {};
 
 	onMeRequest: (request, response) =>
-		if (!request.getSession().isLog())
-			return null;
-		user = UserManager.get(request.getSession().getUserId())
-		return user.getData();
+		session = @getAndTestSession(request)
+		return session.getData();
 
 	onCreateRoomRequest: (request, response) =>
 		data = request.getData();
@@ -110,22 +117,22 @@ class Application
 		return room.getData();
 
 	onUnvoteRequest: (request, response, data) =>
+		session = @getAndTestSession(request)
 		get = request.getQuery();
 		room = RoomManager.get(data.room)
 		if !room? then throw HttpErrors.invalidRoomName()
-		if !request.getSession().isLog() then throw HttpErrors.mustBeLoggedIn()
 		if !get.uri then throw HttpErrors.badParams()
-		room.unvote(request.getSession().getUserId(), get.uri);
+		room.unvote(session.getUserId(), get.uri);
 		return @onRoomRequest(request, response, data)
 
 	onVoteRequest: (request, response, data) =>
+		session = @getAndTestSession(request)
 		get = request.getQuery();
 		room = RoomManager.get(data.room)
 		if !room? then throw HttpErrors.invalidRoomName()
-		if !request.getSession().isLog() then throw HttpErrors.mustBeLoggedIn()
 		if !get.uri then throw HttpErrors.badParams()
 		return Model.getTrack(get.uri).then (track) =>
-			room.vote(request.getSession().getUserId(), track)
+			room.vote(session.getUserId(), track)
 			return @onRoomRequest(request, response, data)
 
 	onSearchRequest: (request, response, data) =>
@@ -146,9 +153,6 @@ class Application
 		return p.then (track) ->
 			response.enableCache()
 			response.end(JSON.stringify({track:track}))
-
-	onStaticRequest: (request, response) ->
-		StaticContent.handle(request, response);
 
 	onIAmAPlayerCommand: (client, command) =>
 		if (!command.getArgs().room?)

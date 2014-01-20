@@ -24,7 +24,7 @@ Logger = require('./Logger.coffee');
 
 class HttpCommunicator extends EventEmitter
 	constructor: () ->
-		@httpServer = new HttpServer(Config.get('httpPort'));
+		@httpServer = new HttpServer(Config.get('port'));
 		@httpServer.on('request', @onHttpRequest)
 
 	onHttpRequest: (request, response) =>

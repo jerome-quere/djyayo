@@ -21,6 +21,7 @@ class WebService
 	constructor: ($http, $q, @config)  ->
 		@q = $q
 		@http = $http
+		@access_token = null;
 
 	_buildQueryString: (params) =>
 		tmp = [];
@@ -29,7 +30,10 @@ class WebService
 		if (tmp.length == 0) then return ''
 		return "?#{tmp.join('&')}";
 
+	setAccessToken: (@access_token) ->
 	query: (method, data) ->
+		if (!data?) then data = {};
+		if (@access_token?) then data.access_token = @access_token;
 		return @http.get("#{@config.get('webservice.url')}/#{method}#{@_buildQueryString(data)}", {cache:false, twithCredentials: true}).then (httpRes) ->
 			if (httpRes.data.code == 200)
 				return httpRes.data.data

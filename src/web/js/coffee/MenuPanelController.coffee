@@ -18,32 +18,48 @@
 ##
 
 class MenuPanelController
-	constructor: (@$scope, @webService, @locationManager, @room, @user) ->
-		@$scope.user = @user;
-		@$scope.room = @room;
+	constructor: (@$scope, @locationManager, @room, @user) ->
+		@user.on('login', @$scope, @onUserChange)
+		@user.on('logout', @$scope, @onUserChange)
+		@onUserChange()
+
+		@room.on('enter', @$scope, @onRoomChanged);
+		@room.on('exit', @$scope, @onRoomChanged);
+		@onRoomChanged()
+
 		@$scope.logout = @logout;
 		@$scope.changeRoom = @changeRoom;
 		@$scope.goToTrackQueue = @goToTrackQueue;
 		@$scope.goToSearch = @goToSearch;
 
-	logout: () =>
-		@user.logout();
-		$('#panel_menu').data('panel').hide();
+	onUserChange: () =>
+		@$scope.isLog = @user.isLog();
+		@$scope.userName = @user.getName();
+		@$scope.userImgUrl = @user.getImgUrl();
+
+	onRoomChanged: () =>
+		@$scope.roomName = @room.getName()
 
 	changeRoom: () =>
 		@room.exit();
 		@locationManager.goTo('/roomSelect');
-		$('#panel_menu').data('panel').hide();
+		@closePanel()
 
 	goToTrackQueue: () =>
 		@locationManager.goTo("/room/#{@room.name}");
-		$('#panel_menu').data('panel').hide();
+		@closePanel()
 
 	goToSearch: () =>
 		@locationManager.goTo("/room/#{@room.name}/search");
+		@closePanel()
+
+	logout: () =>
+		@user.logout();
+		@closePanel();
+
+	closePanel: () ->
 		$('#panel_menu').data('panel').hide();
 
 
-MenuPanelController.$inject = ['$scope', 'webService', 'locationManager', 'room', 'user'];
-
+MenuPanelController.$inject = ['$scope', 'locationManager', 'room', 'user'];
 window.MenuPanelController = MenuPanelController;

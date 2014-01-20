@@ -19,44 +19,57 @@
 
 class User extends EventEmitter
 
-	constructor: (@webService, @$location) ->
-		super;
+	constructor: (@webService, @$location, @$cookies) ->
 		@_clear();
-		@refresh();
+		@_loadToken()
+		@refresh().finally () =>
+			if @isLog() then @emit('login') else @emit('logout')
 
+	isLog: () -> return @id != -1;
 	getId: () -> @id;
+	getName: () -> @name;
+	getImgUrl: () -> @imgUrl
+
 
 	loginWithFacebookToken: (token) =>
-		@webService.query('login', {method:"facebook", token:token}).then (data) =>
-			@_update(data);
-			@emitEvent('queueRefresh');
+		@_login {method:"facebook", token:token}
 
 	loginWithGoogleToken: (token) =>
-		@webService.query('login', {method:"google", token:token}).then (data) =>
-			@_update(data);
-			@emitEvent('queueRefresh');
+		@_login {method:"google", token:token}
 
 	logout: () ->
-		@webService.query('logout').then (httpRes) =>
-			@_update(httpRes.data);
-			@emitEvent('queueRefresh');
+		@webService.setAccessToken(null)
+		@_clear()
+		@emit('logout');
 
 	refresh: () =>
 		p = @webService.query('me').then (data) =>
 			@_update(data);
+		p.then null, () =>
+			@_clear()
 		return p;
+
 
 	_clear: () ->
 		@id = -1
-		@isLog = false;
-		@votes = [];
 		@name = '';
+		@imgUrl = '';
 
 	_update: (userData) =>
-		if (!userData?)
-			@_clear();
-			return;
-		@id = userData.id;
-		@name = userData.name;
-		@imgUrl = userData.imgUrl;
-		@isLog = true;
+		@id = userData.id
+		@name = userData.name
+		@imgUrl = userData.imgUrl
+
+	_login: (data) ->
+		@webService.query('login', data).then (data) =>
+			@webService.setAccessToken(data.access_token);
+			@refresh().then () =>
+				@_saveToken(data.access_token)
+				@emit('login');
+
+	_loadToken: () =>
+		token = @$cookies.access_token;
+		@webService.setAccessToken(token);
+
+	_saveToken: (token) =>
+		@$cookies.access_token = token;

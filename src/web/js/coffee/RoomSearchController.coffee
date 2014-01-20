@@ -23,6 +23,7 @@ class RoomSearchController
 		@$scope.searchInput = "";
 		@$scope.searchResults = null;
 		@$scope.onInputChange = @onInputChange;
+		@$scope.onTryThisClick = @onTryThisClick
 		@$scope.trackClick = @onTrackClick;
 		@timer = null;
 
@@ -51,5 +52,10 @@ class RoomSearchController
 		else
 			@room.vote(track.uri);
 			track.haveMyVote = true;
+
+	onTryThisClick: () =>
+		@$scope.searchInput = "Selena Gomez";
+		@onInputChange();
+		return false;
 
 RoomSearchController.$inject = ['$scope', 'room', '$routeParams', '$timeout'];

@@ -17,10 +17,13 @@
 # along with SpotifyDj.If not, see <http://www.gnu.org/licenses/>.
 ##
 
+nconf = require('nconf');
+nconf.argv().defaults({port: 4545});
+
 class Config
 	constructor: () ->
-		@config = {}
-		@config['httpPort'] = 4545;
-	get: (name) -> if (@config[name]?) then @config[name] else null
+	get: (name) ->
+		console.log("get #{name} : #{nconf.get(name)}");
+		nconf.get(name);
 
 module.exports = new Config();

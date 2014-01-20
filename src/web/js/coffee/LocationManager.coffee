@@ -18,19 +18,21 @@
 ##
 
 class LocationManager
-	constructor: (@$scope, @$location, @user) ->
-		@$scope.user = @user;
-		@user.refresh().then () =>
-			@onUserChange()
-			@$scope.$watch('user.isLog', @onUserChange);
+	constructor: (@$rootScope, @$location, @user) ->
+		@user.on('login', @$rootScope, @onUserLogin);
+		@user.on('logout', @$rootScope, @onUserLogout);
 
-	onUserChange: () =>
-		if (@user.isLog and @$location.path() == '/login')
+	onUserLogin: () =>
+		if (@$location.path() == '/login')
 			@goTo('/roomSelect');
-		if (@user.isLog == false)
-			@goTo('/login');
+
+	onUserLogout: () =>
+		@goTo('/login');
+
+
+	scopeApply: (s, f) -> (params...) -> s.$apply(() -> f.apply(params))
 
 	goTo: (path) =>
-		@$location.path(path);
+		@$location.path(path)
 
 LocationManager.$inject = ['$scope', '$location', 'user']

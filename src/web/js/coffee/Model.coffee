@@ -20,11 +20,8 @@
 class Model
 	constructor: (@webService) ->
 
-	getAlbumImg: (albumUri, dest, key) =>
-		dest[key] = 'images/album.png';
-		p = CacheManager.get("albumImg/#{albumUri}", () => @_loadAlbumImg(albumUri));
-		p.then (data) ->
-			dest[key] = data;
+	getAlbumImg: (albumUri) =>
+		return CacheManager.get("albumImg/#{albumUri}", () => @_loadAlbumImg(albumUri));
 
 	_loadAlbumImg: (albumUri) ->
 		defer = jQuery.Deferred()
