@@ -17,10 +17,6 @@
 # along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-nconf = require('nconf');
-nconf.argv();
-nconf.defaults({'host': 'localhost', 'port': 4242, 'login': 'YOUR_USER_NAME', 'password': 'YOUR_PASSWORD', 'room': 'defaultRoom', 'spKey': 'spotify_appkey.key'});
-
 Application = require('./Application.coffee');
 
 main = () ->

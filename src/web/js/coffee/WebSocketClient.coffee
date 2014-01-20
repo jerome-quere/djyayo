@@ -22,14 +22,13 @@ class WebSocketClient
 		@rootScope = $rootScope;
 		@socket = io.connect(@config.get('webservice.url'))
 		@socket.on('command', @onCommand);
-		@room.on('enter', @onRoomChange);
+		@room.on('enter', @onEnterRoom);
 
 	onCommand: (command) =>
-		console.log(command);
 		actions = {};
-		actions['roomChanged'] = @onRoomChanged;
+		actions['roomChanged'] = @onRoomChange;
 		if (actions[command.name]?)
 			actions[command.name]()
 
 	onRoomChange: () => @rootScope.$apply(() => @room.refreshTrackQueue());
-	onChangeRoom: () => @socket.emit('command', {name: 'changeRoom', args:{room: @room.name}});
+	onEnterRoom: () => @socket.emit('command', {name: 'changeRoom', args:{room: @room.name}});

@@ -17,10 +17,28 @@
 # along with SpotifyDj.If not, see <http://www.gnu.org/licenses/>.
 ##
 
-nconf = require('nconf');
-
 class Config
 	constructor: () ->
-	get: (name) -> nconf.get(name);
+		@config = {};
+		@config.host = 'localhost';
+		@config.port = 4545;
+		@config.login = 'YOUR_USER_NAME';
+		@config.password = 'YOUR_PASSWORD';
+		@config.room = 'defaultRoom';
+		@parseArgv()
+
+	parseArgv: () ->
+		argv = process.argv;
+		i = 1;
+		while i + 1 < argv.length
+			switch argv[i]
+				when "--host" then @config.host = argv[++i]
+				when "--port" then @config.port = argv[++i]
+				when "--login" then @config.login = argv[++i]
+				when "--password" then @config.password = argv[++i]
+				when "--room" then @config.room = argv[++i]
+				else i++
+
+	get: (name) -> @config[name];
 
 module.exports = new Config()

@@ -39,6 +39,6 @@ spotifyDj.factory 'facebook', ['$rootScope', '$q', 'config', ($rootScope, $q, co
 spotifyDj.factory 'google', ['$rootScope', '$q', 'config', ($rootScope, $q, config) -> new Google($rootScope, $q, config)]
 spotifyDj.factory 'webSocketClient', ['$rootScope', 'config', 'room', ($rootScope, config, room) -> new WebSocketClient($rootScope, config, room)]
 
-
+spotifyDj.directive 'onVisible', () -> { controller: OnVisibleController}
 
 spotifyDj.run ['webSocketClient', 'locationManager', (w, r) -> ]

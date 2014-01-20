@@ -26,13 +26,13 @@ class Room extends EventEmitter
 
 	_clear: () ->
 		@name = null;
-		@player = null;
-		@trackQueue = null;
+		@player = false;
+		@trackQueue = [];
 		@currentTrack = null;
 
 	enter: (@name) =>
 		@emit('enter');
-		return @refreshTrackQueue()
+		return @refreshTrackQueue();
 
 	exit: () =>
 		@_clear();
@@ -45,6 +45,13 @@ class Room extends EventEmitter
 					if (vote.id == @user.getId())
 						return true;
 		return false;
+
+
+	getTrackQueue: () -> @trackQueue;
+	havePlayer: () -> @player
+	getCurrentTrack: () -> @currentTrack
+	getName: () -> @name
+
 
 	buildTrackQueue: (roomData) ->
 		res = []
@@ -76,15 +83,13 @@ class Room extends EventEmitter
 			@player = @buildPlayer(data);
 			@trackQueue = @buildTrackQueue(data);
 			@currentTrack = @buildCurrentTrack(data);
+			@emit('change');
 
 	buildSearchResult: (searchResults) ->
 		res = {tracks:[]};
 		for track in searchResults.tracks
 			data = track;
 			track.album.imgUrl = "images/album.png";
-			do (track) =>
-				@model.getAlbumImg(data.album.uri).then (url) ->
-					track.album.imgUrl = url;
 			data.nbVotes = 0;
 			data.haveMyVote = @haveMyVote(track.uri);
 			res.tracks.push(data);
@@ -94,10 +99,12 @@ class Room extends EventEmitter
 	vote: (uri) =>
 		@webService.query("room/#{@name}/vote", {uri:uri}).then (data) =>
 			@trackQueue = @buildTrackQueue(data);
+			@emit('change');
 
 	unvote: (uri) =>
 		@webService.query("room/#{@name}/unvote", {uri:uri}).then (data) =>
 			@trackQueue = @buildTrackQueue(data);
+			@emit('change');
 
 	search: (query) ->
 		p = @webService.query("room/#{@name}/search", {query: query});

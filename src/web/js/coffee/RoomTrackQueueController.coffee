@@ -22,8 +22,15 @@ class RoomTrackQueueController
 	constructor: (@$scope, $routeParams, @locationManager, @room) ->
 		@room.enter($routeParams.room).catch () =>
 			@locationManager.goTo('/roomSelect');
-		@$scope.room = @room;
+		@room.on 'change', @$scope, @onRoomChange
+		@onRoomChange()
 		@$scope.onTrackClick = @onTrackClick
+
+	onRoomChange: () =>
+		@$scope.roomName = @room.getName();
+		@$scope.trackQueue = @room.getTrackQueue();
+		@$scope.currentTrack = @room.getCurrentTrack();
+		@$scope.havePlayer = @room.havePlayer();
 
 	onTrackClick: (elem) =>
 		if (elem.haveMyVote)

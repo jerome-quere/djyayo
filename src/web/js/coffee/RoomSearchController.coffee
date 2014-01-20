@@ -18,14 +18,19 @@
 ##
 
 class RoomSearchController
-	constructor: (@$scope, @room, $routeParams, @$timeout) ->
+	constructor: (@$scope, @room, @model, $routeParams, @$timeout) ->
 		@room.enter($routeParams.room)
 		@$scope.searchInput = "";
 		@$scope.searchResults = null;
 		@$scope.onInputChange = @onInputChange;
 		@$scope.onTryThisClick = @onTryThisClick
 		@$scope.trackClick = @onTrackClick;
+		@$scope.onImgVisible = @onImgVisible;
 		@timer = null;
+
+	onImgVisible: (track) =>
+		@model.getAlbumImg(track.album.uri).then (url) ->
+			track.album.imgUrl = url;
 
 
 	onInputChange: () =>
@@ -37,9 +42,7 @@ class RoomSearchController
 
 	search: () =>
 		query = @$scope.searchInput;
-		if (query == "")
-			@$scope.searchResults = null;
-			return;
+		@$scope.searchResults = null;
 		p = @room.search(query);
 		p.then (searchResults) =>
 			if (query == @$scope.searchInput)
@@ -58,4 +61,4 @@ class RoomSearchController
 		@onInputChange();
 		return false;
 
-RoomSearchController.$inject = ['$scope', 'room', '$routeParams', '$timeout'];
+RoomSearchController.$inject = ['$scope', 'room', 'model', '$routeParams', '$timeout'];

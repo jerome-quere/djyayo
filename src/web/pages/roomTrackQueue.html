@@ -2,31 +2,31 @@
   <div class="row-fluid">
     <div class="span12">
       <div class="listView">
-	<div ng-hide="room.player" class="listView-header listView-header-error">
+	<div ng-hide="havePlayer" class="listView-header listView-header-error">
 	  No Player Connected
 	</div>
-	<div ng-show="!room.currentTrack" class="listView-header">
+	<div ng-show="!currentTrack" class="listView-header">
 	  No current track
 	</div>
-	<div ng-show="room.currentTrack" class="listView-header">
+	<div ng-show="currentTrack" class="listView-header">
 	  Currently Playing
 	</div>
-	<ul ng-show="room.currentTrack">
+	<ul ng-show="currentTrack">
 	  <li>
-	    <img class="thumbmail" ng-src="{{room.currentTrack.track.album.imgUrl}}" onerror="$(this).attr('src', 'images/album.png')" />
-	    <h3>{{room.currentTrack.track.name}}</h3>
-	    <p>{{room.currentTrack.track.artists[0].name}}</p>
-	    <span class="badge">{{room.currentTrack.votes.length}}</span>
+	    <img class="thumbmail" ng-src="{{currentTrack.track.album.imgUrl}}" onerror="$(this).attr('src', 'images/album.png')" />
+	    <h3>{{currentTrack.track.name}}</h3>
+	    <p>{{currentTrack.track.artists[0].name}}</p>
+	    <span class="badge">{{currentTrack.votes.length}}</span>
 	  </li>
 	</ul>
-	<div class="spacer center" ng-hide="room.trackQueue">
-	  <i> What's next ? <a href="#/room/{{room.name}}/search">vote for the next song</a> !
+	<div class="spacer center" ng-hide="trackQueue">
+	  <i> What's next ? <a href="#/room/{{roomName}}/search">vote for the next song</a> !</i>
 	</div>
-	<div class="listView-header" ng-show="room.trackQueue">
+	<div class="listView-header" ng-show="trackQueue">
 	  To Come ...
 	</div>
 	<ul class="listView">
-	  <li ng-repeat="elem in room.trackQueue" ng-click="onTrackClick(elem)">
+	  <li ng-repeat="elem in trackQueue" ng-click="onTrackClick(elem)">
 	    <img class="thumbmail" ng-src="{{elem.track.album.imgUrl}}" onerror="$(this).attr('src', 'images/album.png')"/>
 	    <h3>{{elem.track.name}}</h3>
 	    <p>{{elem.track.artists[0].name}}</p>
