@@ -22,46 +22,31 @@
  * THE SOFTWARE.
  */
 
-#ifndef _SPDJ_COMMUNICATOR_H_
-#define _SPDJ_COMMUNICATOR_H_
+#ifndef _SPDJ_CONFIG_H_
+#define _SPDJ_CONFIG_H_
 
-#include <vector>
-
-#include "EventEmitter.h"
-#include "Socket.h"
+#include <string>
 
 namespace SpDj
 {
-    class Communicator : public EventEmitter
+    class Config
     {
-	enum State
-	    {
-		NONE,
-		CONNECTING,
-		CONNECTED
-	    };
-
     public:
-	Communicator();
-	~Communicator();
-	When::Promise<bool> start();
+	static void init(int argc, char** argv);
 
-	bool send(const Command&);
+
+	static const std::string& getLogin();
+	static const std::string& getPassword();
+	static const std::string& getHost();
+	static const std::string& getRoomName();
+	static int getPort();
 
     private:
-
-	bool isCommandReady();
-	std::string getLine();
-	void onData(const std::vector<int8_t>&);
-	void onConnect();
-	void onEnd();
-
-	void restart();
-	void onTimeout();
-
-	std::vector<int8_t> _buffer;
-	Socket*	_socket;
-	State	_state;
+	static std::string _login;
+	static std::string _password;
+	static std::string _roomName;
+	static std::string _host;
+	static int _port;
     };
 }
 

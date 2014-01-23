@@ -24,47 +24,30 @@
 
 #include <string>
 #include <iostream>
-#include "CircularBuffer.h"
+#include "IOService.h"
+#include <vector>
 
 using namespace SpDj;
 
 int main()
 {
-    CircularBuffer<char> b;
-    std::string str = "0123456789";
-    size_t len;
-    char buf[4096];
+    std::vector<IOService::Event> v;
+    for (int i = 0 ; i < 1000 ; i++){
 
-
-    char c = '0';
-    len = 1;
-    for(int i = 0;  i < 10000; i++) {
-	if (rand() % 2)
-	    b.write(str.begin(), str.end());
-	else
-	    {
-		len = b.read(buf, 2);
-		buf[len] = 0;
-		if (len == 0)
-		    continue;
-		if (buf[0] != c)
-		    std::cout << "FAILED" << std::endl;
-		c++;
-		if (c > '9')
-		    c = '0';
-		if (buf[1] != c)
-		    std::cout << "FAILED" << std::endl;
-		c++;
-		if (c > '9')
-		    c = '0';
-		std::cout << "TESOK" << std::endl;
-	    }
+	v.push_back(IOService::addTimer(2000, [] () {
+	    std::cout << "TIMEOUT" << std::endl;
+		}));
     }
 
 
 
-	std::cout << "OK" << std::endl;
+    IOService::addTimer(5000, [v] () {
+		for (auto e : v) {
+		    e.cancel();
+		}
+	    });
 
 
+    IOService::run();
     return (0);
 }

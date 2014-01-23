@@ -24,48 +24,61 @@ When = require('when');
 Model = require('./Model.coffee');
 
 class SpotifyPlayer extends EventEmitter
-	constructor: (@client) ->
-		@client.on('disconnect', @onDisconnect)
-		@client.on('command', @onCommand)
+	constructor: (@id, @client) ->
+		@client.on('end', @onDisconnect)
+		@client.on('data', @onData)
+		@client.setEncoding('utf8');
+		@buffer = "";
+		@timer = setInterval(@sendPing, 1000);
 		@toDo = [];
+		@client.write('hello\n')
+
+	onData: (chunk) =>
+		@buffer = "#{@buffer}#{chunk}";
+		while ((idx = @buffer.indexOf('\n')) != -1)
+			cmd = @buffer.substr(0, idx)
+			idx2 = cmd.indexOf(' ');
+			if (idx2 == -1) then idx2 = cmd.length;
+			[cmd, param] = [cmd.substr(0, idx2), cmd.substr(idx2 + 1)];
+			@buffer = @buffer.substr(idx + 1);
+			@onCommand(new Command(cmd, param));
+
+	sendPing: () =>
+		@client.write('ping 300\n');
+
 
 	play: (uri) =>
-		@_pingPong(new Command('play', {uri:uri}))
+		@_pingPong(new Command('play', uri))
 
-	getId: () -> @client.getId()
+	getId: () -> @id
 
-	onCommand: (command, args) =>
-		if (command.getName() == "endOfTrack")
+	onCommand: (command) =>
+		if (command.getName() == "joinRoom")
+			@emit('joinRoom', command.getArgs());
+		else if (command.getName() == "pong")
+			#doNothing
+		else if (command.getName() == "endOfTrack")
 			@emit('endOfTrack');
 		else
 			if (command.getName() == 'success')
-				@toDo[0].defer.resolve(command.getArgs());
+				@toDo[0].defer.resolve(JSON.parse(command.getArgs()));
 			else
 				@toDo[0].defer.reject(command.getArgs());
 			@toDo.shift();
 			@_execToDo()
 
 	onDisconnect: () =>
+		clearInterval(@timer)
 		@emit('disconnect')
 
 	search: (query) =>
-		@_pingPong(new Command('search', {query:query})).then (res) =>
-			#promises = for track in res.results.tracks
-			#	do (track) =>
-			#		Model.getAlbum(track.album.uri).then (album) ->
-			#			track.album.imgUrl = album.imgUrl;
-			#count = promises.length
-			#defer = When.defer()
-			#for p in promises
-			#	p.finally () =>
-			#		if (--count == 0) then defer.resolve(res);
-			#return defer.promise
+		@_pingPong(new Command('search', query)).then (res) =>
 			return res;
-
 
 	_execToDo: () =>
 		if (@toDo.length == 0 ) then return;
-		@client.send(@toDo[0].cmd);
+		cmd = @toDo[0].cmd;
+		@client.write("#{cmd.getName()} #{cmd.getArgs()}\n");
 
 	_pingPong: (cmd) =>
 		defer = When.defer();

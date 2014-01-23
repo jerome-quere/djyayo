@@ -22,47 +22,15 @@
  * THE SOFTWARE.
  */
 
-#ifndef _SPDJ_COMMUNICATOR_H_
-#define _SPDJ_COMMUNICATOR_H_
-
-#include <vector>
-
-#include "EventEmitter.h"
-#include "Socket.h"
+#include "IOService.h"
 
 namespace SpDj
 {
-    class Communicator : public EventEmitter
-    {
-	enum State
-	    {
-		NONE,
-		CONNECTING,
-		CONNECTED
-	    };
+    template <typename It>
+    void Socket::write(It begin, It end) {
+	if (_writeBuffer.size() == 0 && begin != end)
+	    IOService::watchFdWrite(_socket, [this] (int fd) {_onWriteReady(fd);});
 
-    public:
-	Communicator();
-	~Communicator();
-	When::Promise<bool> start();
-
-	bool send(const Command&);
-
-    private:
-
-	bool isCommandReady();
-	std::string getLine();
-	void onData(const std::vector<int8_t>&);
-	void onConnect();
-	void onEnd();
-
-	void restart();
-	void onTimeout();
-
-	std::vector<int8_t> _buffer;
-	Socket*	_socket;
-	State	_state;
-    };
+	_writeBuffer.insert(_writeBuffer.end(), begin, end);
+    }
 }
-
-#endif

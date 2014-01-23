@@ -26,9 +26,40 @@
 #include "IOService.h"
 
 
+#include <iostream>
+
 namespace SpDj
 {
     static IOService g_ioservice;
+
+
+    IOService::Event::Event() {
+    }
+
+    void IOService::Event::cancel() {
+	if (_event.expired() == false && *_active == false) {
+	    auto ptr = _event.lock();
+	    event_del(*ptr);
+	    delete reinterpret_cast<std::function<void ()>*>(event_get_callback_arg(*ptr));
+	    event_free(*ptr);
+	}
+    }
+
+    IOService::Event::Event(struct event_base* base, int fd, struct timeval* timeout,
+			    short flag, const std::function<void ()> &f) {
+	std::shared_ptr<event*>  sp(new struct event*);
+	std::shared_ptr<bool> active(new bool(false));
+
+	_active = active;
+	_event = sp;
+	auto cb = new std::function<void ()>([active, sp, f] () {
+		*active = true;
+		f();
+		event_free(*sp);
+	    });
+	*sp = event_new(base, fd, flag, IOService::eventCallback, cb);
+	event_add(*sp, timeout);
+    }
 
     IOService::IOService() {
 	if (evthread_use_pthreads() == -1)
@@ -48,33 +79,26 @@ namespace SpDj
 	return event_base_loopexit(g_ioservice._base, NULL);
     }
 
-    bool IOService::addTimer(long long millisecond, const std::function<void ()>&f) {
+    IOService::Event IOService::addTimer(long long millisecond, const std::function<void ()>&f) {
 	struct timeval timeout = {millisecond / 1000, millisecond % 1000};
 	return g_ioservice.addEvent(-1, &timeout, 0, f);
     }
 
-    bool IOService::addTask(const std::function<void ()>&f) {
+    IOService::Event IOService::addTask(const std::function<void ()>&f) {
 	return g_ioservice.addTimer(0, f);
     }
 
-
-    bool IOService::watchFdRead(int fd, const std::function<void ()>&f) {
-	return g_ioservice.addEvent(fd, NULL, EV_READ, f);
+    IOService::Event IOService::watchFdRead(int fd, const std::function<void (int)>&f) {
+	return g_ioservice.addEvent(fd, NULL, EV_READ, [fd, f] () {f(fd);});
     }
 
-    bool IOService::addEvent(int fd, struct timeval* timeout, short flag, const std::function<void ()>&f)
-    {
-	struct event** event;
+    IOService::Event IOService::watchFdWrite(int fd, const std::function<void (int)>&f) {
+	return g_ioservice.addEvent(fd, NULL, EV_WRITE, [fd, f] () {f(fd);});
+    }
 
-	event = new struct event*;
-	auto cb = new std::function<void ()>([this, event, f] () {
-		f();
-		event_free(*event);
-		delete event;
-	    });
-	*event = event_new(g_ioservice._base, fd, flag, IOService::eventCallback, cb);
-	event_add(*event, timeout);
-	return true;
+    IOService::Event IOService::addEvent(int fd, struct timeval* timeout, short flag, const std::function<void ()>&f)
+    {
+	return Event(g_ioservice._base, fd, timeout, flag, f);
     }
 
     void IOService::eventCallback(evutil_socket_t , short , void *arg) {

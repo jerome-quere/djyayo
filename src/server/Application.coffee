@@ -22,6 +22,7 @@ HttpCommunicator = require('./HttpCommunicator.coffee')
 HttpErrors = require('./HttpErrors.coffee');
 Logger = require('./Logger.coffee');
 Model = require('./Model.coffee')
+PlayerCommunicator = require('./PlayerCommunicator.coffee');
 RoomManager = require('./RoomManager.coffee');
 RouteManager = require('./RouteManager.coffee');
 SpotifyPlayer = require('./SpotifyPlayer.coffee');
@@ -35,9 +36,11 @@ class Application
 		@users = {}
 		@httpCom = new HttpCommunicator();
 		@webSockCom = new WebSocketCommunicator(@httpCom.getNodeServer())
+		@playerCom = new PlayerCommunicator();
 		@routeManager = @buildRouteManager()
 		@httpCom.on('httpRequest', @onHttpRequest);
 		@webSockCom.on('command', @onWebSocketCommand);
+		@playerCom.on('joinRoom', @onPlayerJoinRoom);
 		@sessionManager = new SessionManager();
 
 	buildRouteManager: () ->
@@ -154,14 +157,11 @@ class Application
 			response.enableCache()
 			response.end(JSON.stringify({track:track}))
 
-	onIAmAPlayerCommand: (client, command) =>
-		if (!command.getArgs().room?)
-			return;
-		roomName = command.getArgs().room;
+	onPlayerJoinRoom: (player, roomName) =>
 		room = RoomManager.get(roomName);
 		if (!room)
 			room = RoomManager.create(roomName);
-		room.addPlayer(new SpotifyPlayer(client));
+		room.addPlayer(player);
 
 	onChangeRoomCommand: (client, command) =>
 		room = RoomManager.get(command.getArgs().room);
@@ -169,8 +169,6 @@ class Application
 		room.addClient(client);
 
 	onWebSocketCommand: (client, command) =>
-		if (command.getName() == "iamaplayer")
-			@onIAmAPlayerCommand(client, command)
 		if (command.getName() == "changeRoom")
 			@onChangeRoomCommand(client, command);
 	run : () ->

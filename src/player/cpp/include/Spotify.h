@@ -69,6 +69,8 @@ namespace SpDj
 	std::string	_password;
 	AudioPlayer	_player;
 	AudioStatus	_audioStatus;
+
+	IOService::Event _notifyEvent;
     };
 }
 

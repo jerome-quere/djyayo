@@ -28,6 +28,7 @@
 
 #include <event2/event.h>
 #include <functional>
+#include <memory>
 #include <set>
 
 namespace SpDj
@@ -35,18 +36,34 @@ namespace SpDj
     class IOService
     {
     public:
+
+	class Event
+	{
+	public:
+	    Event();
+	    void cancel();
+
+	private:
+	    Event(event_base* base, int fd, struct timeval* timeout, short flag, const std::function<void ()>&f);
+
+	    friend class IOService;
+	    std::shared_ptr<bool>	_active;
+	    std::weak_ptr<event*>	_event;
+	};
+
 	IOService();
 	~IOService();
 
 	static int run();
 	static int stop();
-	static bool addTimer(long long millisecond, const std::function<void ()>&f);
-	static bool addTask(const std::function<void ()>&f);
-	static bool watchFdRead(int fd, const std::function<void ()>&f);
+	static Event addTimer(long long millisecond, const std::function<void ()>&f);
+	static Event addTask(const std::function<void ()>&f);
+	static Event watchFdRead(int fd, const std::function<void (int)>&f);
+	static Event watchFdWrite(int fd, const std::function<void (int)>&f);
 
     private:
 
-	bool addEvent(int fd, struct timeval*, short flag, const std::function<void ()>&f);
+        Event addEvent(int fd, struct timeval*, short flag, const std::function<void ()>&f);
 	static void eventCallback(evutil_socket_t , short , void *arg);
 	struct event_base*_base;
     };

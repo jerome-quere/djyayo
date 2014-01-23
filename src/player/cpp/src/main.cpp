@@ -1,9 +1,11 @@
 #include "Application.h"
-#include "IOService.h"
+#include "Config.h"
 
-
-int main()
+#include <iostream>
+int main(int argc, char** argv)
 {
+    SpDj::Config::init(argc, argv);
     SpDj::Application app;
+
     return app.run();
 }

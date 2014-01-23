@@ -73,6 +73,7 @@ namespace SpDj
     Spotify::~Spotify()
     {
 	sp_session_release(_spSession);
+	_notifyEvent.cancel();
     }
 
     When::Promise<bool> Spotify::login(const std::string& login, const std::string& password) {
@@ -130,12 +131,17 @@ namespace SpDj
 
     void Spotify::callback_notify_main_thread(sp_session* s) {
 	Spotify* spotify = reinterpret_cast<Spotify*>(sp_session_userdata(s));
-	IOService::addTask([s, spotify] () {
+
+	auto event = IOService::addTask([s, spotify] () {
 		int next_timeout;
-		//TODO NOT ADD A timer if ther is already on added.
 		sp_session_process_events(s, &next_timeout);
-		if (next_timeout != 0)
-		    IOService::addTimer(next_timeout, [s] () {Spotify::callback_notify_main_thread(s);});
+
+		if (next_timeout != 0) {
+		    auto event = IOService::addTimer(next_timeout, [s] () {Spotify::callback_notify_main_thread(s);});
+
+		    spotify->_notifyEvent.cancel();
+		    spotify->_notifyEvent = event;
+		}
 	    });
     }
 

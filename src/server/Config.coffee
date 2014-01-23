@@ -18,7 +18,7 @@
 ##
 
 nconf = require('nconf');
-nconf.argv().defaults({port: 4545});
+nconf.argv().defaults({port: 4545, playerPort: 4646});
 
 class Config
 	constructor: () ->

@@ -22,47 +22,54 @@
  * THE SOFTWARE.
  */
 
-#ifndef _SPDJ_COMMUNICATOR_H_
-#define _SPDJ_COMMUNICATOR_H_
+#ifndef _SPDJ_SOCKET_H_
+#define _SPDJ_SOCKET_H_
 
 #include <vector>
 
+#include "IOService.h"
 #include "EventEmitter.h"
-#include "Socket.h"
+#include "when/When.h"
 
 namespace SpDj
 {
-    class Communicator : public EventEmitter
+    class Socket : public EventEmitter
     {
-	enum State
-	    {
-		NONE,
-		CONNECTING,
-		CONNECTED
-	    };
-
     public:
-	Communicator();
-	~Communicator();
-	When::Promise<bool> start();
+	Socket();
+	~Socket();
+	When::Promise<bool> connect(const std::string& host, int port);
 
-	bool send(const Command&);
+	template <typename It>
+	void write(It first, It end);
+	void close();
+
+	void setTimeout(long long milisecond);
 
     private:
 
-	bool isCommandReady();
-	std::string getLine();
-	void onData(const std::vector<int8_t>&);
-	void onConnect();
-	void onEnd();
+	void _watchRead();
+	void _watchConnect();
+	void _watchWrite();
+	void _watchTimeout();
 
-	void restart();
-	void onTimeout();
+	void _onReadReady(int);
+	void _onWriteReady(int);
+	void _onConnectReady(int);
+	void _onTimeout();
 
-	std::vector<int8_t> _buffer;
-	Socket*	_socket;
-	State	_state;
+	When::Defered<bool> _connectDefer;
+	std::vector<int8_t> _writeBuffer;
+	int		    _socket;
+	bool		    _activity;
+	long long	    _timeout;
+
+	IOService::Event _timeoutEvent;
+	IOService::Event _readEvent;
+	IOService::Event _writeEvent;
     };
 }
+
+#include "Socket.hpp"
 
 #endif

@@ -109,4 +109,4 @@ class Room extends EventEmitter
 	search: (query) ->
 		p = @webService.query("room/#{@name}/search", {query: query});
 		return p.then (data) =>
-			return @buildSearchResult(data.results)
+			return @buildSearchResult(data)

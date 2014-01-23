@@ -37,10 +37,12 @@ namespace SpDj
     public:
 	Application();
 	int run();
+	void stop();
     private:
 
 	void onCommand(const Command&);
 	void onEndOfTrack();
+	void onConnect();
 
 	Communicator	_communicator;
 	Spotify		_spotify;

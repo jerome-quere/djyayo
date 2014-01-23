@@ -24,6 +24,8 @@
 
 #include <list>
 
+#include "IOService.h"
+
 namespace SpDj
 {
 
@@ -66,14 +68,17 @@ namespace SpDj
     void EventEmitter::emit(const std::string& s, const A& ... args) const
     {
 	auto it = _hooks.find(s);
-	std::list<decltype(it)> toDelete;
 	while (it != _hooks.end() && it->first == s)
 	    {
-		if (it->second.operator()(args...) == false)
-		    toDelete.push_back(it);
+		auto f = std::bind(it->second, args...);
+		IOService::addTask([this, it, f] () {
+			if (f() == false) {
+			    //TODO: It is possible that this is no longuer available exemple: delete before
+			    // this lamba. Maybe use a share_ptr<bool> to handle it.
+			    _hooks.erase(it);
+			}
+		    });
 		++it;
 	    }
-	for (auto ite : toDelete)
-	    _hooks.erase(ite);
     }
 }

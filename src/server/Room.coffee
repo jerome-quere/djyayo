@@ -28,6 +28,7 @@ class Room
 		@clients = [];
 
 	addPlayer: (player) ->
+		console.log("APPLICATION GET ROOMNAME #{@name}");
 		@players.push(player);
 		if (@players.length == 1)
 			@players[0].on('endOfTrack', @onEndOfTrack);

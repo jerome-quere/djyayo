@@ -23,7 +23,10 @@
  */
 
 #include "Application.h"
+#include "Config.h"
 
+
+#include <iostream>
 namespace SpDj
 {
     Application::Application() {
@@ -32,22 +35,37 @@ namespace SpDj
     }
 
     int Application::run() {
-
-	_spotify.login("yayo56", "epitech42").then([this] (bool) {
-		_communicator.start();
-		_communicator.send(Command("success"));
+	auto p = _spotify.login(Config::getLogin(), Config::getPassword()).then([this] (bool) {
+		return _communicator.start();
 		});
+	p.otherwise([this] (const std::string& err) {
+		std::cerr << err << std::endl;
+		stop();
+	    });
 	return IOService::run();
+    }
+
+    void Application::stop() {
+	IOService::stop();
     }
 
     void Application::onCommand(const Command& c) {
 	if (c.name() == "exit")
-	    IOService::stop();
+	    stop();
+
+	if (c.name() == "hello") {
+	    _communicator.send(Command("joinRoom", Config::getRoomName()));
+	}
+
+	if (c.name() == "ping") {
+	    _communicator.send(Command("pong", c.param()));
+	}
 
 	if (c.name() == "search") {
+	    std::cout << c.toString() << std::endl;
 	    auto p = _spotify.search(c.param());
 	    p.then( [this] (const SearchResult& res) {
-		    Command c("searchresult", res.toJson());
+		    Command c("success", res.toJson());
 		    _communicator.send(c);
 		});
 	    p.otherwise( [this] (const std::string& error) {
@@ -55,9 +73,10 @@ namespace SpDj
 		});
 	}
 	if (c.name() == "play") {
+	    std::cout << c.toString() << std::endl;
 	    auto p = _spotify.play(c.param());
 	    p.then([this] (bool) -> void {
-		    _communicator.send(Command("success"));
+		    _communicator.send(Command("success", "{}"));
 		});
 	    p.otherwise([this] (const std::string& error) {
 		    _communicator.send(Command("error", error));
@@ -67,6 +86,7 @@ namespace SpDj
 
     void Application::onEndOfTrack()
     {
+	std::cout << "endOfTrack" << std::endl;
 	_communicator.send(Command("endOfTrack"));
     }
 

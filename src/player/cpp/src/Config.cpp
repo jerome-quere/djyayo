@@ -22,47 +22,50 @@
  * THE SOFTWARE.
  */
 
-#ifndef _SPDJ_COMMUNICATOR_H_
-#define _SPDJ_COMMUNICATOR_H_
-
-#include <vector>
-
-#include "EventEmitter.h"
-#include "Socket.h"
+#include "Config.h"
 
 namespace SpDj
 {
-    class Communicator : public EventEmitter
-    {
-	enum State
-	    {
-		NONE,
-		CONNECTING,
-		CONNECTED
-	    };
+    std::string Config::_login;
+    std::string Config::_password;
+    std::string Config::_roomName = "defaultRoom";
+    std::string Config::_host = "localhost";
+    int Config::_port = 4545;
 
-    public:
-	Communicator();
-	~Communicator();
-	When::Promise<bool> start();
 
-	bool send(const Command&);
+    void Config::init(int argc, char** argv) {
+	for (int i = 1 ; i + 1 < argc ; i++) {
+	    if (std::string(argv[i]) == "--login")
+		_login = argv[++i];
+	    else if (std::string(argv[i]) == "--password")
+		_password = argv[++i];
+	    else if (std::string(argv[i]) == "--host")
+		_host = argv[++i];
+	    else if (std::string(argv[i]) == "--room")
+		_roomName = argv[++i];
+	    else if (std::string(argv[i]) == "--port")
+		_port = atoi(argv[++i]);
+	}
+    }
 
-    private:
 
-	bool isCommandReady();
-	std::string getLine();
-	void onData(const std::vector<int8_t>&);
-	void onConnect();
-	void onEnd();
+    const std::string& Config::getLogin() {
+	return _login;
+    }
 
-	void restart();
-	void onTimeout();
+    const std::string& Config::getPassword() {
+	return _password;
+    }
 
-	std::vector<int8_t> _buffer;
-	Socket*	_socket;
-	State	_state;
-    };
+    const std::string& Config::getHost() {
+	return _host;
+    }
+
+    const std::string& Config::getRoomName() {
+	return _roomName;
+    }
+
+    int Config::getPort() {
+	return _port;
+    }
 }
-
-#endif
