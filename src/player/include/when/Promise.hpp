@@ -189,5 +189,28 @@ namespace When
     {
     }
 
+    template <typename ...Args>
+    template <typename T>
+    void Promise<Args...>::success(const T &f) {
+	then([f] (Args...) {
+	     f();
+	    });
+    }
+
+    template <typename ...Args>
+    template <typename T>
+    void Promise<Args...>::error(const T &f) {
+	otherwise([f] (const std::string&) {
+		f();
+	    });
+    }
+
+    template <typename ...Args>
+    template <typename T>
+    void Promise<Args...>::finally(const T &f) {
+	success(f);
+	error(f);
+    }
+
 
 }

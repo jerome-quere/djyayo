@@ -52,6 +52,7 @@ namespace SpDj
 	When::Promise<bool> login(const std::string& login, const std::string& password);
 	When::Promise<SearchResult> search(const std::string& query);
 	When::Promise<bool> play(const std::string& link);
+	When::Promise<Track> lookupTrack(const std::string& link);
 	void onPlayerEmpty();
 
 	static void callback_logged_in(sp_session*, sp_error);

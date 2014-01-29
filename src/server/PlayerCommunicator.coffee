@@ -25,7 +25,7 @@
 Config = require('./Config.coffee');
 EventEmitter = require("events").EventEmitter
 net = require('net');
-SpotifyPlayer = require('./SpotifyPlayer.coffee');
+Player = require('./Player.coffee');
 IdGenerator = require('./IdGenerator.coffee');
 
 class PlayerCommunicator extends EventEmitter
@@ -33,26 +33,21 @@ class PlayerCommunicator extends EventEmitter
 	constructor: () ->
 		@idGenerator = new IdGenerator();
 		@server = net.createServer(@onNewClient);
-		@server.listen(Config.get('playerPort'));
+		@server.listen(Config.getPlayerPort());
 		@server.on 'error', @onError;
 		@players = [];
 
 
 	onNewClient: (client) =>
-		player = new SpotifyPlayer(@idGenerator.next(), client);
+		player = new Player(@idGenerator.next(), client);
 		player.on 'joinRoom', (roomName) =>
-			console.log("ROOM NAME = #{roomName}");
 			@emit 'joinRoom', player, roomName;
 		player.on 'disconnect', () =>
 			idx = @players.indexOf(player);
 			if (idx != -1) then @players.splice(idx, 1);
 		@players.push(player);
-		console.log("Nbplayer: #{@players.length}")
-
-
-
 
 	onError: (error) ->
-		console.log(error);
+		Logger.error(error);
 
 module.exports = PlayerCommunicator;

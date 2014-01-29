@@ -32,6 +32,10 @@ namespace When
 {
     template <typename ...Args>
     Defered<Args...> defer();
+
+    template <typename It>
+    Promise<bool> all(It begin, const It& end);
+
 }
 
 #include "When.hpp"

@@ -93,6 +93,15 @@ namespace When
 	template <typename T>
 	void otherwise(const T &f);
 
+	template <typename T>
+	void success(const T &f);
+
+	template <typename T>
+	void error(const T &f);
+
+	template <typename T>
+	void finally(const T &f);
+
     private:
 	Promise(std::shared_ptr<_Defered<Args...> > defer);
 	std::shared_ptr<_Defered<Args...> > _defer;

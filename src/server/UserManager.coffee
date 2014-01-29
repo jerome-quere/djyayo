@@ -1,20 +1,25 @@
 ##
-# Copyright 2012 Jerome Quere < contact@jeromequere.com >.
+#The MIT License (MIT)
 #
-# This file is part of SpotifyDJ.
+# Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
-# SpotifyDJ is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-# SpotifyDJ is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-# GNU General Public License for more details.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
 #
-# You should have received a copy of the GNU General Public License
-# along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
 ##
 
 HttpClient = require('./HttpClient.coffee');
@@ -24,8 +29,7 @@ class UserManager
 	constructor: () ->
 		@users = {}
 
-	add: (user) ->
-		@users[user.getId()] = user;
+	add: (user) -> @users[user.getId()] = user;
 
 	get: (userId) -> if @users[userId]? then @users[userId] else null
 
@@ -35,7 +39,7 @@ class UserManager
 		promise = promise.then (data) =>
 			data = JSON.parse(data)
 			if (data.id?)
-				user = new User(data.id, data.first_name, "http://graph.facebook.com/#{data.id}/picture");
+				user = new User("google-#{data.id}", data.first_name, "http://graph.facebook.com/#{data.id}/picture");
 				@add(user);
 				return (user);
 			else
@@ -48,12 +52,11 @@ class UserManager
 		promise = promise.then (data) =>
 			data = JSON.parse(data)
 			if data.id?
-				user = new User(data.id, data.name.givenName, data.image.url)
+				user = new User("facebook-#{data.id}", data.name.givenName, data.image.url)
 				@add(user);
 				return user;
 			else
 				throw "Error"
-
 		return promise
 
 module.exports = new UserManager();

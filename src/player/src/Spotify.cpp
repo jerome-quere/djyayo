@@ -33,7 +33,6 @@ namespace SpDj
 {
 
     static sp_session_callbacks session_callbacks;
-
     static sp_session_config spconfig;
 
 
@@ -89,7 +88,7 @@ namespace SpDj
 	std::string* q = new std::string(query);
 	std::function<void (sp_search*)>* f = new std::function<void (sp_search*)>([this, defer, q] (sp_search* s) {
 		auto d2 = defer;
-		d2.resolve(SearchResult(_spSession, s));
+		d2.resolve(SearchResult::build(_spSession, s));
 		delete q;
 		sp_search_release(s);
 	    });
@@ -110,6 +109,15 @@ namespace SpDj
 		    throw std::runtime_error("Can't start player");
 		_audioStatus = PLAYING;
 		return true;
+	    });
+    }
+
+    When::Promise<Track> Spotify::lookupTrack(const std::string& uri) {
+	auto  p = Link::load(*this, uri);
+
+	return p.then([this] (sp_link* link) {
+		sp_track* track = sp_link_as_track(link);
+		return Track::build(track);
 	    });
     }
 

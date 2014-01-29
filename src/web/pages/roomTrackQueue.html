@@ -13,7 +13,7 @@
 	</div>
 	<ul ng-show="currentTrack">
 	  <li>
-	    <img class="thumbmail" ng-src="{{currentTrack.track.album.imgUrl}}" onerror="$(this).attr('src', 'images/album.png')" />
+	    <img class="thumbmail" ng-src="{{currentTrack.track.imgUrl}}" onerror="$(this).attr('src', 'images/album.png')" />
 	    <h3>{{currentTrack.track.name}}</h3>
 	    <p>{{currentTrack.track.artists[0].name}}</p>
 	    <span class="badge">{{currentTrack.votes.length}}</span>
@@ -27,7 +27,7 @@
 	</div>
 	<ul class="listView">
 	  <li ng-repeat="elem in trackQueue" ng-click="onTrackClick(elem)">
-	    <img class="thumbmail" ng-src="{{elem.track.album.imgUrl}}" onerror="$(this).attr('src', 'images/album.png')"/>
+	    <img class="thumbmail" ng-src="{{elem.track.imgUrl}}" />
 	    <h3>{{elem.track.name}}</h3>
 	    <p>{{elem.track.artists[0].name}}</p>
 	    <span class="badge">{{elem.votes.length}}</span>

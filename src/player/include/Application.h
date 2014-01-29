@@ -49,6 +49,7 @@ namespace SpDj
 	void onCommandPing(const Command&);
 	void onCommandSearch(const Command&);
 	void onCommandPlay(const Command&);
+	void onCommandLookup(const Command&);
 
 	Communicator	_communicator;
 	Spotify		_spotify;

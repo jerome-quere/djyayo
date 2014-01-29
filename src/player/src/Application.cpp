@@ -56,7 +56,8 @@ namespace SpDj
 	    {"hello", &Application::onCommandHello},
 	    {"ping", &Application::onCommandPing},
 	    {"search", &Application::onCommandSearch},
-	    {"play", &Application::onCommandPlay}
+	    {"play", &Application::onCommandPlay},
+	    {"lookup", &Application::onCommandLookup}
 	};
 
 	auto it = actions.find(c.name());
@@ -89,7 +90,7 @@ namespace SpDj
     void Application::onCommandSearch(const Command& c) {
 	std::cout << c.toString() << std::endl;
 	auto p = _spotify.search(c.param());
-	p.then( [this] (const SearchResult& res) {
+	p.then( [this] (SearchResult res) {
 		Command c("success", res.toJson());
 		_communicator.send(c);
 	    });
@@ -103,6 +104,18 @@ namespace SpDj
 	auto p = _spotify.play(c.param());
 	p.then([this] (bool) -> void {
 		_communicator.send(Command("success", "{}"));
+	    });
+	p.otherwise([this] (const std::string& error) {
+		_communicator.send(Command("error", error));
+	    });
+    }
+
+
+    void Application::onCommandLookup(const Command& c) {
+	std::cout << c.toString() << std::endl;
+	auto p = _spotify.lookupTrack(c.param());
+	p.then([this] (const Track& track) -> void {
+		_communicator.send(Command("success", track.toJson()));
 	    });
 	p.otherwise([this] (const std::string& error) {
 		_communicator.send(Command("error", error));

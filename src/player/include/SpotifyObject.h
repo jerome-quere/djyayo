@@ -26,6 +26,7 @@
 #define _SPDJ_SEARCH_H_
 
 #include <string>
+#include <map>
 #include <vector>
 
 #include <libspotify/api.h>
@@ -40,42 +41,23 @@ namespace SpDj
 	static When::Promise<sp_link*> load(Spotify&, const std::string&);
     };
 
-    struct Artist {
-
-	Artist();
-	Artist(sp_artist*);
-	std::string toJson() const;
-
-	std::string name;
-	std::string uri;
-    };
-
-    struct Album {
-	Album();
-	Album(sp_album*);
-	std::string toJson() const;
-
-	std::string name;
-	std::string uri;
-    };
 
     struct Track {
-	Track();
-	Track(sp_track*);
+	static When::Promise<Track> build(sp_track*);
 	std::string toJson() const;
 
 	std::string name;
 	std::string uri;
-	Album album;
-	std::vector<Artist> artists;
+	std::string artistName;
+	std::string artistUri;
+	std::string albumUri;
+	std::string imgUrl;
+	std::string albumName;
     };
 
     struct SearchResult {
-	SearchResult();
-	SearchResult(sp_session*, sp_search*);
+	static When::Promise<SearchResult> build(sp_session*, sp_search*);
 	std::string toJson() const;
-	std::vector<Artist> artists;
-	std::vector<Album> albums;
 	std::vector<Track> tracks;
     };
 

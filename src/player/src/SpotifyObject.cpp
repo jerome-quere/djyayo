@@ -24,13 +24,44 @@
 
 #include <sstream>
 
+
+#include "HttpClient.h"
+#include "gason.h"
 #include "Spotify.h"
 #include "SpotifyObject.h"
+#include "Store.h"
 
 #include <iostream>
 
 namespace SpDj
 {
+
+    static Store<std::string, std::string> albumImgStore([] (const std::string& albumUri) {
+		auto p = HttpClient::get("https://embed.spotify.com/oembed/?url="+albumUri);
+		auto p2 = p.then([] (const std::string& jsonStr) -> std::string {
+			char *endptr, *source = strdup(jsonStr.c_str());
+			JsonValue json;
+			JsonAllocator allocator;
+			JsonParseStatus status = json_parse(source, &endptr, &json, allocator);
+			free(source);
+			if (status != JSON_PARSE_OK)
+			    throw std::runtime_error("Failed to parse JSON");
+
+			for (auto i : json) {
+			    if (std::string(i->key) == "thumbnail_url")
+				{
+				    auto url = std::string(i->value.toString());
+				    auto pos = url.find("cover");
+				    if (pos != std::string::npos)
+					url.erase(pos, 5).insert(pos, "300");
+				    return url;
+				}
+			}
+			throw std::runtime_error("Failed to find url in JSON");
+		    });
+		return p2;
+	    });
+
     static std::string getLink(sp_link* link) {
 	char buf[4096];
 	sp_link_as_string(link, buf, 4095);
@@ -99,74 +130,57 @@ namespace SpDj
 	return defer.promise();
     }
 
+    When::Promise<Track> Track::build(sp_track* spTrack) {
+	Track track;
 
-
-    Artist::Artist() {
-    }
-
-    Artist::Artist(sp_artist* artist) {
-	name = sp_artist_name(artist);
-	uri = getLink(artist);
-    }
-
-
-    std::string Artist::toJson() const
-    {
-	return "{\"name\":\"" + escape(name) + "\", \"uri\":\"" + uri + "\"}";
-    }
-
-    Album::Album() {
-    }
-
-    Album::Album(sp_album* album) {
-	name = sp_album_name(album);
-	uri = getLink(album);
-    }
-
-    std::string Album::toJson() const
-    {
-	return "{\"name\":\"" + escape(name) + "\", \"uri\":\"" + uri + "\"}";
-    }
-
-
-    Track::Track() {
-    }
-
-    Track::Track(sp_track* track) {
-	name = sp_track_name(track);
-	uri = getLink(track);
-	album = Album(sp_track_album(track));
-	artists.resize(1);
-	artists[0] = Artist(sp_track_artist(track, 0));
+	track.name = sp_track_name(spTrack);
+	track.uri = getLink(spTrack);
+	track.albumUri = getLink(sp_track_album(spTrack));
+	track.albumName = sp_album_name(sp_track_album(spTrack));
+	track.artistName = sp_artist_name(sp_track_artist(spTrack, 0));
+	track.artistUri = getLink(sp_track_artist(spTrack, 0));
+	return albumImgStore.get(track.albumUri).then([track] (const std::string& url)  {
+		auto t = track;
+		t.imgUrl = url;
+		return t;
+	    });
     }
 
     std::string Track::toJson() const
     {
 	std::stringstream ss;
-	ss << "{\"name\":\"" << escape(name) << "\", \"uri\":\""  << uri << "\", \"album\":" << album.toJson()
-	   << ", \"artists\": [";
-	bool first = true;
-	for (auto artist : artists) {
-	    if (first == false)
-		ss << ", ";
-	    ss << artist.toJson();
-	    first = false;
-	}
-	ss << "]}";
+	ss << "{\"name\":\"" << escape(name) << "\", \"uri\":\""  << uri << "\", "
+	    << "\"imgUrl\":\"" << escape(imgUrl) << "\","
+	   << "\"album\": { \"name\": \"" << escape(albumName) << "\", \"uri\":\"" << albumUri << "\"}"
+	   << ", \"artists\": [{\"name\":\"" << escape(artistName) << "\", \"uri\":\"" << artistUri << "\"}]"
+	   << "}";
 	return ss.str();
     }
 
-    SearchResult::SearchResult() {
-    }
+    When::Promise<SearchResult> SearchResult::build(sp_session* session, sp_search* search) {
+	SearchResult* res = new SearchResult();;
 
-    SearchResult::SearchResult(sp_session* session, sp_search* search) {
+	auto defer = When::defer<SearchResult>();
+	std::list<When::Promise<bool> > promises;
+
+
 	int numTrack = sp_search_num_tracks(search);
 	for (int i = 0 ; i < numTrack ; i++) {
 	    sp_track* track = sp_search_track (search, i);
 	    if (sp_track_get_availability(session, track) != SP_TRACK_AVAILABILITY_AVAILABLE)
 		continue;
-	    tracks.push_back(Track(track));
+
+	    auto p = Track::build(track).then([res] (const Track& t) {
+		    res->tracks.push_back(t);
+		});
+	    promises.push_back(p);
 	}
+	When::all(promises.begin(), promises.end()).finally([defer, res] () {
+		auto d = defer;
+		d.resolve(*res);
+		delete res;
+	    });
+	return defer.promise();
     }
 
 
