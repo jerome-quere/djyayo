@@ -31,36 +31,39 @@
 #include "SpotifyObject.h"
 #include "Store.h"
 
-#include <iostream>
-
 namespace SpDj
 {
+    static Store<std::string, std::string>& getAlbumImgStore() {
+	typedef Store<std::string, std::string> AlbumStore;
+	static std::shared_ptr<AlbumStore> store;
 
-    static Store<std::string, std::string> albumImgStore([] (const std::string& albumUri) {
-		auto p = HttpClient::get("https://embed.spotify.com/oembed/?url="+albumUri);
-		auto p2 = p.then([] (const std::string& jsonStr) -> std::string {
-			char *endptr, *source = strdup(jsonStr.c_str());
-			JsonValue json;
-			JsonAllocator allocator;
-			JsonParseStatus status = json_parse(source, &endptr, &json, allocator);
-			free(source);
-			if (status != JSON_PARSE_OK)
-			    throw std::runtime_error("Failed to parse JSON");
-
-			for (auto i : json) {
-			    if (std::string(i->key) == "thumbnail_url")
-				{
-				    auto url = std::string(i->value.toString());
-				    auto pos = url.find("cover");
-				    if (pos != std::string::npos)
-					url.erase(pos, 5).insert(pos, "300");
-				    return url;
+	if (!store)
+	    store = std::shared_ptr<AlbumStore> (new AlbumStore( [] (const std::string& albumUri) {
+			auto p = HttpClient::get("https://embed.spotify.com/oembed/?url="+albumUri);
+			auto p2 = p.then([] (const std::string& jsonStr) -> std::string {
+				char *endptr, *source = strdup(jsonStr.c_str());
+				JsonValue json;
+				JsonAllocator allocator;
+				JsonParseStatus status = json_parse(source, &endptr, &json, allocator);
+				free(source);
+				if (status != JSON_PARSE_OK)
+				    throw std::runtime_error("Failed to parse JSON");
+				for (auto i : json) {
+				    if (std::string(i->key) == "thumbnail_url")
+					{
+					    auto url = std::string(i->value.toString());
+					    auto pos = url.find("cover");
+					    if (pos != std::string::npos)
+						url.erase(pos, 5).insert(pos, "300");
+					    return url;
+					}
 				}
-			}
-			throw std::runtime_error("Failed to find url in JSON");
-		    });
-		return p2;
-	    });
+				throw std::runtime_error("Failed to find url in JSON");
+			    });
+			return p2;
+		    }, 1000 * 60 * 30));
+	return *store;
+    }
 
     static std::string getLink(sp_link* link) {
 	char buf[4096];
@@ -139,7 +142,7 @@ namespace SpDj
 	track.albumName = sp_album_name(sp_track_album(spTrack));
 	track.artistName = sp_artist_name(sp_track_artist(spTrack, 0));
 	track.artistUri = getLink(sp_track_artist(spTrack, 0));
-	return albumImgStore.get(track.albumUri).then([track] (const std::string& url)  {
+	return getAlbumImgStore().get(track.albumUri).then([track] (const std::string& url)  {
 		auto t = track;
 		t.imgUrl = url;
 		return t;
@@ -198,6 +201,4 @@ namespace SpDj
 	ss << "]}";
 	return ss.str();
     }
-
-
 }

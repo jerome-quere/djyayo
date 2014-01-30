@@ -29,14 +29,25 @@
 
 namespace SpDj
 {
-    HttpClient HttpClient::instance;
+    static HttpClient& getHttpClient() {
+	static std::shared_ptr<HttpClient> instance;
+
+	if (!instance) {
+	    instance = std::shared_ptr<HttpClient>(new HttpClient);
+	}
+	return *instance;
+    }
 
     When::Promise<std::string> HttpClient::get(const std::string& url) {
+	return getHttpClient()._get(url);
+    }
+
+    When::Promise<std::string> HttpClient::_get(const std::string& url) {
 	auto defer = When::defer<std::string>();
-QNetworkRequest request(QUrl(QString(url.c_str())));
-	QNetworkReply* reply = instance._networkManager.get(request);
-	connect(reply, &QNetworkReply::finished, &instance, &HttpClient::onFinished);
-	instance._defers.insert(std::make_pair(reply, defer));
+	QNetworkRequest request(QUrl(QString(url.c_str())));
+	QNetworkReply* reply = _networkManager.get(request);
+	connect(reply, &QNetworkReply::finished, this, &HttpClient::onFinished);
+	_defers.insert(std::make_pair(reply, defer));
 	return defer.promise();
     }
 

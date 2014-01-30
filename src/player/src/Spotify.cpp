@@ -26,7 +26,6 @@
 #include "Spotify.h"
 #include "spotifyApiKey.h"
 
-#include <iostream>
 #include <thread>
 
 namespace SpDj
@@ -107,6 +106,7 @@ namespace SpDj
 		    throw std::runtime_error("Can't load link in player");
 		if (sp_session_player_play(_spSession, true) != SP_ERROR_OK)
 		    throw std::runtime_error("Can't start player");
+		_player.stop();
 		_audioStatus = PLAYING;
 		return true;
 	    });

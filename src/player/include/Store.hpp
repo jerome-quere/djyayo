@@ -21,26 +21,64 @@
  * OUT  OF  OR  IN  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-
 namespace SpDj
 {
+    template<typename Key, typename Value>
+    Store<Key, Value>::Record::Record(const Promise& p, bool u) : promise(p) {
+	used = u;
+    }
 
     template<typename Key, typename Value>
     template <typename T>
-    Store<Key, Value>::Store(const T& f) {
+    Store<Key, Value>::Store(const T& f, long long timeout) {
 	_loader = std::function<Promise (const Key&)>(f);
+	_timeout = timeout;
+	_watchTimeout();
+    }
+
+    template<typename Key, typename Value>
+    Store<Key, Value>::~Store() {
+	_timeoutEvent.cancel();
+    }
+
+    template<typename Key, typename Value>
+    void Store<Key, Value>::_onTimeout() {
+	auto it = _store.begin(), end = _store.end();
+	std::list<decltype(it)> toDelete;
+
+	while (it != end) {
+	    if (it->second.used == false) {
+		toDelete.push_back(it);
+	    }
+	    it->second.used = false;
+	    ++it;
+	}
+
+	for (auto i : toDelete) {
+	    _store.erase(i);
+	}
+	_watchTimeout();
+    }
+
+
+    template<typename Key, typename Value>
+    void Store<Key, Value>::_watchTimeout() {
+	if (_timeout != 0) {
+	    _timeoutEvent = IOService::addTimer(_timeout, [this] () {
+		_onTimeout();
+	    });
+	}
     }
 
     template<typename Key, typename Value>
     typename Store<Key, Value>::Promise Store<Key, Value>::get(const Key& key) {
 	auto it = _store.find(key);
 	if (it != _store.end())
-	    return it->second;
+	    return it->second.promise;
 
-	auto p = _loader(key);
-	_store.insert(std::make_pair(key, p));
-	return p;
+	auto promise =  _loader(key);
+	_store.insert(std::make_pair(key, Record(promise, true)));
+	return promise;
     }
 
 

@@ -35,15 +35,29 @@ namespace SpDj
 	typedef When::Promise<Value> Promise;
 	typedef std::function<Promise (const Key&)> Loader;
 
+	struct Record {
+	    Record(const Promise&, bool);
+	    Promise promise;
+	    bool used;
+	};
+
     public:
 	template <typename T>
-	Store(const T& t);
+	Store(const T& t, long long timeout = 0);
 
+	~Store();
 	Promise get(const Key&);
 
+
     private:
+
+	void _onTimeout();
+	void _watchTimeout();
+
 	Loader _loader;
-	std::map<Key, When::Promise<Value> > _store;
+	std::map<Key, Record> _store;
+	IOService::Event _timeoutEvent;
+	long long	_timeout;
     };
 }
 

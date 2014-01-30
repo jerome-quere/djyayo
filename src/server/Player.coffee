@@ -30,6 +30,7 @@ When = require('when');
 class Player extends EventEmitter
 	constructor: (@id, @client) ->
 		@client.on('end', @onDisconnect)
+		@client.on('error', @onError)
 		@client.on('data', @onData)
 		@client.setEncoding('utf8');
 		@buffer = "";
@@ -72,6 +73,10 @@ class Player extends EventEmitter
 			@_execToDo()
 
 	onDisconnect: () =>
+		clearInterval(@timer)
+		@emit('disconnect')
+
+	onError: () =>
 		clearInterval(@timer)
 		@emit('disconnect')
 

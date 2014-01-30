@@ -31,8 +31,12 @@ class RoomSearchController
 		@$scope.onInputChange = @onInputChange;
 		@$scope.onTryThisClick = @onTryThisClick
 		@$scope.trackClick = @onTrackClick;
-		@$scope.onImgVisible = @onImgVisible;
+		@room.on 'change', @$scope, @onRoomChange
+		@onRoomChange()
 		@timer = null;
+
+	onRoomChange: () =>
+		@$scope.havePlayer = @room.havePlayer();
 
 	onInputChange: () =>
 		value = @$scope.searchInput;

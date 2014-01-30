@@ -28,7 +28,6 @@
 
 #include "Socket.h"
 
-#include <iostream>
 namespace SpDj
 {
     Socket::Socket() {

@@ -1,28 +1,26 @@
-<div class="input-group">
-  <span class="input-group-addon"><i class="icon-search"></i></span>
-  <input name="search" type="text" placeholder="Search" class="form-control" ng-change="onInputChange()" ng-model="searchInput">
-</div>
-<!--
-<ul class="nav nav-tabs">
-  <li style="width: 33%"><a>Artists</a></li>
-  <li style="width: 33%"><a>Albums</a></li>
-  <li class="active" style="width: 34%"><a>Tracks</a></li>
-</ul>
--->
 <div class="listView">
-  <ul>
-    <li ng-repeat="track in searchResults.tracks" ng-click="trackClick(track)">
-      <img class="thumbmail"  ng-src="{{track.imgUrl}}" />
-      <h3>{{track.name}}</h3>
-      <p>{{track.artists[0].name}}</p>
-      <img class="icon" ng-show="track.haveMyVote" src="images/star_full.png"/>
-      <img class="icon" ng-show="!track.haveMyVote" src="images/star_empty.png" />
-    </li>
-  </ul>
-  <div class="center spacer" ng-hide="searchResults">
-    <i>
-      Sorry no result found <br/>
-      <a href="" ng-click="onTryThisClick()">Try this</a>
-    </i>
+  <div ng-hide="havePlayer" class="listView-header listView-header-error">
+    No Player Connected
+  </div>
+  <div ng-show="havePlayer">
+    <div class="input-group">
+      <span class="input-group-addon"><i class="icon-search"></i></span>
+      <input name="search" type="text" placeholder="Search" class="form-control" ng-change="onInputChange()" ng-model="searchInput">
+    </div>
+    <ul>
+      <li ng-repeat="track in searchResults.tracks" ng-click="trackClick(track)">
+	<img class="thumbmail"  ng-src="{{track.imgUrl}}" />
+	<h3>{{track.name}}</h3>
+	<p>{{track.artists[0].name}}</p>
+	<img class="icon" ng-show="track.haveMyVote" src="images/star_full.png"/>
+	<img class="icon" ng-show="!track.haveMyVote" src="images/star_empty.png" />
+      </li>
+    </ul>
+    <div class="center spacer" ng-hide="searchResults">
+      <i>
+	Sorry no result found <br/>
+	<a href="" ng-click="onTryThisClick()">Try this</a>
+      </i>
+    </div>
   </div>
 </div>

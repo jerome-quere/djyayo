@@ -41,12 +41,12 @@ namespace SpDj
     public:
 	static When::Promise<std::string> get(const std::string& url);
 
-
     private Q_SLOTS:
 	void onFinished();
 
     private:
-	static HttpClient instance;
+	When::Promise<std::string> _get(const std::string& url);
+
 	std::map<QNetworkReply*, When::Defered<std::string> > _defers;
 	QNetworkAccessManager	_networkManager;
     };

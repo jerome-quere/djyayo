@@ -17,8 +17,6 @@
  * along with libspotify++.If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
-
 #include "IOService.h"
 #include "AudioPlayer.h"
 
