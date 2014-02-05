@@ -31,6 +31,9 @@ using namespace std;
 
 namespace SpDj
 {
+    Command::Command() {
+    }
+
     Command::Command(const std::string& name) :
 	_name(name)
     {

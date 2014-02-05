@@ -39,7 +39,7 @@ class WebService
 	query: (method, data) =>
 		if (!data?) then data = {};
 		if (@access_token?) then data.access_token = @access_token;
-		return @http.get("#{@config.get('webservice.url')}/#{method}#{@_buildQueryString(data)}", {cache:false, twithCredentials: true}).then (httpRes) =>
+		return @http.get("#{@config.get('webservice.url')}/#{method}#{@_buildQueryString(data)}", {cache:false}).then (httpRes) =>
 			if (httpRes.data.code == 200)
 				return httpRes.data.data
 			else

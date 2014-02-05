@@ -49,23 +49,48 @@ namespace SpDj
 	IOService::stop();
     }
 
-    void Application::onCommand(const Command& c) {
-
-	static std::map<std::string, void (Application::*)(const Command&)> actions = {
-	    {"exit", &Application::onCommandStop},
+    void Application::execCommand() {
+	static std::map<std::string, When::Promise<Command> (Application::*)(const Command&)> actions = {
 	    {"hello", &Application::onCommandHello},
-	    {"ping", &Application::onCommandPing},
 	    {"search", &Application::onCommandSearch},
 	    {"play", &Application::onCommandPlay},
 	    {"lookup", &Application::onCommandLookup}
 	};
 
-	auto it = actions.find(c.name());
+	while (_commands.size())
+	    {
+		Command c = _commands.front();
+		auto it = actions.find(c.name());
 
-	if (it != actions.end())
-	    (this->*(it->second))(c);
-	else
-	    _communicator.send(Command("error", "Unknow command"));
+		if (it == actions.end()) {
+		    _communicator.send(Command("error", "Unknow command"));
+		    _commands.pop();
+		    continue;
+		}
+		auto promise = (this->*(it->second))(c);
+		promise.then( [this] (const Command& c) {
+			_communicator.send(c);
+			_commands.pop();
+			execCommand();
+		    });
+		promise.otherwise( [this] (const std::string& error) {
+			_communicator.send(Command("error", error));
+			_commands.pop();
+			execCommand();
+		    });
+		break;
+	    }
+    }
+
+
+    void Application::onCommand(const Command& c) {
+
+	if (c.name() == "ping")
+	    return onCommandPing(c);
+
+	_commands.push(c);
+	if (_commands.size() == 1)
+	    execCommand();
     }
 
     void Application::onEndOfTrack()
@@ -74,54 +99,34 @@ namespace SpDj
 	_communicator.send(Command("endOfTrack"));
     }
 
-
-    void Application::onCommandStop(const Command&) {
-	stop();
-    }
-
-    void Application::onCommandHello(const Command&) {
-	_communicator.send(Command("joinRoom", Config::getRoomName()));
+    When::Promise<Command> Application::onCommandHello(const Command&) {
+	auto d = When::defer<Command>();
+	d.resolve(Command("joinRoom", Config::getRoomName()));
+	return d.promise();
     }
 
     void Application::onCommandPing(const Command& c) {
 	_communicator.send(Command("pong", c.param()));
     }
 
-    void Application::onCommandSearch(const Command& c) {
+    When::Promise<Command> Application::onCommandSearch(const Command& c) {
 	std::cout << c.toString() << std::endl;
-	auto p = _spotify.search(c.param());
-	p.then( [this] (SearchResult res) {
-		Command c("success", res.toJson());
-		_communicator.send(c);
-	    });
-	p.otherwise( [this] (const std::string& error) {
-		_communicator.send(Command("error", error));
+	return _spotify.search(c.param()).then( [this] (SearchResult res) {
+		return Command("success", res.toJson());
 	    });
     }
 
-    void Application::onCommandPlay(const Command& c) {
+    When::Promise<Command> Application::onCommandPlay(const Command& c) {
 	std::cout << c.toString() << std::endl;
-	auto p = _spotify.play(c.param());
-	p.then([this] (bool) -> void {
-		_communicator.send(Command("success", "{}"));
-	    });
-	p.otherwise([this] (const std::string& error) {
-		_communicator.send(Command("error", error));
+	return _spotify.play(c.param()).then([this] (bool) {
+		return Command("success", "{}");
 	    });
     }
 
-
-    void Application::onCommandLookup(const Command& c) {
+    When::Promise<Command> Application::onCommandLookup(const Command& c) {
 	std::cout << c.toString() << std::endl;
-	auto p = _spotify.lookupTrack(c.param());
-	p.then([this] (const Track& track) -> void {
-		_communicator.send(Command("success", track.toJson()));
-	    });
-	p.otherwise([this] (const std::string& error) {
-		_communicator.send(Command("error", error));
+	return _spotify.lookupTrack(c.param()).then([this] (const Track& track) {
+		return Command("success", track.toJson());
 	    });
     }
-
-
-
 }

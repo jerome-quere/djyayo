@@ -33,7 +33,6 @@ HttpErrors = require('./HttpErrors.coffee');
 Logger = require('./Logger.coffee');
 PlayerCommunicator = require('./PlayerCommunicator.coffee');
 RoomManager = require('./RoomManager.coffee');
-Player = require('./Player.coffee');
 Testor = require('./Testor.coffee');
 UserManager = require('./UserManager.coffee')
 WebSocketCommunicator = require('./WebSocketCommunicator.coffee');
@@ -74,7 +73,6 @@ class Application
 			code = if (error.code?) then error.code else 500;
 			msg = if (error.msg?) then error.msg else "" + error;
 			if (error.stack) then console.log(error.stack);
-			#response.status(code);
 			response.json({code: code, msg: msg, data: null});
 
 	getAndTestSession: (request, th = true) =>

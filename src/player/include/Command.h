@@ -33,6 +33,7 @@ namespace SpDj
     class Command
     {
     public:
+	Command();
 	Command(const std::string& name);
 	Command(const std::string& name, std::string params);
 

@@ -25,6 +25,8 @@
 #ifndef _SPDJ_APPLICATION_H_
 #define _SPDJ_APPLICATION_H_
 
+#include <queue>
+
 #include "Command.h"
 #include "Communicator.h"
 #include "IOService.h"
@@ -40,20 +42,20 @@ namespace SpDj
 	void stop();
     private:
 
+	void execCommand();
 	void onCommand(const Command&);
 	void onEndOfTrack();
 	void onConnect();
 
-	void onCommandStop(const Command&);
-	void onCommandHello(const Command&);
+	When::Promise<Command> onCommandHello(const Command&);
 	void onCommandPing(const Command&);
-	void onCommandSearch(const Command&);
-	void onCommandPlay(const Command&);
-	void onCommandLookup(const Command&);
+	When::Promise<Command> onCommandSearch(const Command&);
+	When::Promise<Command> onCommandPlay(const Command&);
+	When::Promise<Command> onCommandLookup(const Command&);
 
 	Communicator	_communicator;
 	Spotify		_spotify;
-
+	std::queue<Command> _commands;
    };
 }
 

@@ -59,7 +59,7 @@ namespace SpDj
 
 	return _socket->connect(Config::getHost(), Config::getPort()).then([this] (bool) -> bool {
 		_state = CONNECTED;
-		_socket->setTimeout(1000 * 5);
+		_socket->setTimeout(1000 * 45);
 		std::cout << "Connection to server success" << std::endl;
 		return true;
 	    });
@@ -96,7 +96,7 @@ namespace SpDj
 	_socket = nullptr;
 	start().otherwise([this] (const std::string& err) {
 		std::cerr << err << ": Try again in few second" <<std::endl;
-		IOService::addTimer(10 * 1000, [this] () { restart();});
+		IOService::addTimer(20 * 1000, [this] () { restart();});
 	    });
     }
 

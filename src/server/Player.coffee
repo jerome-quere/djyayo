@@ -32,11 +32,13 @@ class Player extends EventEmitter
 		@client.on('end', @onDisconnect)
 		@client.on('error', @onError)
 		@client.on('data', @onData)
-		@client.setEncoding('utf8');
-		@buffer = "";
-		@timer = setInterval(@sendPing, 1000);
-		@toDo = [];
+		@client.on('timeout', @onTimeout)
+		@client.setEncoding('utf8')
+		@client.setTimeout(45 * 1000)
+		@buffer = ""
+		@defers = []
 		@client.write('hello\n')
+		@timer = setInterval(@sendPing, 30 * 1000)
 
 	onData: (chunk) =>
 		@buffer = "#{@buffer}#{chunk}";
@@ -48,57 +50,41 @@ class Player extends EventEmitter
 			@buffer = @buffer.substr(idx + 1);
 			@onCommand(new Command(cmd, param));
 
-	sendPing: () =>
-		@client.write('ping 300\n');
-
-
-	play: (uri) =>
-		@_pingPong(new Command('play', uri))
-
+	sendPing: () => @client.write('ping 4242\n');
+	play: (uri) => @_pingPong(new Command('play', uri))
 	getId: () -> @id
 
 	onCommand: (command) =>
 		if (command.getName() == "joinRoom")
 			@emit('joinRoom', command.getArgs());
-		else if (command.getName() == "pong")
-			#doNothing
 		else if (command.getName() == "endOfTrack")
 			@emit('endOfTrack');
-		else
+		else if (command.getName() == "pong")
+			console.log("Get pong");
+			#do Nothing
+		else if (@defers.length != 0)
+			defer = @defers.shift();
 			if (command.getName() == 'success')
-				@toDo[0].defer.resolve(JSON.parse(command.getArgs()));
+				defer.resolve(JSON.parse(command.getArgs()));
 			else
-				@toDo[0].defer.reject(command.getArgs());
-			@toDo.shift();
-			@_execToDo()
+				defer.reject(command.getArgs());
 
+	onTimeout: () => @onDisconnect();
+	onError: () => @onDisconnect();
 	onDisconnect: () =>
+		@client.end();
 		clearInterval(@timer)
 		@emit('disconnect')
+		for defer in @defers
+			defer.reject('player was disconnected');
 
-	onError: () =>
-		clearInterval(@timer)
-		@emit('disconnect')
-
-	search: (query) =>
-		@_pingPong(new Command('search', query)).then (res) =>
-			return res;
-
-	lookup: (trackUri) =>
-		@_pingPong(new Command('lookup', trackUri)).then (res) =>
-			return res;
-
-
-	_execToDo: () =>
-		if (@toDo.length == 0 ) then return;
-		cmd = @toDo[0].cmd;
-		@client.write("#{cmd.getName()} #{cmd.getArgs()}\n");
+	search: (query) => @_pingPong(new Command('search', query));
+	lookup: (trackUri) => @_pingPong(new Command('lookup', trackUri));
 
 	_pingPong: (cmd) =>
 		defer = When.defer();
-		@toDo.push({cmd:cmd, defer:defer});
-		if (@toDo.length == 1)
-			@_execToDo();
+		@defers.push(defer);
+		@client.write("#{cmd.getName()} #{cmd.getArgs()}\n");
 		return defer.promise;
 
 module.exports = Player
