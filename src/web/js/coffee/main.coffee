@@ -34,6 +34,7 @@ app.config ['$routeProvider', ($routeProvider) ->
 ]
 
 app.factory 'config', () -> new Config()
+app.factory 'loading', () -> new Loading()
 app.factory 'webService', ['$http', '$q', 'config', ($http, $q, config) -> new WebService($http, $q, config)]
 app.factory 'user', ['webService', '$location', '$cookies', (webService, $location, $cookies) -> new User(webService, $location, $cookies)]
 app.factory 'room', ['webService', 'user', (webService, user) -> new Room(webService, user)]

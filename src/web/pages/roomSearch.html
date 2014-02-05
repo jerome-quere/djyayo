@@ -8,7 +8,7 @@
       <input name="search" type="text" placeholder="Search" class="form-control" ng-change="onInputChange()" ng-model="searchInput">
     </div>
     <ul>
-      <li ng-repeat="track in searchResults.tracks" ng-click="trackClick(track)">
+      <li ng-repeat="track in searchResults" ng-click="trackClick(track)">
 	<img class="thumbmail"  ng-src="{{track.imgUrl}}" />
 	<h3>{{track.name}}</h3>
 	<p>{{track.artists[0].name}}</p>
@@ -16,7 +16,13 @@
 	<img class="icon" ng-show="!track.haveMyVote" src="images/star_empty.png" />
       </li>
     </ul>
-    <div class="center spacer" ng-hide="searchResults">
+    <div class="center spacer" ng-show="loading">
+      <i>
+	Searching ...... <br/><br/>
+	<img src="images/loader.gif" width="40px"/><br/>
+      </i>
+    </div>
+    <div class="center spacer" ng-hide="searchResults || loading">
       <i>
 	Sorry no result found <br/>
 	<a href="" ng-click="onTryThisClick()">Try this</a>

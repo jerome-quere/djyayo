@@ -23,7 +23,7 @@
 ##
 
 class RoomSearchController
-	constructor: (@$scope, @room, @locationManager, $routeParams, @$timeout) ->
+	constructor: (@$scope, @room, @locationManager, $routeParams, @$timeout, @loading) ->
 		@room.enter($routeParams.room).catch () =>
 			@locationManager.goTo('/roomSelect');
 		@$scope.searchInput = "";
@@ -31,27 +31,45 @@ class RoomSearchController
 		@$scope.onInputChange = @onInputChange;
 		@$scope.onTryThisClick = @onTryThisClick
 		@$scope.trackClick = @onTrackClick;
+		@$scope.loading = false;
 		@room.on 'change', @$scope, @onRoomChange
 		@onRoomChange()
 		@timer = null;
 
 	onRoomChange: () =>
 		@$scope.havePlayer = @room.havePlayer();
+		if (!@room.havePlayer())
+			@$scope.searchInput = "";
+			@onInputChange();
 
 	onInputChange: () =>
 		value = @$scope.searchInput;
 		if (@timer?)
 			@$timeout.cancel(@timer)
 			@timer = null;
-		@timer = @$timeout(@search, 500);
+		if (value)
+			@timer = @$timeout(@search, 500);
+
+
+
+	_startLoading: () =>
+		@loading.start();
+		@$scope.loading = true;
+
+
+	_doneLoading: () =>
+		@loading.done();
+		@$scope.loading = false;
 
 	search: () =>
 		query = @$scope.searchInput;
 		@$scope.searchResults = null;
+		@_startLoading();
 		p = @room.search(query);
 		p.then (searchResults) =>
 			if (query == @$scope.searchInput)
-				@$scope.searchResults = searchResults;
+				@$scope.searchResults = searchResults.tracks;
+				@_doneLoading();
 
 	onTrackClick: (track) =>
 		if (track.haveMyVote)
@@ -66,4 +84,4 @@ class RoomSearchController
 		@onInputChange();
 		return false;
 
-RoomSearchController.$inject = ['$scope', 'room', 'locationManager', '$routeParams', '$timeout'];
+RoomSearchController.$inject = ['$scope', 'room', 'locationManager', '$routeParams', '$timeout', 'loading'];
