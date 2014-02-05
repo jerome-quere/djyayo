@@ -67,6 +67,7 @@ class Room extends EventEmitter
 			data.track = elem.track;
 			data.votes = elem.votes;
 			data.haveMyVote = false;
+			data.addedBy = elem.addedBy;
 			for user in elem.votes
 				if (@user.getId() == user.id)
 					data.haveMyVote = true;
@@ -80,6 +81,7 @@ class Room extends EventEmitter
 		data = {};
 		data.track = roomData.currentTrack.track;
 		data.votes = roomData.currentTrack.votes;
+		data.addedBy = roomData.currentTrack.addedBy;
 		return data;
 
 	buildPlayer: (roomData) -> roomData.players.length != 0;

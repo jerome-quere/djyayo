@@ -61,6 +61,8 @@ class Application
 		@express.get('/login', buildHandler(@onLoginRequest));
 		@express.get("/room/:room", buildHandler(@onRoomRequest));
 		@express.get("/room/:room/search", buildHandler(@onSearchRequest));
+		@express.get("/room/:room/nextTrack", buildHandler(@onRoomNextTrackRequest));
+		@express.get("/room/:room/deleteTrack", buildHandler(@onRoomDeleteTrackRequest));
 		@express.get("/room/:room/queue", buildHandler(@onQueueRequest));
 		@express.get("/room/:room/vote", buildHandler(@onVoteRequest));
 		@express.get("/room/:room/unvote", buildHandler(@onUnvoteRequest));
@@ -125,6 +127,23 @@ class Application
 		Testor(room, HttpErrors.invalidRoomName()).isNotNull();
 		query = Testor(request.query.query, HttpErrors.badParams()).isNotEmpty().toString();
 		return room.search(query)
+
+	onRoomNextTrackRequest: (request, response) =>
+		session = @getAndTestSession(request)
+		room = RoomManager.get(request.params.room)
+		Testor(room, HttpErrors.invalidRoomName()).isNotNull();
+		Testor(room.isAdmin(session), HttpErrors.permisionDenied()).isTrue();
+		room.playNextTrack();
+		return "Success"
+
+	onRoomDeleteTrack: () ->
+		session = @getAndTestSession(request)
+		room = RoomManager.get(request.params.room)
+		Testor(room, HttpErrors.invalidRoomName()).isNotNull();
+		Testor(room.isAdmin(session), HttpErrors.permisionDenied()).isTrue();
+		uri = Testor(request.query.uri, HttpErrors.badParams()).isNotEmpty().toString();
+		room.deleteTrack(uri);
+		return "Success";
 
 	onPlayerJoinRoom: (player, roomName) =>
 		room = RoomManager.get(roomName);

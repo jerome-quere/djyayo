@@ -51,6 +51,7 @@ namespace SpDj
 	void onCommandPing(const Command&);
 	When::Promise<Command> onCommandSearch(const Command&);
 	When::Promise<Command> onCommandPlay(const Command&);
+	When::Promise<Command> onCommandStop(const Command&);
 	When::Promise<Command> onCommandLookup(const Command&);
 
 	Communicator	_communicator;

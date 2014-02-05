@@ -23,7 +23,7 @@
 ##
 
 
-app = angular.module('app', ['ngRoute', 'ngCookies'])
+app = angular.module('app', ['ngRoute', 'ngCookies', 'ui.bootstrap'])
 
 app.config ['$routeProvider', ($routeProvider) ->
 	$routeProvider.when('/login', {templateUrl:"./pages/login.html", controller: LoginController})

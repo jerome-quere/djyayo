@@ -40,18 +40,22 @@ class TrackQueue
 			i++
 		return (-1)
 
-	vote: (clientId, track) ->
+	vote: (userId, track) ->
 		if ((idx = @indexOf(track.uri)) != -1)
-			return @tracks[idx].vote(clientId)
-		elem = new TrackQueueElement(track)
-		elem.vote(clientId)
+			return @tracks[idx].vote(userId)
+		elem = new TrackQueueElement(track, userId)
+		elem.vote(userId)
 		@tracks.push(elem);
 
-	unvote: (clientId, trackUri) ->
+	unvote: (userId, trackUri) ->
 		if ((idx = @indexOf(trackUri)) != -1)
-			@tracks[idx].unvote(clientId)
+			@tracks[idx].unvote(userId)
 			if (@tracks[idx].getNbVotes() == 0)
 				@tracks.splice(idx, 1);
+
+	remove: (uri) ->
+		if ((idx = @indexOf(trackUri)) != -1)
+			@tracks.splice(idx, 1);
 
 	getNext: () ->
 		@tracks.sort((a, b) -> a.getNbVotes() - b.getNbVotes())

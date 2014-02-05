@@ -54,6 +54,7 @@ namespace SpDj
 	    {"hello", &Application::onCommandHello},
 	    {"search", &Application::onCommandSearch},
 	    {"play", &Application::onCommandPlay},
+	    {"stop", &Application::onCommandStop},
 	    {"lookup", &Application::onCommandLookup}
 	};
 
@@ -121,6 +122,14 @@ namespace SpDj
 	return _spotify.play(c.param()).then([this] (bool) {
 		return Command("success", "{}");
 	    });
+    }
+
+    When::Promise<Command> Application::onCommandStop(const Command& c) {
+	std::cout << c.toString() << std::endl;
+	auto d = When::defer<Command>();
+	d.resolve(Command("success", "{}"));
+	_spotify.stop();
+	return d.promise();
     }
 
     When::Promise<Command> Application::onCommandLookup(const Command& c) {

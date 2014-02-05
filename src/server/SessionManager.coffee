@@ -25,7 +25,7 @@
 crypto = require('crypto')
 
 class Session
-	constructor: () ->
+	constructor: (@token) ->
 		@user = null;
 
 	setUser: (@user) ->
@@ -41,7 +41,7 @@ class SessionManager
 		time = new Date().getTime();
 		md5.update("#{time}-#{Math.random()}");
 		token = md5.digest('hex');
-		@sessions[token] = new Session();
+		@sessions[token] = new Session(token);
 		return token;
 
 	get: (token) ->

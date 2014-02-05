@@ -52,6 +52,7 @@ class Player extends EventEmitter
 
 	sendPing: () => @client.write('ping 4242\n');
 	play: (uri) => @_pingPong(new Command('play', uri))
+	stop: () -> @_pingPong(new Command('stop'));
 	getId: () -> @id
 
 	onCommand: (command) =>

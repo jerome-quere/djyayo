@@ -8,7 +8,7 @@ uglify   = require('gulp-uglify'),
 minify   = require('gulp-minify-css');
 
 gulp.task('coffee', function () {
-    return gulp.src('js/coffee/*.coffee')
+    return gulp.src(['js/coffee/*.coffee', "!js/coffee/.#*"])
 	.pipe(coffee({bare: true}))
 	.pipe(concat('script.js'))
 	.pipe(gulp.dest('js/'));

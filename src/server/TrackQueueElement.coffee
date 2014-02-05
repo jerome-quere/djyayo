@@ -22,33 +22,35 @@
 # THE SOFTWARE.
 ##
 
+UserManager = require('./UserManager.coffee');
 
 class TrackQueueElement
 
-	constructor: (@track) ->
-		@clients = []
+	constructor: (@track, userId) ->
+		@votes = []
+		@addedBy = UserManager.get(userId);
 
-	vote: (clientId) ->
-		if (@clients.indexOf(clientId) == -1)
-			@clients.push(clientId)
+	vote: (userId) ->
+		if (@votes.indexOf(userId) == -1)
+			@votes.push(userId)
 
-	unvote: (clientId) =>
-		if ((idx = @clients.indexOf(clientId)) != -1)
-			@clients.splice(idx, 1);
+	unvote: (userId) =>
+		if ((idx = @votes.indexOf(userId)) != -1)
+			@votes.splice(idx, 1);
 
 	getUri: () -> @track.uri
 
-	getNbVotes: () -> @clients.length
+	getNbVotes: () -> @votes.length
 
 	getVotes: () ->
 		res = []
-		for id in @clients
+		for id in @votes
 			res.push({id:id});
 		return res
 
-	hasVote: (clientId) ->
-		return @clients.indexOf(clientId) != -1
+	hasVote: (userId) ->
+		return @votes.indexOf(userId) != -1
 
-	getData: () -> {votes: @getVotes(), track: @track}
+	getData: () -> {votes: @getVotes(), addedBy: @addedBy, track: @track}
 
 module.exports = TrackQueueElement;
