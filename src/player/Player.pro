@@ -63,7 +63,6 @@ HEADERS		+=	include/Application.h	       \
 			include/Socket.hpp	       \
 			include/Spotify.h	       \
 			include/SpotifyObject.h	       \
-			include/main.c		       \
 			include/spotifyApiKey.h	       \
 			include/Store.h		       \
 			include/Store.hpp	       \

@@ -69,9 +69,10 @@ namespace SpDj
 	AudioPlayer* p = static_cast<AudioPlayer*>(obj);
 
 	std::lock_guard<std::mutex> lock(p->_mutex);
-	p->_buffer.read((Byte*)output, frameCount * p->_audioFormat.frameSize());
+	auto size = p->_buffer.read((Byte*)output, frameCount * p->_audioFormat.frameSize());
 	if (p->_buffer.size() == 0)
 	    IOService::addTask([p] {p->emit("empty");});
+	std::fill((char*)output + size, (char*)output + frameCount * p->_audioFormat.frameSize(), 0);
 	return (paContinue);
     }
 
