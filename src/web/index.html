@@ -1,36 +1,64 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="spotifyDj">
+<html lang="en" ng-app="app">
   <head>
     <meta charset="utf-8">
-    <title>Spotify - Dj</title>
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <title>???? - Dj</title>
+    <meta name="author" content="Yayo<contact@jeromequere.com>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link type="text/css" rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
-    <link type="text/css" rel="stylesheet" href="css/bootstrap/bootstrap-responsive.min.css" />
+    <link rel="icon" type="image/png" href="images/favicon.png" />
+    <link rel="apple-touch-icon" href="images/touch-icon-iphone.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="images/touch-icon-ipad.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="images/touch-icon-iphone-retina.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="images/touch-icon-ipad-retina.png" />
+    <link type="text/css" rel="stylesheet" href="css/vendor.css" />
     <link type="text/css" rel="stylesheet" href="css/style.css" />
-    <script src="js/jquery/jquery-1.7.2.min.js"></script>
-    <script src="js/bootstrap/bootstrap.min.js"></script>
-    <script src="js/angular/angular.min.js"></script>
-    <script src="js/EventEmmiter/EventEmitter-4.0.3.min.js"></script>
-    <script src="js/script.js?version=<?=time()?>"></script>
+    <script src="js/vendor.js"></script>
+    <script src="js/script.js"></script>
   </head>
   <body>
     <div id="panels">
-      <div id="panel_search" class="panel" ng-controller="SearchPanelController">
-	<div class="list-search">
-	  <form class="form-search">
-	    <input type="text" class="search-query" ng-change="search()" ng-model="searchInput" />
-	  </form>
+      <div id="panel_menu" class="panel" ng-controller="MenuPanelController">
+	<div class="listView-mini">
+	  <ul>
+	    <li>
+	      <img class="thumbmail" ng-src="{{userImgUrl}}"/>
+	      <h2>Hello {{userName}} !</h2>
+	    </li>
+	  </ul>
+	  <div class="listView-header" ng-show="roomName">
+	    You are in {{roomName}}
+	  </div>
+	  <ul ng-show="roomName">
+	    <li>
+	      <a href="javascript:" ng-click="goToTrackQueue()">
+		<i class="thumbmail icon-music"></i>
+		<h2>Go to track queue</h2>
+	      </a>
+	    </li>
+	    <li ng-show="roomName">
+	      <a href="javascript:" ng-click="goToSearch()">
+		<i class="thumbmail icon-search"></i>
+		<h2>Go to search</h2>
+	      </a>
+	    </li>
+	    <li ng-show="roomName">
+	      <a href="javascript:" ng-click="changeRoom()">
+		<i class="thumbmail icon-reply"></i>
+		<h2>Leave Room</h2>
+	      </a>
+	    </li>
+	  </ul>
+	  <div class="listView-header">
+	  </div>
+	  <ul>
+	    <li>
+	      <a href="javascript:" ng-click="logout()">
+		<i class="thumbmail icon-power-off"></i>
+		<h2>Logout</h2>
+	      </a>
+	    </li>
+	  </ul>
 	</div>
-	<ul class="listView listView-nothumbs">
-	  <li ng-repeat="track in results" ng-click="onTrackClick(track)">
-	    <h2>{{track.name}}</h2>
-	    <p>{{track.artist.name}}</p>
-	    <img class="icon" ng-show="track.haveMyVote" src="images/star_full.png" />
-	    <img class="icon" ng-show="!track.haveMyVote" src="images/star_empty.png"/>
-	  </li>
-	</ul>
       </div>
       <script>
 	$(function() {
@@ -39,21 +67,31 @@
       </script>
     </div>
     <div id="wrap">
-      <div id="header">
-	<a class="search-ico" herf="" onclick="$('#panel_search').data('panel').show();">
-	  <img width="30px" src="images/search.png" />
+      <div id="header" ng-controller="HeaderController">
+	<a ng-show="isLog" class="menu-ico" href="javascript:" onclick="$('#panel_menu').data('panel').show();">
+	  <i class="icon-reorder"></i>
 	</a>
-        <a href="#">
-	  <span class="logo searchPanelTrigger">Spotify DJ</span>
-	</a>
+	<table ng-show="isLog" class="user-infos">
+	  <tr>
+	    <td>
+	      <img ng-src="{{userImgUrl}}" />
+	    </td>
+	  </tr>
+	</table>
       </div>
       <div ng-view></div>
       <div id="push"></div>
     </div>
-    <footer>
-      <div style="text-align: center;line-height: 42px; color: #fff">
-        By Yayo
-      </div>
-    </footer>
+    <div id="fb-root"></div>
   </body>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-31304821-3', 'yayo.fr');
+  ga('send', 'pageview');
+
+</script>
 </html>

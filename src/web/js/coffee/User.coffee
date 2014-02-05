@@ -1,53 +1,80 @@
 ##
-# Copyright 2012 Jerome Quere < contact@jeromequere.com >.
+#The MIT License (MIT)
 #
-# This file is part of SpotifyDJ.
+# Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
-# SpotifyDJ is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-# SpotifyDJ is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-# GNU General Public License for more details.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
 #
-# You should have received a copy of the GNU General Public License
-# along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
 ##
 
 class User extends EventEmitter
 
-	constructor: (@webService) ->
-		super;
-		@id = -1;
-		@votes = [];
-		@refresh();
+	constructor: (@webService, @$location, @$cookies) ->
+		@_clear();
+		@_loadToken()
+		@refresh().finally () =>
+			if @isLog() then @emit('login') else @emit('logout')
+
+	isLog: () -> return @id != -1;
+	getId: () -> @id;
+	getName: () -> @name;
+	getImgUrl: () -> @imgUrl
+
+
+	loginWithFacebookToken: (token) =>
+		@_login {method:"facebook", token:token}
+
+	loginWithGoogleToken: (token) =>
+		@_login {method:"google", token:token}
+
+	logout: () ->
+		@webService.setAccessToken(null)
+		@_clear()
+		@emit('logout');
 
 	refresh: () =>
-		@webService.query('me').then (httpRes) =>
-			@id = httpRes.data.id;
-			@votes = httpRes.data.votes;
+		p = @webService.query('me').then (data) =>
+			@_update(data);
+		p.then null, () =>
+			@_clear()
+		return p;
 
-	vote: (uri) ->
-		@webService.query('vote', {uri: uri}).then (httpRes) =>
-			@_addVote(uri)
-			@emitEvent('queueChanged', [httpRes.data]);
 
-	unvote: (uri) ->
-		@webService.query('unvote', {uri: uri}).then (httpRes) =>
-			@_delVote(uri)
-			@emitEvent('queueChanged', [httpRes.data]);
+	_clear: () ->
+		@id = -1
+		@name = '';
+		@imgUrl = '';
 
-	haveMyVote: (uri) ->
-		return @votes.indexOf(uri) != -1;
+	_update: (userData) =>
+		@id = userData.id
+		@name = userData.name
+		@imgUrl = userData.imgUrl
 
-	_addVote: (uri) ->
-		if (@votes.indexOf(uri))
-			@votes.push(uri);
+	_login: (data) ->
+		@webService.query('login', data).then (data) =>
+			@webService.setAccessToken(data.access_token);
+			@refresh().then () =>
+				@_saveToken(data.access_token)
+				@emit('login');
 
-	_delVote: (uri) ->
-		idx = @votes.indexOf(uri);
-		if (idx != -1)
-			@votes.splice(idx, 1);
+	_loadToken: () =>
+		token = @$cookies.access_token;
+		@webService.setAccessToken(token);
+
+	_saveToken: (token) =>
+		@$cookies.access_token = token;

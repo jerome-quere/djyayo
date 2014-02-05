@@ -1,0 +1,15 @@
+{
+    "name": "Spotify-DJ-server",
+    "version": "0.1.0",
+    "author": "Jerome Quere <contact@jeromequere.com>",
+    "description": "A server for music vote system",
+    "repository" : {
+	"type" : "git",
+	"url" : "https://github.com/jerome-quere/spotifyDJ.git"
+    },
+    "devDependencies": {
+	"express": "*",
+	"socket.io": "*",
+	"when": "*"
+    }
+}

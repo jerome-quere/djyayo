@@ -1,29 +1,31 @@
 ##
-# Copyright 2012 Jerome Quere < contact@jeromequere.com >.
+#The MIT License (MIT)
 #
-# This file is part of SpotifyDJ.
+# Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
-# SpotifyDJ is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-# SpotifyDJ is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-# GNU General Public License for more details.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
 #
-# You should have received a copy of the GNU General Public License
-# along with SpotifyDJ.If not, see <http://www.gnu.org/licenses/>.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
 ##
-
-jstd = require('./jstd.js');
-SpotifyCommandFactory = require("./SpotifyCommandFactory.coffee");
 
 
 class TrackQueueElement
 
-	constructor: (@trackUri) ->
+	constructor: (@track) ->
 		@clients = []
 
 	vote: (clientId) ->
@@ -34,7 +36,7 @@ class TrackQueueElement
 		if ((idx = @clients.indexOf(clientId)) != -1)
 			@clients.splice(idx, 1);
 
-	getUri: () -> @trackUri
+	getUri: () -> @track.uri
 
 	getNbVotes: () -> @clients.length
 
@@ -47,6 +49,6 @@ class TrackQueueElement
 	hasVote: (clientId) ->
 		return @clients.indexOf(clientId) != -1
 
-	getData: () -> {votes: @getVotes(), uri: @trackUri}
+	getData: () -> {votes: @getVotes(), track: @track}
 
 module.exports = TrackQueueElement;

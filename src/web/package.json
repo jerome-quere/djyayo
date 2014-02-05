@@ -1,0 +1,20 @@
+{
+    "name": "Spotify-DJ-web",
+    "version": "0.1.0",
+    "author": "Jerome Quere <contact@jeromequere.com>",
+    "description": "A we interface for the ???-DJ server",
+    "repository" : {
+	"type" : "git",
+	"url" : "https://github.com/jerome-quere/spotifyDJ.git"
+    },
+    "devDependencies": {
+	"gulp": "*",
+	"gulp-clean": "*",
+	"gulp-coffee": "*",
+	"gulp-concat": "*",
+	"gulp-connect": "*",
+	"gulp-less": "*",
+	"gulp-minify-css": "*",
+	"gulp-uglify": "*"
+    }
+}
