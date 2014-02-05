@@ -60,7 +60,6 @@ class Player extends EventEmitter
 		else if (command.getName() == "endOfTrack")
 			@emit('endOfTrack');
 		else if (command.getName() == "pong")
-			console.log("Get pong");
 			#do Nothing
 		else if (@defers.length != 0)
 			defer = @defers.shift();

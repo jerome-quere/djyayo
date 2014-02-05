@@ -28,12 +28,17 @@ class RoomManager
 	constructor: () ->
 		@rooms = {};
 
+	_getKeyFromName: (name) -> return name.toLowerCase();
+
 	create: (name) ->
+		key = @_getKeyFromName(name);
 		if (/^[a-z0-9A-Z_-]+$/.test(name))
-			@rooms[name] = new Room(name);
-			return (@rooms[name]);
+			@rooms[key] = new Room(name);
+			return (@rooms[key]);
 		throw "Can't create room [#{name}]"
 
-	get: (name) -> if @rooms[name]? then @rooms[name] else null
+	get: (name) ->
+		key = @_getKeyFromName(name);
+		return if @rooms[key]? then @rooms[key] else null
 
 module.exports = new RoomManager();

@@ -32,7 +32,7 @@ class RoomSelectController
 		roomName = @$scope.roomName;
 		promise = @webService.query "room/#{roomName}"
 		promise.then (data) =>
-			@locationManager.goTo("/room/#{roomName}");
+			@locationManager.goTo("/room/#{data.name}");
 		promise.catch (data) =>
 			@$scope.error = true
 
