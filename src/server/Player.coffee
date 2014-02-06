@@ -69,6 +69,7 @@ class Player extends EventEmitter
 			else
 				defer.reject(command.getArgs());
 
+	shutdown: () => @onDisconnect();
 	onTimeout: () => @onDisconnect();
 	onError: () => @onDisconnect();
 	onDisconnect: () =>

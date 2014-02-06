@@ -22,23 +22,26 @@
 # THE SOFTWARE.
 ##
 
-Room = require('./Room.coffee');
+class RoomAdminController
+	constructor: (@$scope, $routeParams, @locationManager, @room) ->
+		@room.enter($routeParams.room).catch () =>
+			@locationManager.goTo('/roomSelect');
+		@room.on 'change', @$scope, @onRoomChange
+		@onRoomChange()
+		@$scope.onNextTrackClick = @onNextTrackClick;
+		@$scope.onDeleteTrackClick = @onDeleteTrackClick;
 
-class RoomManager
-	constructor: () ->
-		@rooms = {};
+	onRoomChange: () =>
+		@$scope.roomName = @room.getName();
+		@$scope.trackQueue = @room.getTrackQueue();
+		@$scope.currentTrack = @room.getCurrentTrack();
+		@$scope.havePlayer = @room.havePlayer();
 
-	_getKeyFromName: (name) -> return name.toLowerCase();
+	onNextTrackClick: () =>
+		@room.nextTrack();
 
-	create: (name, adminPassword) ->
-		key = @_getKeyFromName(name);
-		if (/^[a-z0-9A-Z_-]+$/.test(name))
-			@rooms[key] = new Room(name, adminPassword);
-			return (@rooms[key]);
-		throw "Can't create room [#{name}]"
+	onDeleteTrackClick: (elem) =>
+		@room.deleteTrack(elem.track.uri);
 
-	get: (name) ->
-		key = @_getKeyFromName(name);
-		return if @rooms[key]? then @rooms[key] else null
 
-module.exports = new RoomManager();
+RoomAdminController.$inject = ['$scope', '$routeParams', 'locationManager', 'room']

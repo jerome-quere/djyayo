@@ -18,8 +18,14 @@
 	    <p>{{currentTrack.track.artists[0].name}}</p>
 	    <span class="badge">{{currentTrack.votes.length}}</span>
 	    <img  ng-src="{{currentTrack.addedBy.imgUrl}}" class="userImg" tooltip-placement="left" tooltip="{{currentTrack.addedBy.name}}" />
+	    <a href="javascript:" class="icon" ng-click="onNextTrackClick()" >
+	      <i class="fa fa-step-forward" />
+	    </a>
 	  </li>
 	</ul>
+	<div class="spacer center" ng-hide="trackQueue">
+	  <i> What's next ? <a href="#/room/{{roomName}}/search">vote for the next song</a> !</i>
+	</div>
 	<div class="listView-header" ng-show="trackQueue">
 	  To Come ...
 	</div>
@@ -30,15 +36,11 @@
 	    <p>{{elem.track.artists[0].name}}</p>
 	    <span class="badge">{{elem.votes.length}}</span>
 	    <img  ng-src="{{elem.addedBy.imgUrl}}" class="userImg"  tooltip-placement="left" tooltip="{{currentTrack.addedBy.name}}" />
-	    <a href="javascript:" ng-click="onTrackClick(elem)">
-	      <img class="icon" ng-show="elem.haveMyVote" src="images/star_full.png" />
-	      <img class="icon" ng-show="!elem.haveMyVote" src="images/star_empty.png"/>
+	    <a href="javascript:" class="icon" ng-click="onDeleteTrackClick(elem)">
+	      <i class="fa fa-trash-o" />
 	    </a>
 	  </li>
 	</ul>
-	<div class="spacer center">
-	  <i> What's next ? <a href="#/room/{{roomName}}/search">vote for the next song</a> !</i>
-	</div>
       </div>
     </div>
   </div>

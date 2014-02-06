@@ -66,6 +66,7 @@ class Application
 		@express.get("/room/:room/queue", buildHandler(@onQueueRequest));
 		@express.get("/room/:room/vote", buildHandler(@onVoteRequest));
 		@express.get("/room/:room/unvote", buildHandler(@onUnvoteRequest));
+		@express.get("/room/:room/login", buildHandler(@onRoomLoginRequest));
 		@express.get("/me", buildHandler(@onMeRequest));
 
 	onHttpRequest: (request, response, handler) =>
@@ -101,10 +102,13 @@ class Application
 		return session.getUser().getData();
 
 	onRoomRequest: (request, response) =>
+		session = @getAndTestSession(request)
 		room = RoomManager.get(request.params.room);
 		if (!room?)
 			throw HttpErrors.invalidRoomName()
-		return room.getData();
+		data = room.getData();
+		data.admin = room.isAdmin(session.getUser().getId());
+		return data;
 
 	onUnvoteRequest: (request, response) =>
 		session = @getAndTestSession(request)
@@ -132,23 +136,34 @@ class Application
 		session = @getAndTestSession(request)
 		room = RoomManager.get(request.params.room)
 		Testor(room, HttpErrors.invalidRoomName()).isNotNull();
-		Testor(room.isAdmin(session), HttpErrors.permisionDenied()).isTrue();
+		Testor(room.isAdmin(session.getUser().getId()), HttpErrors.permisionDenied()).isTrue();
 		room.playNextTrack();
 		return "Success"
 
-	onRoomDeleteTrack: () ->
+	onRoomDeleteTrackRequest: (request, response) =>
 		session = @getAndTestSession(request)
 		room = RoomManager.get(request.params.room)
 		Testor(room, HttpErrors.invalidRoomName()).isNotNull();
-		Testor(room.isAdmin(session), HttpErrors.permisionDenied()).isTrue();
+		Testor(room.isAdmin(session.getUser().getId()), HttpErrors.permisionDenied()).isTrue();
 		uri = Testor(request.query.uri, HttpErrors.badParams()).isNotEmpty().toString();
 		room.deleteTrack(uri);
 		return "Success";
 
+	onRoomLoginRequest: (request, response) =>
+		session = @getAndTestSession(request)
+		room = RoomManager.get(request.params.room)
+		Testor(room, HttpErrors.invalidRoomName()).isNotNull();
+		password = room.getAdminPassword();
+		userPassword = Testor(request.query.password, HttpErrors.badParams()).isNotEmpty().toString();
+		if (password != userPassword)
+			throw HttpErrors.permisionDenied();
+		room.addAdmin(session.getUser().getId());
+		return "Success"
+
 	onPlayerJoinRoom: (player, roomName) =>
 		room = RoomManager.get(roomName);
 		if (!room)
-			room = RoomManager.create(roomName);
+			room = RoomManager.create(roomName, 'epitech42');
 		room.addPlayer(player);
 
 	onChangeRoomCommand: (client, command) =>

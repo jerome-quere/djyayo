@@ -26,11 +26,12 @@ Command = require('./Command.coffee');
 TrackQueue = require('./TrackQueue.coffee');
 
 class Room
-	constructor: (@name) ->
+	constructor: (@name, @adminPassword) ->
 		@players = []
 		@trackQueue = new TrackQueue(this);
 		@currentTrack = null;
 		@clients = [];
+		@admins = [];
 
 	addPlayer: (player) ->
 		@players.push(player);
@@ -88,9 +89,16 @@ class Room
 		@players[0].search(query).then (data) =>
 			return data;
 
-	isAdmin: (session) ->
-		#TODO SECURITY
-		return true;
+	addAdmin: (userId) ->
+		if @admins.indexOf(userId) == -1
+			@admins.push(userId);
+			@changed();
+
+	isAdmin: (userId) ->
+		return @admins.indexOf(userId) != -1;
+
+	getAdminPassword: () ->
+		return @adminPassword;
 
 	deleteTrack: (uri) ->
 		@trackQueue.remove(uri);

@@ -53,7 +53,7 @@ class TrackQueue
 			if (@tracks[idx].getNbVotes() == 0)
 				@tracks.splice(idx, 1);
 
-	remove: (uri) ->
+	remove: (trackUri) ->
 		if ((idx = @indexOf(trackUri)) != -1)
 			@tracks.splice(idx, 1);
 

@@ -37,8 +37,6 @@ class RoomTrackQueueController
 		@$scope.currentTrack = @room.getCurrentTrack();
 		@$scope.havePlayer = @room.havePlayer();
 
-		$(".userImg").tooltip();
-
 	onTrackClick: (elem) =>
 		if (elem.haveMyVote)
 			@room.unvote(elem.track.uri)
