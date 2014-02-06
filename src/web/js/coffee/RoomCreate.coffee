@@ -22,23 +22,18 @@
 # THE SOFTWARE.
 ##
 
-Room = require('./Room.coffee');
+class RoomCreateController
+	constructor: (@$scope, @locationManager, @webService) ->
+		@$scope.roomName = "";
+		@$scope.error = false;
+		@$scope.createRoom = @onCreateRoom
 
-class RoomManager
-	constructor: () ->
-		@rooms = {};
+	onCreateRoom: () =>
+		roomName = @$scope.roomName;
+		promise = @webService.query "room/#{roomName}/create"
+		promise.then (data) =>
+			@locationManager.goTo("/room/#{data.name}");
+		promise.catch (data) =>
+			@$scope.error = true
 
-	_getKeyFromName: (name) -> return name.toLowerCase();
-
-	create: (name) ->
-		key = @_getKeyFromName(name);
-		if (/^[a-z0-9A-Z_-]+$/.test(name))
-			@rooms[key] = new Room(name);
-			return (@rooms[key]);
-		return null;
-
-	get: (name) ->
-		key = @_getKeyFromName(name);
-		return if @rooms[key]? then @rooms[key] else null
-
-module.exports = new RoomManager();
+RoomCreateController.$inject = ['$scope', 'locationManager', 'webService']

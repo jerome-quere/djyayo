@@ -2,6 +2,9 @@
   <div class="row-fluid">
     <div class="span12">
       <div class="listView">
+	<div class="listView-header listView-header-warning">
+	  Admin of {{roomName}}
+	</div>
 	<div ng-hide="havePlayer" class="listView-header listView-header-error">
 	  No Player Connected
 	</div>
@@ -23,9 +26,6 @@
 	    </a>
 	  </li>
 	</ul>
-	<div class="spacer center" ng-hide="trackQueue">
-	  <i> What's next ? <a href="#/room/{{roomName}}/search">vote for the next song</a> !</i>
-	</div>
 	<div class="listView-header" ng-show="trackQueue">
 	  To Come ...
 	</div>

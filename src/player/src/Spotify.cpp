@@ -70,7 +70,8 @@ namespace SpDj
 
     Spotify::~Spotify()
     {
-	sp_session_release(_spSession);
+	//Segfault really often
+	//sp_session_release(_spSession);
 	_notifyEvent.cancel();
     }
 

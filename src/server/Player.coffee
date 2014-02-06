@@ -81,6 +81,7 @@ class Player extends EventEmitter
 
 	search: (query) => @_pingPong(new Command('search', query));
 	lookup: (trackUri) => @_pingPong(new Command('lookup', trackUri));
+	error: (msg) => @client.write("error #{msg}\n");
 
 	_pingPong: (cmd) =>
 		defer = When.defer();

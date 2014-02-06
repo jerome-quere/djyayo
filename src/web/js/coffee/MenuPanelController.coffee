@@ -38,6 +38,8 @@ class MenuPanelController
 		@$scope.goToTrackQueue = @goToTrackQueue;
 		@$scope.goToSearch = @goToSearch;
 		@$scope.goToAdmin = @goToAdmin;
+		@$scope.goToRoomCreate = @goToRoomCreate;
+		@$scope.goToRoomSelect = @goToRoomSelect;
 
 	onUserChange: () =>
 		@$scope.isLog = @user.isLog();
@@ -64,6 +66,14 @@ class MenuPanelController
 
 	goToAdmin: () =>
 		@locationManager.goTo("/room/#{@room.name}/admin");
+		@closePanel()
+
+	goToRoomCreate: () =>
+		@locationManager.goTo("/roomCreate");
+		@closePanel()
+
+	goToRoomSelect: () =>
+		@locationManager.goTo("/roomSelect");
 		@closePanel()
 
 	logout: () =>

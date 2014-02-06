@@ -57,6 +57,18 @@
 	  <div class="listView-header">
 	  </div>
 	  <ul>
+	    <li ng-hide="roomName">
+	      <a href="javascript:" ng-click="goToRoomSelect()">
+		<i class="thumbmail fa fa-sign-in"></i>
+		<h2>Join a room</h2>
+	      </a>
+	    </li>
+	    <li ng-hide="roomName">
+	      <a href="javascript:" ng-click="goToRoomCreate()">
+		<i class="thumbmail fa fa-plus-circle"></i>
+		<h2>Create a room</h2>
+	      </a>
+	    </li>
 	    <li>
 	      <a href="javascript:" ng-click="logout()">
 		<i class="thumbmail fa fa-power-off"></i>

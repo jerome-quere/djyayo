@@ -49,6 +49,7 @@ namespace SpDj
 
 	When::Promise<Command> onCommandHello(const Command&);
 	void onCommandPing(const Command&);
+	void onCommandError(const Command&);
 	When::Promise<Command> onCommandSearch(const Command&);
 	When::Promise<Command> onCommandPlay(const Command&);
 	When::Promise<Command> onCommandStop(const Command&);

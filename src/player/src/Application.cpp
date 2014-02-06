@@ -89,6 +89,9 @@ namespace SpDj
 	if (c.name() == "ping")
 	    return onCommandPing(c);
 
+	if (c.name() == "error")
+	    return onCommandError(c);
+
 	_commands.push(c);
 	if (_commands.size() == 1)
 	    execCommand();
@@ -105,6 +108,12 @@ namespace SpDj
 	d.resolve(Command("joinRoom", Config::getRoomName()));
 	return d.promise();
     }
+
+    void Application::onCommandError(const Command& c) {
+	std::cout << "The server send an error: " << c.param() << std::endl;
+	this->stop();
+    }
+
 
     void Application::onCommandPing(const Command& c) {
 	_communicator.send(Command("pong", c.param()));
@@ -138,4 +147,5 @@ namespace SpDj
 		return Command("success", track.toJson());
 	    });
     }
+
 }

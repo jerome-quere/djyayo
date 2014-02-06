@@ -26,7 +26,7 @@ Command = require('./Command.coffee');
 TrackQueue = require('./TrackQueue.coffee');
 
 class Room
-	constructor: (@name, @adminPassword) ->
+	constructor: (@name) ->
 		@players = []
 		@trackQueue = new TrackQueue(this);
 		@currentTrack = null;
@@ -96,9 +96,6 @@ class Room
 
 	isAdmin: (userId) ->
 		return @admins.indexOf(userId) != -1;
-
-	getAdminPassword: () ->
-		return @adminPassword;
 
 	deleteTrack: (uri) ->
 		@trackQueue.remove(uri);

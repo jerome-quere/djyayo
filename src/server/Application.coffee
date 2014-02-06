@@ -66,7 +66,7 @@ class Application
 		@express.get("/room/:room/queue", buildHandler(@onQueueRequest));
 		@express.get("/room/:room/vote", buildHandler(@onVoteRequest));
 		@express.get("/room/:room/unvote", buildHandler(@onUnvoteRequest));
-		@express.get("/room/:room/login", buildHandler(@onRoomLoginRequest));
+		@express.get("/room/:room/create", buildHandler(@onRoomCreateRequest));
 		@express.get("/me", buildHandler(@onMeRequest));
 
 	onHttpRequest: (request, response, handler) =>
@@ -110,6 +110,17 @@ class Application
 		data.admin = room.isAdmin(session.getUser().getId());
 		return data;
 
+	onRoomCreateRequest: (request, response) =>
+		session = @getAndTestSession(request)
+		room = RoomManager.get(request.params.room);
+		if (room?)
+			throw HttpErrors.invalidRoomName()
+		room = RoomManager.create(request.params.room);
+		if (!room?)
+			throw HttpErrors.invalidRoomName()
+		room.addAdmin(session.getUser().getId());
+		return @onRoomRequest(request, response);
+
 	onUnvoteRequest: (request, response) =>
 		session = @getAndTestSession(request)
 		room = RoomManager.get(request.params.room)
@@ -149,21 +160,10 @@ class Application
 		room.deleteTrack(uri);
 		return "Success";
 
-	onRoomLoginRequest: (request, response) =>
-		session = @getAndTestSession(request)
-		room = RoomManager.get(request.params.room)
-		Testor(room, HttpErrors.invalidRoomName()).isNotNull();
-		password = room.getAdminPassword();
-		userPassword = Testor(request.query.password, HttpErrors.badParams()).isNotEmpty().toString();
-		if (password != userPassword)
-			throw HttpErrors.permisionDenied();
-		room.addAdmin(session.getUser().getId());
-		return "Success"
-
 	onPlayerJoinRoom: (player, roomName) =>
 		room = RoomManager.get(roomName);
 		if (!room)
-			room = RoomManager.create(roomName, 'epitech42');
+			return player.error("The room #{roomName} doesn't exist");
 		room.addPlayer(player);
 
 	onChangeRoomCommand: (client, command) =>
