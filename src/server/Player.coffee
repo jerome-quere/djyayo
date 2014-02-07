@@ -52,6 +52,7 @@ class Player extends EventEmitter
 
 	sendPing: () => @client.write('ping 4242\n');
 	play: (uri) => @_pingPong(new Command('play', uri))
+	stop: () -> @_pingPong(new Command('stop'));
 	getId: () -> @id
 
 	onCommand: (command) =>
@@ -68,6 +69,7 @@ class Player extends EventEmitter
 			else
 				defer.reject(command.getArgs());
 
+	shutdown: () => @onDisconnect();
 	onTimeout: () => @onDisconnect();
 	onError: () => @onDisconnect();
 	onDisconnect: () =>
@@ -79,6 +81,7 @@ class Player extends EventEmitter
 
 	search: (query) => @_pingPong(new Command('search', query));
 	lookup: (trackUri) => @_pingPong(new Command('lookup', trackUri));
+	error: (msg) => @client.write("error #{msg}\n");
 
 	_pingPong: (cmd) =>
 		defer = When.defer();

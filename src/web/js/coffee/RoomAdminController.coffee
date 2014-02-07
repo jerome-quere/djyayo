@@ -22,31 +22,26 @@
 # THE SOFTWARE.
 ##
 
-crypto = require('crypto')
+class RoomAdminController
+	constructor: (@$scope, $routeParams, @locationManager, @room) ->
+		@room.enter($routeParams.room).catch () =>
+			@locationManager.goTo('/roomSelect');
+		@room.on 'change', @$scope, @onRoomChange
+		@onRoomChange()
+		@$scope.onNextTrackClick = @onNextTrackClick;
+		@$scope.onDeleteTrackClick = @onDeleteTrackClick;
 
-class Session
-	constructor: (@token) ->
-		@user = null;
+	onRoomChange: () =>
+		@$scope.roomName = @room.getName();
+		@$scope.trackQueue = @room.getTrackQueue();
+		@$scope.currentTrack = @room.getCurrentTrack();
+		@$scope.havePlayer = @room.havePlayer();
 
-	setUser: (@user) ->
-	getUser: () ->
-		@user
+	onNextTrackClick: () =>
+		@room.nextTrack();
 
-class SessionManager
-	constructor: () ->
-		@sessions = {};
+	onDeleteTrackClick: (elem) =>
+		@room.deleteTrack(elem.track.uri);
 
-	create: () ->
-		md5 = crypto.createHash('md5');
-		time = new Date().getTime();
-		md5.update("#{time}-#{Math.random()}");
-		token = md5.digest('hex');
-		@sessions[token] = new Session(token);
-		return token;
 
-	get: (token) ->
-		if @sessions[token]?
-			return @sessions[token]
-		return null
-
-module.exports = SessionManager;
+RoomAdminController.$inject = ['$scope', '$routeParams', 'locationManager', 'room']

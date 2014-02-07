@@ -31,6 +31,7 @@ class Room
 		@trackQueue = new TrackQueue(this);
 		@currentTrack = null;
 		@clients = [];
+		@admins = [];
 
 	addPlayer: (player) ->
 		@players.push(player);
@@ -67,25 +68,38 @@ class Room
 		if (!@trackQueue.empty())
 			@currentTrack = @trackQueue.pop();
 			p.play(@currentTrack.getUri()) for p in @players;
+		else
+			p.stop() for p in @players;
 		@changed();
 
-	vote: (clientId, trackUri) ->
+	vote: (userId, trackUri) ->
 		if (!@players.length)
 			throw "No player connected"
 		@players[0].lookup(trackUri).then (track) =>
-			@trackQueue.vote(clientId, track);
+			@trackQueue.vote(userId, track);
 			if (@currentTrack == null and @players.length != 0)
 				@playNextTrack();
 			@changed();
 
-	unvote: (clientId, uri) ->
-		@trackQueue.unvote(clientId, uri)
+	unvote: (userId, uri) ->
+		@trackQueue.unvote(userId, uri)
 		@changed();
 
 	search: (query) =>
 		@players[0].search(query).then (data) =>
 			return data;
 
+	addAdmin: (userId) ->
+		if @admins.indexOf(userId) == -1
+			@admins.push(userId);
+			@changed();
+
+	isAdmin: (userId) ->
+		return @admins.indexOf(userId) != -1;
+
+	deleteTrack: (uri) ->
+		@trackQueue.remove(uri);
+		@changed();
 
 	changed: () =>
 		for client in @clients

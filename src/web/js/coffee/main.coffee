@@ -23,13 +23,15 @@
 ##
 
 
-app = angular.module('app', ['ngRoute', 'ngCookies'])
+app = angular.module('app', ['ngRoute', 'ngCookies', 'ui.bootstrap'])
 
 app.config ['$routeProvider', ($routeProvider) ->
 	$routeProvider.when('/login', {templateUrl:"./pages/login.html", controller: LoginController})
 	$routeProvider.when('/roomSelect', {templateUrl:"./pages/roomSelect.html", controller: RoomSelectController})
+	$routeProvider.when('/roomCreate', {templateUrl:"./pages/roomCreate.html", controller: RoomCreateController})
 	$routeProvider.when('/room/:room', {templateUrl:"./pages/roomTrackQueue.html", controller: RoomTrackQueueController})
 	$routeProvider.when('/room/:room/search', {templateUrl:"./pages/roomSearch.html", controller: RoomSearchController})
+	$routeProvider.when('/room/:room/admin', {templateUrl:"./pages/roomAdmin.html", controller: RoomAdminController})
 	$routeProvider.otherwise({redirectTo: '/roomSelect'});
 ]
 

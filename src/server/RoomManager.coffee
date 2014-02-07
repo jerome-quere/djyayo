@@ -35,7 +35,13 @@ class RoomManager
 		if (/^[a-z0-9A-Z_-]+$/.test(name))
 			@rooms[key] = new Room(name);
 			return (@rooms[key]);
-		throw "Can't create room [#{name}]"
+		return null;
+
+	getList: () ->
+		names = []
+		for key,room of @rooms
+			names.push({name: key});
+		return names
 
 	get: (name) ->
 		key = @_getKeyFromName(name);

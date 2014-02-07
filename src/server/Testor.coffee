@@ -35,6 +35,7 @@ class Testor
 	isIn: (tab) -> @_test () =>
 		return tab.indexOf(@value) != -1
 
+	isTrue: () -> @_test () => @value == true;
 	isNotNull: () -> @_test () => @value?
 	isNotEmpty: () -> @_test () => @value? and @value
 

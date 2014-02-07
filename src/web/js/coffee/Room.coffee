@@ -28,12 +28,14 @@ class Room extends EventEmitter
 		@_clear()
 
 	getName: () -> @name
+	isAdmin: () -> @admin;
 
 	_clear: () ->
 		@name = null;
 		@player = false;
 		@trackQueue = [];
 		@currentTrack = null;
+		@admin = false;
 
 	enter: (name) =>
 		if (@name != name)
@@ -67,6 +69,7 @@ class Room extends EventEmitter
 			data.track = elem.track;
 			data.votes = elem.votes;
 			data.haveMyVote = false;
+			data.addedBy = elem.addedBy;
 			for user in elem.votes
 				if (@user.getId() == user.id)
 					data.haveMyVote = true;
@@ -80,6 +83,7 @@ class Room extends EventEmitter
 		data = {};
 		data.track = roomData.currentTrack.track;
 		data.votes = roomData.currentTrack.votes;
+		data.addedBy = roomData.currentTrack.addedBy;
 		return data;
 
 	buildPlayer: (roomData) -> roomData.players.length != 0;
@@ -90,6 +94,7 @@ class Room extends EventEmitter
 			@player = @buildPlayer(data);
 			@trackQueue = @buildTrackQueue(data);
 			@currentTrack = @buildCurrentTrack(data);
+			@admin = data.admin;
 			@emit('change');
 
 	buildSearchResult: (searchResults) ->
@@ -117,3 +122,6 @@ class Room extends EventEmitter
 		p = @webService.query("room/#{@name}/search", {query: query});
 		return p.then (data) =>
 			return @buildSearchResult(data)
+
+	nextTrack: () -> @webService.query("room/#{@name}/nexttrack");
+	deleteTrack: (uri) -> @webService.query("room/#{@name}/deletetrack", {uri: uri});

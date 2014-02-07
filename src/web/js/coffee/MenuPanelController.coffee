@@ -30,12 +30,16 @@ class MenuPanelController
 
 		@room.on('enter', @$scope, @onRoomChanged);
 		@room.on('exit', @$scope, @onRoomChanged);
+		@room.on('change', @$scope, @onRoomChanged);
 		@onRoomChanged()
 
 		@$scope.logout = @logout;
 		@$scope.changeRoom = @changeRoom;
 		@$scope.goToTrackQueue = @goToTrackQueue;
 		@$scope.goToSearch = @goToSearch;
+		@$scope.goToAdmin = @goToAdmin;
+		@$scope.goToRoomCreate = @goToRoomCreate;
+		@$scope.goToRoomSelect = @goToRoomSelect;
 
 	onUserChange: () =>
 		@$scope.isLog = @user.isLog();
@@ -44,6 +48,7 @@ class MenuPanelController
 
 	onRoomChanged: () =>
 		@$scope.roomName = @room.getName()
+		@$scope.isRoomAdmin = @room.isAdmin()
 
 	changeRoom: () =>
 		@room.exit();
@@ -56,6 +61,18 @@ class MenuPanelController
 
 	goToSearch: () =>
 		@locationManager.goTo("/room/#{@room.name}/search");
+		@closePanel()
+
+	goToAdmin: () =>
+		@locationManager.goTo("/room/#{@room.name}/admin");
+		@closePanel()
+
+	goToRoomCreate: () =>
+		@locationManager.goTo("/roomCreate");
+		@closePanel()
+
+	goToRoomSelect: () =>
+		@locationManager.goTo("/roomSelect");
 		@closePanel()
 
 	logout: () =>

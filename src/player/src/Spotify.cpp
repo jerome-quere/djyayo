@@ -70,7 +70,8 @@ namespace SpDj
 
     Spotify::~Spotify()
     {
-	sp_session_release(_spSession);
+	//Segfault really often
+	//sp_session_release(_spSession);
 	_notifyEvent.cancel();
     }
 
@@ -111,6 +112,13 @@ namespace SpDj
 		return true;
 	    });
     }
+
+    void Spotify::stop() {
+	sp_session_player_unload(_spSession);
+	_audioStatus = NOT_STARTED;
+	_player.stop();
+    }
+
 
     When::Promise<Track> Spotify::lookupTrack(const std::string& uri) {
 	auto  p = Link::load(*this, uri);

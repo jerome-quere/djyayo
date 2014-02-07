@@ -1,13 +1,20 @@
 <div class="container">
-  <h2 class="center">Select a room</h2>
+  <h2 class="center">Join a room</h2>
+  <!--
   <form class="form-vertical">
     <div class="input-group">
       <input type="text" ng-model="roomName" class="form-control input-lg">
       <span class="input-group-btn">
-        <button class="btn btn-primary btn-lg" ng-click="selectRoom()" type="submit">Join !</button>
+        <button class="btn btn-primary btn-lg" ng-click="selectRoom()" type="submit">Search</button>
       </span>
     </div>
   </form>
+  -->
+  <div class="spacer" ng-show="rooms">
+    <ul class="list-group" ng-repeat="room in rooms">
+      <li class="list-group-item" style="cursor: pointer" ng-click="roomClick(room.name)">{{room.name}}</li>
+    </ul>
+  </div>
   <div ng-show="error" class="spacer alert alert-danger">
     <b>Hummmm:</b> The room doesn't exist
   </div>

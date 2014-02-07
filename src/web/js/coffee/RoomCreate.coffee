@@ -22,31 +22,18 @@
 # THE SOFTWARE.
 ##
 
-crypto = require('crypto')
+class RoomCreateController
+	constructor: (@$scope, @locationManager, @webService) ->
+		@$scope.roomName = "";
+		@$scope.error = false;
+		@$scope.createRoom = @onCreateRoom
 
-class Session
-	constructor: (@token) ->
-		@user = null;
+	onCreateRoom: () =>
+		roomName = @$scope.roomName;
+		promise = @webService.query "room/#{roomName}/create"
+		promise.then (data) =>
+			@locationManager.goTo("/room/#{data.name}");
+		promise.catch (data) =>
+			@$scope.error = true
 
-	setUser: (@user) ->
-	getUser: () ->
-		@user
-
-class SessionManager
-	constructor: () ->
-		@sessions = {};
-
-	create: () ->
-		md5 = crypto.createHash('md5');
-		time = new Date().getTime();
-		md5.update("#{time}-#{Math.random()}");
-		token = md5.digest('hex');
-		@sessions[token] = new Session(token);
-		return token;
-
-	get: (token) ->
-		if @sessions[token]?
-			return @sessions[token]
-		return null
-
-module.exports = SessionManager;
+RoomCreateController.$inject = ['$scope', 'locationManager', 'webService']

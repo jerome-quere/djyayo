@@ -26,6 +26,7 @@ class HttpErrors
 	badParams: () -> {code: 400, msg: "Bad request params"}
 	mustBeLoggedIn: () -> {code: 407, msg: "You must be logged in"}
 	invalidRoomName: () -> {code: 404, msg: "Invalid Room name"}
+	permisionDenied: () -> {code: 403, msg: "Permision Denied"}
 	notFound: () -> {code: 404, "Not Found"}
 
 module.exports = new HttpErrors()
