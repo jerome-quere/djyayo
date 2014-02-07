@@ -34,11 +34,11 @@ class Player extends EventEmitter
 		@client.on('data', @onData)
 		@client.on('timeout', @onTimeout)
 		@client.setEncoding('utf8')
-		@client.setTimeout(45 * 1000)
 		@buffer = ""
 		@defers = []
 		@client.write('hello\n')
-		@timer = setInterval(@sendPing, 30 * 1000)
+		@ping = true;
+		@timer = setInterval(@sendPing, 20 * 1000)
 
 	onData: (chunk) =>
 		@buffer = "#{@buffer}#{chunk}";
@@ -50,7 +50,13 @@ class Player extends EventEmitter
 			@buffer = @buffer.substr(idx + 1);
 			@onCommand(new Command(cmd, param));
 
-	sendPing: () => @client.write('ping 4242\n');
+	sendPing: () =>
+		if (@ping == false)
+			@onError();
+		else
+			@client.write('ping 4242\n');
+		@ping = false;
+
 	play: (uri) => @_pingPong(new Command('play', uri))
 	stop: () -> @_pingPong(new Command('stop'));
 	getId: () -> @id
@@ -61,7 +67,7 @@ class Player extends EventEmitter
 		else if (command.getName() == "endOfTrack")
 			@emit('endOfTrack');
 		else if (command.getName() == "pong")
-			#do Nothing
+			@ping = true;
 		else if (@defers.length != 0)
 			defer = @defers.shift();
 			if (command.getName() == 'success')

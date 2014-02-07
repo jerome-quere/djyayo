@@ -29,7 +29,7 @@
 	    <h3>{{elem.track.name}}</h3>
 	    <p>{{elem.track.artists[0].name}}</p>
 	    <span class="badge">{{elem.votes.length}}</span>
-	    <img  ng-src="{{elem.addedBy.imgUrl}}" class="userImg"  tooltip-placement="left" tooltip="{{currentTrack.addedBy.name}}" />
+	    <img  ng-src="{{elem.addedBy.imgUrl}}" class="userImg"  tooltip-placement="left" tooltip="{{elem.addedBy.name}}" />
 	    <a href="javascript:" ng-click="onTrackClick(elem)">
 	      <img class="icon" ng-show="elem.haveMyVote" src="images/star_full.png" />
 	      <img class="icon" ng-show="!elem.haveMyVote" src="images/star_empty.png"/>

@@ -44,7 +44,6 @@ class RoomSelectController
 			@$scope.error = true
 
 	onRoomClick: (name) =>
-		console.log("TOTOT");
 		@goToRoom(name);
 
 	onSelectRoom: () =>
