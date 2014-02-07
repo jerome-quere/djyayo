@@ -59,6 +59,7 @@ class Application
 			next()
 
 		@express.get('/login', buildHandler(@onLoginRequest));
+		@express.get('/rooms', buildHandler(@onRoomsRequest));
 		@express.get("/room/:room", buildHandler(@onRoomRequest));
 		@express.get("/room/:room/search", buildHandler(@onSearchRequest));
 		@express.get("/room/:room/nextTrack", buildHandler(@onRoomNextTrackRequest));
@@ -100,6 +101,9 @@ class Application
 	onMeRequest: (request, response) =>
 		session = @getAndTestSession(request)
 		return session.getUser().getData();
+
+	onRoomsRequest: (request, response) =>
+		return RoomManager.getList()
 
 	onRoomRequest: (request, response) =>
 		session = @getAndTestSession(request)

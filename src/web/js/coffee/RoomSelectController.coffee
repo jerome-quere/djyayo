@@ -27,13 +27,28 @@ class RoomSelectController
 		@$scope.roomName = "";
 		@$scope.error = false;
 		@$scope.selectRoom = @onSelectRoom
+		@$scope.roomClick = @onRoomClick
+		@refreshRooms();
 
-	onSelectRoom: () =>
-		roomName = @$scope.roomName;
+
+	refreshRooms: () ->
+		@webService.query('rooms').then (data) =>
+			@$scope.rooms = data;
+
+
+	goToRoom: (roomName) =>
 		promise = @webService.query "room/#{roomName}"
 		promise.then (data) =>
 			@locationManager.goTo("/room/#{data.name}");
 		promise.catch (data) =>
 			@$scope.error = true
+
+	onRoomClick: (name) =>
+		console.log("TOTOT");
+		@goToRoom(name);
+
+	onSelectRoom: () =>
+		roomName = @$scope.roomName;
+		@goToRoom(roomName);
 
 RoomSelectController.$inject = ['$scope', 'locationManager', 'webService', 'user']

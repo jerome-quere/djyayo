@@ -94,7 +94,6 @@ class Room extends EventEmitter
 			@player = @buildPlayer(data);
 			@trackQueue = @buildTrackQueue(data);
 			@currentTrack = @buildCurrentTrack(data);
-			console.log(data);
 			@admin = data.admin;
 			@emit('change');
 

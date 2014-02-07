@@ -49,7 +49,6 @@ class MenuPanelController
 	onRoomChanged: () =>
 		@$scope.roomName = @room.getName()
 		@$scope.isRoomAdmin = @room.isAdmin()
-		console.log(@room.isAdmin());
 
 	changeRoom: () =>
 		@room.exit();

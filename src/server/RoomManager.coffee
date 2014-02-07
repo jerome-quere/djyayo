@@ -37,6 +37,12 @@ class RoomManager
 			return (@rooms[key]);
 		return null;
 
+	getList: () ->
+		names = []
+		for key,room of @rooms
+			names.push({name: key});
+		return names
+
 	get: (name) ->
 		key = @_getKeyFromName(name);
 		return if @rooms[key]? then @rooms[key] else null
