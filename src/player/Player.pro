@@ -65,18 +65,16 @@ HEADERS		+=	include/Application.h	       \
 			include/SpotifyObject.h	       \
 			include/spotifyApiKey.h	       \
 			include/Store.h		       \
-			include/Store.hpp	       \
-			include/when/Apply.hpp	       \
-			include/when/Defered.h	       \
-			include/when/Defered.hpp       \
-			include/when/Definition.h      \
-			include/when/LambdaResolver.h  \
-			include/when/Promise.h	       \
-			include/when/Promise.hpp       \
-			include/when/When.h	       \
-			include/when/When.hpp
+			include/Store.hpp
 
 INCLUDEPATH	+=	include
 LIBS		+=	-lspotify -lportaudio
 
-QMAKE_CXXFLAGS	+=	-std=c++0x -W -Wall
+
+
+*-g++ {
+QMAKE_CXXFLAGS+=	-std=c++0x -W -Wall
+}
+win32-msvc* {
+
+}

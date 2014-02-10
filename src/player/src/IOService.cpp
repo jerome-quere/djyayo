@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 
+#include <QCoreApplication>
 #include <QThread>
 #include <QTimer>
 #include <QSignalMapper>
@@ -31,7 +32,13 @@
 
 namespace SpDj
 {
-    static IOService g_ioservice;
+    static IOService* g_ioservice = NULL;
+
+    static IOService& getIOService() {
+	if (g_ioservice == NULL)
+	    g_ioservice = new IOService();
+	return *g_ioservice;
+    }
 
 
     IOService::Event::Event() {
@@ -45,16 +52,13 @@ namespace SpDj
 
     void IOService::Event::cancel() {
 	if (_timer) {
-	    g_ioservice._removeTimer(_timer);
+	    getIOService()._removeTimer(_timer);
 	    _timer = nullptr;
 	}
     }
 
 
-    IOService::IOService() :
-	_argc(1),
-	_argv(NULL),
-	_app(_argc, _argv)
+    IOService::IOService()
     {
 	connect(this, &IOService::_addTask, this, &IOService::_onAddTask, Qt::QueuedConnection);
     }
@@ -63,27 +67,27 @@ namespace SpDj
     }
 
     int IOService::run() {
-	return g_ioservice._app.exec();
+	return QCoreApplication::instance()->exec();
     }
 
     void IOService::stop() {
-	return g_ioservice._app.exit(0);
+	return QCoreApplication::instance()->exit(0);
     }
 
 
     IOService::Event IOService::addTimer(long long millisecond, const std::function<void ()>&f) {
 	if (QThread::currentThread() != QCoreApplication::instance()->thread())
 	    throw std::runtime_error("NO THE GOOGD THREAD");
-	QTimer* t = new QTimer(&g_ioservice);
-	connect(t, &QTimer::timeout, &g_ioservice, &IOService::_onTimeout, Qt::QueuedConnection);
+	QTimer* t = new QTimer(&getIOService());
+	connect(t, &QTimer::timeout, &getIOService(), &IOService::_onTimeout, Qt::QueuedConnection);
 	t->start(millisecond);
-	g_ioservice._cbs[t] = f;
+	getIOService()._cbs[t] = f;
 	return Event(t);
     }
 
     void IOService::addTask(const std::function<void ()>&f) {
 	auto t = new std::function<void ()>(f);
-	g_ioservice._addTask(t);
+	getIOService()._addTask(t);
     }
 
     void IOService::_onAddTask(std::function<void ()>*f) {

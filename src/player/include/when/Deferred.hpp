@@ -22,45 +22,37 @@
  * THE SOFTWARE.
  */
 
-#ifndef _SPDJ_CIRCULARBUFFER_H_
-#define _SPDJ_CIRCULARBUFFER_H_
+#ifndef _WHEN_DEFERRED_HPP_
+#define _WHEN_DEFERRED_HPP_
 
-#include <cstddef>
-
-namespace SpDj
+namespace When
 {
     template <typename T>
-    class CircularBuffer
-    {
-    public:
-	CircularBuffer();
-	~CircularBuffer();
+    Deferred<T>::Deferred() {
+    }
 
-	template <typename I>
-	void write(I begin, I end);
+    template <typename T>
+    Promise<T> Deferred<T>::promise() {
+	return Promise<T>(_core);
+    }
 
-	template <typename I>
-	size_t read(I buffer, size_t len);
-	size_t size();
-	size_t reserve(size_t size);
-	void clear();
+    template <typename T>
+    template <typename V>
+    void Deferred<T>::resolve(const V& value) {
+	_core->resolve(value);
+    }
 
-    private:
-	CircularBuffer(const CircularBuffer&);
+    template <typename T>
+    void Deferred<T>::reject(const std::string& err) {
+	_core->reject(err);
+    }
 
-	size_t resize(size_t newSize);
+   template <typename T>
+   Deferred<T>::Deferred(const std::shared_ptr<Core<T> >& core) {
+       _core = core;
+   }
 
-	template <typename I>
-	size_t copy(I it, size_t len);
-
-
-	T*	_buffer;
-	size_t	_size;
-	T*	_read;
-	T*	_write;
-    };
 }
 
-#include "CircularBuffer.hpp"
 
 #endif

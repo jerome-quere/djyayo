@@ -28,7 +28,6 @@
 #include <functional>
 #include <memory>
 
-#include <QCoreApplication>
 #include <QObject>
 
 class QTimer;
@@ -71,9 +70,6 @@ namespace SpDj
 	void _onTimeout();
 	void _removeTimer(QObject*);
 
-	int			_argc;
-	char**			_argv;
-	QCoreApplication	_app;
 
 	std::map<QObject*, std::function<void ()> > _cbs;
 

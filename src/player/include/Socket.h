@@ -65,7 +65,7 @@ namespace SpDj
 	void _onTimeout();
 
     private:
-	When::Defered<bool> _connectDefer;
+	When::Deferred<bool> _connectDefer;
 	QTcpSocket*	_socket;
 	bool		_activity;
 	long long	_timeout;

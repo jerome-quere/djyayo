@@ -14,8 +14,10 @@ struct JsonAllocator
 		char *end;
 	};
 
-	Zone *head = nullptr;
+    Zone *head;
 
+
+    JsonAllocator();
 	~JsonAllocator();
 	void *allocate(size_t n, size_t align = 8);
 };
@@ -116,14 +118,17 @@ struct JsonIterator
 {
 	JsonNode *p;
 
+    JsonIterator();
+    JsonIterator(JsonNode* q);
+
 	void operator++() { p = p->next; }
 	bool operator!=(const JsonIterator &x) const { return p != x.p; }
 	JsonNode *operator*() const { return p; }
 	JsonNode *operator->() const { return p; }
 };
 
-inline JsonIterator begin(JsonValue o) { return JsonIterator{o.toNode()}; }
-inline JsonIterator end(JsonValue) { return JsonIterator{nullptr}; }
+inline JsonIterator begin(JsonValue o) { return JsonIterator(o.toNode()); }
+inline JsonIterator end(JsonValue) { return JsonIterator(nullptr); }
 
 enum JsonParseStatus
 {

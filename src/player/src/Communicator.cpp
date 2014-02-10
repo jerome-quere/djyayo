@@ -73,11 +73,9 @@ namespace SpDj
 	auto it = std::find(_buffer.begin(), _buffer.end(), '\n');
 	if (it == _buffer.end())
 	    return "";
-	char str [it - _buffer.begin() + 1];
-	std::copy(_buffer.begin(), it, str);
-	str[it - _buffer.begin()] = '\0';
+	std::string str(_buffer.begin(), it);
 	_buffer.erase(_buffer.begin(), it + 1);
-	return std::string(str);
+	return str;
     }
 
     void Communicator::onData(const std::vector<int8_t>& data) {

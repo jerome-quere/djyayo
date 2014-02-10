@@ -22,12 +22,17 @@
  * THE SOFTWARE.
  */
 
+#include <memory>
+
+#include "Core.h"
+
 namespace When
 {
-    template <typename ...Args>
-    Defered<Args...> defer()
+    template <typename T>
+    Deferred<T> defer()
     {
-	return Defered<Args...>(new _Defered<Args...>());
+	Core<T>* core = new Core<T>();
+	return Deferred<T>(core->lock());
     }
 
     //TODO Refactor
@@ -68,4 +73,5 @@ namespace When
 	    onFinished();
 	return defer.promise();
     }
+
 }

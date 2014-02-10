@@ -41,11 +41,11 @@ namespace SpDj
 	    store = std::shared_ptr<AlbumStore> (new AlbumStore( [] (const std::string& albumUri) {
 			auto p = HttpClient::get("https://embed.spotify.com/oembed/?url="+albumUri);
 			auto p2 = p.then([] (const std::string& jsonStr) -> std::string {
-				char *endptr, *source = strdup(jsonStr.c_str());
+				char *endptr;
+				std::shared_ptr<char> source = std::shared_ptr<char>(strdup(jsonStr.c_str()));
 				JsonValue json;
 				JsonAllocator allocator;
-				JsonParseStatus status = json_parse(source, &endptr, &json, allocator);
-				free(source);
+				JsonParseStatus status = json_parse(source.get(), &endptr, &json, allocator);
 				if (status != JSON_PARSE_OK)
 				    throw std::runtime_error("Failed to parse JSON");
 				for (auto i : json) {
@@ -106,7 +106,7 @@ namespace SpDj
 
     When::Promise<sp_link*> Link::load(Spotify& spotify, const std::string& uri)
     {
-	When::Defered<sp_link*> defer = When::defer<sp_link*>();
+	When::Deferred<sp_link*> defer = When::defer<sp_link*>();
 	sp_link* link = sp_link_create_from_string(uri.c_str());
 
 	if (link == NULL || sp_link_type(link) == SP_LINKTYPE_INVALID) {

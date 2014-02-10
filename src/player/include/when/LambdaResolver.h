@@ -22,34 +22,34 @@
  * THE SOFTWARE.
  */
 
-#ifndef _WHEN_LAMBDARESOLVER_H_
-#define _WHEN_LAMBDARESOLVER_H_
+#ifndef _WHEN_LAMBDA_RESOLVER_H_
+#define _WHEN_LAMBDA_RESOLVER_H_
+
+#include "Definition.h"
 
 namespace When
 {
-    template <typename T>
-    struct LambdaResolver : public LambdaResolver<decltype(&T::operator())> {};
-
-
-    template <typename R, typename C, typename ...A>
-    struct LambdaResolver<R (C::*)(A...) const> {
-	typedef R returnType;
-	typedef Promise<R> promiseType;
+    template <typename R>
+    struct LambdaResolver2 {
+	typedef R return_type;
+	typedef Promise<R> promise_type;
     };
 
-    template <typename C, typename ...A>
-    struct LambdaResolver<void (C::*)(A...) const> {
-	typedef void returnType;
-	typedef Promise<bool> promiseType;
+    template <typename R>
+    struct LambdaResolver2<Promise<R> > {
+	typedef Promise<R> return_type;
+	typedef Promise<R> promise_type;
     };
 
-
-    template <typename ...P, typename C, typename ...A>
-    struct LambdaResolver<Promise<P...> (C::*)(A...) const> {
-	typedef Promise<P...> returnType;
-	typedef Promise<P...> promiseType;
+    template <>
+    struct LambdaResolver2<void> {
+	typedef void return_type;
+	typedef Promise<bool> promise_type;
     };
 
+    template <typename T, typename A1>
+    struct LambdaResolver : public LambdaResolver2<typename std::result_of<T(const A1&)>::type> {
+    };
 }
 
 

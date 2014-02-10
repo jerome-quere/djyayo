@@ -22,53 +22,35 @@
  * THE SOFTWARE.
  */
 
-#ifndef _WHEN_DEFERED_H_
-#define _WHEN_DEFERED_H_
+#ifndef _WHEN_DEFERRED_H_
+#define _WHEN_DEFERRED_H_
 
 #include <memory>
 #include <string>
 
-#include "Definition.h"
-
 namespace When
 {
-    template <typename ...Args>
-    class _Defered {
+    template <typename T>
+    class Deferred
+    {
     public:
-	void resolve(Args... args);
+	Deferred();
+	Deferred(const std::shared_ptr<Core<T> >& core);
+
+	Promise<T> promise();
+
+	template <typename V>
+	void resolve(const V&);
+
 	void reject(const std::string&);
-	_Promise<Args...>* promise();
-	bool isPending() const;
-
-    private:
-	_Defered();
-	_Promise<Args...> _promise;
-
-
-	friend Defered<Args...> defer<Args...>();
-    };
-
-    template <typename ...Args>
-    class Defered {
-    public:
-	Defered();
-
-	Promise<Args...> promise();
-	void resolve(Args... args);
-	void resolve(Promise<Args...> promise);
-	void reject(const std::string&);
-	bool isPending() const;
 
     private:
 
-	Defered(_Defered<Args...>*);
-	std::shared_ptr<_Defered<Args...> > _defered;
-	friend Defered<Args...> defer<Args...>();
+	std::shared_ptr<Core<T> > _core;
 
     };
 }
 
-#include "Defered.hpp"
-
+#include "Deferred.hpp"
 
 #endif

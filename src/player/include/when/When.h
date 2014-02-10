@@ -22,20 +22,20 @@
  * THE SOFTWARE.
  */
 
-#ifndef _WHEN_H_
-#define _WHEN_H_
+#ifndef _WHEN_HPP_
+#define _WHEN_HPP_
 
-#include "Defered.h"
+#include "Definition.h"
+#include "Deferred.h"
 #include "Promise.h"
 
 namespace When
 {
-    template <typename ...Args>
-    Defered<Args...> defer();
+    template <typename T>
+    Deferred<T> defer();
 
     template <typename It>
     Promise<bool> all(It begin, const It& end);
-
 }
 
 #include "When.hpp"

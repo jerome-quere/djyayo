@@ -54,6 +54,10 @@ static double str2float(const char *str, char **endptr)
 	return sign * result;
 }
 
+JsonAllocator::JsonAllocator(){
+    head = nullptr;
+}
+
 JsonAllocator::~JsonAllocator()
 {
 	while (head)
@@ -94,11 +98,25 @@ void *JsonAllocator::allocate(size_t n, size_t align)
 	return p;
 }
 
+JsonIterator::JsonIterator() {}
+JsonIterator::JsonIterator(JsonNode* q) {
+    p = q;
+}
+
+
 struct JsonList
 {
 	JsonTag tag;
 	JsonValue node;
 	char *key;
+
+    JsonList(){}
+
+    JsonList(JsonTag t, JsonValue n, char *k) {
+	tag = t;
+	node = n;
+	key = k;
+    }
 
 	void grow_the_tail(JsonNode *p)
 	{
@@ -246,11 +264,11 @@ JsonParseStatus json_parse(char *str, char **endptr, JsonValue *value, JsonAlloc
 				break;
 			case '[':
 				if (++top == JSON_STACK_SIZE) return JSON_PARSE_STACK_OVERFLOW;
-				stack[top] = {JSON_TAG_ARRAY, JsonValue(JSON_TAG_ARRAY, nullptr), nullptr};
+				stack[top] = JsonList(JSON_TAG_ARRAY, JsonValue(JSON_TAG_ARRAY, nullptr), nullptr);
 				continue;
 			case '{':
 				if (++top == JSON_STACK_SIZE) return JSON_PARSE_STACK_OVERFLOW;
-				stack[top] = {JSON_TAG_OBJECT, JsonValue(JSON_TAG_OBJECT, nullptr), nullptr};
+				stack[top] = JsonList(JSON_TAG_OBJECT, JsonValue(JSON_TAG_OBJECT, nullptr), nullptr);
 				continue;
 			case ':':
 				if (separator || stack[top].key == nullptr) return JSON_PARSE_UNEXPECTED_CHARACTER;
