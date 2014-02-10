@@ -64,6 +64,14 @@ namespace SpDj
 	if (SP_ERROR_OK != err)
 	    throw std::runtime_error("Unable to create session:" + std::string(sp_error_message(err)));
 
+	err = sp_session_set_volume_normalization(_spSession, true);
+	if (SP_ERROR_OK != err)
+	    throw std::runtime_error("Unable to nomalize volume:" + std::string(sp_error_message(err)));
+
+	err = sp_session_preferred_bitrate(_spSession, SP_BITRATE_320k);
+	if (SP_ERROR_OK != err)
+	    throw std::runtime_error("Unable to set bitrate:" + std::string(sp_error_message(err)));
+
 	_player.on("empty", [this] () { onPlayerEmpty(); });
     }
 
