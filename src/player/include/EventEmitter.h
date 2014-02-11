@@ -36,11 +36,18 @@ namespace SpDj
 	template <typename T>
 	struct LambdaResolver : public LambdaResolver<decltype(&T::operator())> {};
 
-	template <typename R, typename C, typename ...A>
-	struct LambdaResolver<R (C::*)(A...) const>
+	template <typename R, typename C>
+	struct LambdaResolver<R (C::*)() const>
 	{
 	    typedef R retrunType;
-	    typedef std::function<R(const A& ...)> function;
+	    typedef std::function<R()> function;
+	};
+
+	template <typename R, typename C, typename A1>
+	struct LambdaResolver<R (C::*)(A1) const>
+	{
+	    typedef R retrunType;
+	    typedef std::function<R(const A1&)> function;
 	};
 
 
@@ -49,36 +56,52 @@ namespace SpDj
 	    virtual ~IHook() {};
 	};
 
-	template <typename ...Args>
-	struct HookTemplate : public IHook
+
+	struct HookTemplate0 : public IHook
 	{
-	    HookTemplate(const std::function<bool (const Args& ...)>&);
-	    bool operator()(const Args& ...args) const;
-	    std::function<bool (const Args& ...)> _f;
+	    HookTemplate0(const std::function<bool ()>&);
+	    bool operator()() const;
+	    std::function<bool ()> _f;
+	};
+
+	template <typename A1>
+	struct HookTemplate1 : public IHook
+	{
+	    HookTemplate1(const std::function<bool (const A1&)>&);
+	    bool operator()(const A1&) const;
+	    std::function<bool (const A1&)> _f;
 	};
 
 	struct Hook
 	{
 	    Hook(IHook*);
 
-	    template <typename ...Args>
-	    bool operator()(const Args& ...) const;
+	    bool operator()() const;
+
+	    template <typename A1>
+	    bool operator()(const A1&) const;
 	    std::shared_ptr<IHook>_hook;
 	};
 
 
     public:
+
+	void on(const std::string&, const std::function<bool ()>&);
+	void on(const std::string&, const std::function<void ()>&);
+
 	template <typename T>
 	void on(const std::string&, const T&);
 
-	template <typename ...Args>
-	void on(const std::string&, const std::function<bool (const Args&...)>&);
+	template <typename A1>
+	void on(const std::string&, const std::function<bool (const A1&)>&);
 
-	template <typename ...Args>
-	void on(const std::string&, const std::function<void (const Args&...)>&);
+	template <typename A1>
+	void on(const std::string&, const std::function<void (const A1&)>&);
 
-	template <typename ...A>
-	void emit(const std::string&, const A& ... args) const;
+	template <typename A1>
+	void emit(const std::string&, const A1&) const;
+
+	void emit(const std::string&) const;
 
     private:
 	mutable std::multimap<std::string, Hook> _hooks;

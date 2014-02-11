@@ -50,13 +50,16 @@ namespace SpDj
     }
 
     void Application::execCommand() {
-	static std::map<std::string, When::Promise<Command> (Application::*)(const Command&)> actions = {
-	    {"hello", &Application::onCommandHello},
-	    {"search", &Application::onCommandSearch},
-	    {"play", &Application::onCommandPlay},
-	    {"stop", &Application::onCommandStop},
-	    {"lookup", &Application::onCommandLookup}
-	};
+	static std::map<std::string, When::Promise<Command> (Application::*)(const Command&)> actions;
+
+
+	if (actions.size() == 0) {
+	    actions.insert(std::make_pair("hello", &Application::onCommandHello));
+	    actions.insert(std::make_pair("search", &Application::onCommandSearch));
+	    actions.insert(std::make_pair("play", &Application::onCommandPlay));
+	    actions.insert(std::make_pair("stop", &Application::onCommandStop));
+	    actions.insert(std::make_pair("lookup", &Application::onCommandLookup));
+	}
 
 	while (_commands.size())
 	    {

@@ -25,90 +25,38 @@
 #ifndef _WHEN_PROMISE_H_
 #define _WHEN_PROMISE_H_
 
-#include <list>
 #include <functional>
-#include <memory>
-#include <tuple>
 
-
-#include "Definition.h"
 #include "LambdaResolver.h"
 
 namespace When
 {
-    template <typename ...Args>
-    class _Promise {
 
-	enum Status {
-	    UNRESOLVED,
-	    RESOLVED,
-	    REJECTED
-	};
-
+    template <typename T>
+    class Promise
+    {
     public:
+	Promise();
+	Promise(const std::shared_ptr<Core<T> >& core);
 
-	template<typename T>
-	Promise<T> then(const std::function<T (Args...)>&f);
+	template <typename Lambda>
+	auto then(const Lambda& l)
+	    -> typename LambdaResolver<Lambda, T>::promise_type;
 
-	Promise<bool> then(const std::function<void (Args...)>&f);
+	void otherwise(const std::function<void (const std::string&)>&);
+	void finally(const std::function <void ()>&f);
 
-	template <typename ...P>
-	Promise<P...> then(const std::function<Promise<P...> (Args...)>&f);
+	void success(const std::function<void ()>&f);
+	void error(const std::function<void ()>&f);
 
-	template<typename T>
-	typename LambdaResolver<T>::promiseType then(const T &f);
+	bool isPending();
 
-
-	void otherwise(const std::function<void (const std::string&)>&f);
-
-	template<typename T>
-	void otherwise(const T &f);
-
-	bool isPending() const;
 
     private:
 
-	_Promise();
-	void resolve(Args... args);
-	void reject(const std::string& error);
-	void addCallback(const std::function<void ()>&);
+	std::shared_ptr<Core<T> > _core;
 
-
-	std::list<std::function<void ()> > _callbacks;
-
-	Status _status;
-	std::tuple<Args...> _result;
-	std::string _error;
-
-	friend class _Defered<Args...>;
     };
-
-    template <typename ...Args>
-    class Promise {
-
-    public:
-	template <typename T>
-	typename LambdaResolver<T>::promiseType then(const T &f);
-
-	template <typename T>
-	void otherwise(const T &f);
-
-	template <typename T>
-	void success(const T &f);
-
-	template <typename T>
-	void error(const T &f);
-
-	template <typename T>
-	void finally(const T &f);
-
-    private:
-	Promise(std::shared_ptr<_Defered<Args...> > defer);
-	std::shared_ptr<_Defered<Args...> > _defer;
-
-	friend class Defered<Args...>;
-    };
-
 }
 
 #include "Promise.hpp"

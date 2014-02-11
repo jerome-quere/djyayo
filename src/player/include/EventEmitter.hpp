@@ -29,21 +29,21 @@
 namespace SpDj
 {
 
-    template <typename ...Args>
-    EventEmitter::HookTemplate<Args...>::HookTemplate(const std::function<bool (const Args& ...)>& f) {
+    template <typename A1>
+    EventEmitter::HookTemplate1<A1>::HookTemplate1(const std::function<bool (const A1&)>& f) {
 	_f = f;
     }
 
-    template <typename ...Args>
-    bool EventEmitter::HookTemplate<Args...>::operator()(const Args& ...args) const {
-	return _f(args...);
+    template <typename A1>
+    bool EventEmitter::HookTemplate1<A1>::operator()(const A1& a1) const {
+	return _f(a1);
     }
 
-    template <typename ...Args>
-    bool EventEmitter::Hook::operator()(const Args& ... args) const {
-	auto h = dynamic_cast<HookTemplate<Args...>*>(_hook.get());
+    template <typename A1>
+    bool EventEmitter::Hook::operator()(const A1& a1) const {
+	auto h = dynamic_cast<HookTemplate1<A1>*>(_hook.get());
 	if (h != NULL)
-	    return h->operator()(args...);
+	    return h->operator()(a1);
 	throw std::invalid_argument("Invalid argument on emit");
     }
 
@@ -53,25 +53,25 @@ namespace SpDj
 	on(s, f);
     }
 
-    template <typename ...Args>
-    void EventEmitter::on(const std::string& s, const std::function<bool (const Args& ...)>& h) {
-	_hooks.insert(std::pair<std::string, Hook>(s, Hook(new HookTemplate<Args...>(h))));
+    template <typename A1>
+    void EventEmitter::on(const std::string& s, const std::function<bool (const A1&)>& h) {
+	_hooks.insert(std::pair<std::string, Hook>(s, Hook(new HookTemplate1<A1>(h))));
     }
 
-    template <typename ...Args>
-    void EventEmitter::on(const std::string& s, const std::function<void (const Args& ...)>& h) {
-	std::function<bool (Args...)> f([h] (Args... args) {h(args...); return true;});
-	_hooks.insert(std::pair<std::string, Hook>(s, Hook(new HookTemplate<Args...>(f))));
+    template <typename A1>
+    void EventEmitter::on(const std::string& s, const std::function<void (const A1&)>& h) {
+	std::function<bool (const A1&)> f([h] (const A1& a1) {h(a1); return true;});
+	_hooks.insert(std::pair<std::string, Hook>(s, Hook(new HookTemplate1<A1>(f))));
     }
 
-    template <typename ...A>
-    void EventEmitter::emit(const std::string& s, const A& ... args) const
+    template <typename A1>
+    void EventEmitter::emit(const std::string& s, const A1& a1) const
     {
 	auto it = _hooks.find(s);
 	while (it != _hooks.end() && it->first == s)
 	    {
-		auto f = std::bind(it->second, args...);
-		IOService::addTask([this, it, f] () {
+		auto f = std::bind(it->second, a1);
+		IOService::addTask([this, it, f] () mutable {
 			if (f() == false) {
 			    //TODO: It is possible that this is no longuer available exemple: delete before
 			    // this lamba. Maybe use a share_ptr<bool> to handle it.

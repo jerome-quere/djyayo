@@ -34,6 +34,12 @@
 #include "when/When.h"
 
 
+#ifdef WIN32
+#define SPCALL __stdcall
+#else
+#define SPCALL
+#endif
+
 namespace SpDj
 {
     class Spotify : public EventEmitter
@@ -56,16 +62,16 @@ namespace SpDj
 	When::Promise<Track> lookupTrack(const std::string& link);
 	void onPlayerEmpty();
 
-	static void callback_logged_in(sp_session*, sp_error);
-	static void callback_notify_main_thread(sp_session *sess);
-	static int callback_music_delivery(sp_session *sess, const sp_audioformat *format, const void *frames, int num_frames);
-	static void callback_play_token_lost(sp_session *sess);
-	static void callback_end_of_track(sp_session *sess);
-	static void callback_metadata_updated(sp_session *sess);
-	static void callback_search(sp_search*, void*);
+	static void SPCALL callback_logged_in(sp_session*, sp_error);
+	static void SPCALL callback_notify_main_thread(sp_session *sess);
+	static int SPCALL callback_music_delivery(sp_session *sess, const sp_audioformat *format, const void *frames, int num_frames);
+	static void SPCALL callback_play_token_lost(sp_session *sess);
+	static void SPCALL callback_end_of_track(sp_session *sess);
+	static void SPCALL callback_metadata_updated(sp_session *sess);
+	static void SPCALL callback_search(sp_search*, void*);
 
 
-	When::Defered<bool> _loginDefer;
+	When::Deferred<bool> _loginDefer;
 	sp_session*	_spSession;
 	std::string	_login;
 	std::string	_password;

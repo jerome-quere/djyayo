@@ -78,7 +78,7 @@ namespace SpDj
     }
 
     void Socket::onError(QAbstractSocket::SocketError) {
-	if (_connectDefer.isPending()) {
+	if (_connectDefer.promise().isPending()) {
 	    _connectDefer.reject(_socket->errorString().toStdString());
 	}
 	else

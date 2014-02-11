@@ -22,45 +22,59 @@
  * THE SOFTWARE.
  */
 
-#ifndef _SPDJ_CIRCULARBUFFER_H_
-#define _SPDJ_CIRCULARBUFFER_H_
+#ifndef _WHEN_CORE_H_
+#define _WHEN_CORE_H_
 
-#include <cstddef>
+#include <list>
 
-namespace SpDj
+namespace When
 {
     template <typename T>
-    class CircularBuffer
+    class Core
     {
+	enum Status {
+	    PENDING,
+	    RESOLVED,
+	    REJECTED,
+	};
+
     public:
-	CircularBuffer();
-	~CircularBuffer();
+	Core();
+	template <typename R>
+	Promise<R> then(const std::function<R (const T&)> &f);
 
-	template <typename I>
-	void write(I begin, I end);
+	template <typename R>
+	Promise<R> then(const std::function<Promise<R> (const T&)> &f);
 
-	template <typename I>
-	size_t read(I buffer, size_t len);
-	size_t size();
-	size_t reserve(size_t size);
-	void clear();
+	Promise<bool> then(const std::function<void (const T&)> &f);
+
+	void otherwise(const std::function<void (const std::string&)> &f);
+
+	void finally(const std::function<void ()>& f);
+
+	void success(const std::function<void ()>& f);
+	void error(const std::function<void ()>& f);
+
+	void resolve(const T& value);
+	void resolve(const Promise<T>& promise);
+
+	void reject(const std::string& err);
+
+	std::shared_ptr<Core<T> > lock();
+
+	bool isPending();
 
     private:
-	CircularBuffer(const CircularBuffer&);
 
-	size_t resize(size_t newSize);
+	std::list<std::function<void ()> > _cbs;
+	Status _status;
+	T _value;
+	std::string _error;
 
-	template <typename I>
-	size_t copy(I it, size_t len);
-
-
-	T*	_buffer;
-	size_t	_size;
-	T*	_read;
-	T*	_write;
+	std::weak_ptr<Core<T> > _self;
     };
 }
 
-#include "CircularBuffer.hpp"
+#include "Core.hpp"
 
 #endif

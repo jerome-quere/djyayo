@@ -91,7 +91,7 @@ namespace SpDj
     }
 
     When::Promise<SearchResult> Spotify::search(const std::string& query) {
-	When::Defered<SearchResult> defer = When::defer<SearchResult>();
+	When::Deferred<SearchResult> defer = When::defer<SearchResult>();
 
 	std::string* q = new std::string(query);
 	std::function<void (sp_search*)>* f = new std::function<void (sp_search*)>([this, defer, q] (sp_search* s) {

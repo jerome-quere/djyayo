@@ -24,18 +24,15 @@
 
 namespace When
 {
-    template <typename ...Args>
-    class _Defered;
+    template <typename T>
+    class Core;
 
-    template <typename ...Args>
-    class _Promise;
+    template <typename T>
+    class Deferred;
 
-    template <typename ...Args>
-    class Defered;
-
-    template <typename ...Args>
+    template <typename T>
     class Promise;
 
-    template <typename ...Args>
-    Defered<Args...> defer();
+    template <typename T>
+    Deferred<T> defer();
 }

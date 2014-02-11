@@ -69,6 +69,10 @@ namespace SpDj
 	return (_buffer + _size) - _read + _write - _buffer;
     }
 
+    template <typename T>
+    CircularBuffer<T>::CircularBuffer(const CircularBuffer&) {
+	//DELETED
+    }
 
     template <typename T>
     size_t CircularBuffer<T>::resize(size_t newSize) {

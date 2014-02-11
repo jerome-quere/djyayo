@@ -47,7 +47,7 @@ namespace SpDj
     private:
 	When::Promise<std::string> _get(const std::string& url);
 
-	std::map<QNetworkReply*, When::Defered<std::string> > _defers;
+	std::map<QNetworkReply*, When::Deferred<std::string> > _defers;
 	QNetworkAccessManager	_networkManager;
     };
 }
