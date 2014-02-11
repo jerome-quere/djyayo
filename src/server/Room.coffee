@@ -35,6 +35,7 @@ class Room
 
 	addPlayer: (player) ->
 		@players.push(player);
+		console.log("I ADD A PLAYER", p.getId() for p in @players);
 		if (@players.length == 1)
 			@players[0].on('endOfTrack', @onEndOfTrack);
 			@playNextTrack()
@@ -50,8 +51,11 @@ class Room
 			@players.splice(idx, 1);
 
 	onPlayerDisconnect: (player) ->
+		console.log("PLAYER DISCONECT", player.getId());
 		idx = @players.indexOf(player);
+		if idx == -1 then return
 		@players.splice(idx, 1);
+		console.log("I REMOVE A PLAYER", p.getId() for p in @players);
 		if (idx == 0 and @players.length)
 			@players[0].on('endOfTrack', @onEndOfTrack);
 		if (@players.length == 0)

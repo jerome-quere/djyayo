@@ -29,7 +29,7 @@ When = require('when');
 
 class Player extends EventEmitter
 	constructor: (@id, @client) ->
-		@client.on('end', @onDisconnect)
+		@client.on('close', @onClose)
 		@client.on('error', @onError)
 		@client.on('data', @onData)
 		@client.on('timeout', @onTimeout)
@@ -52,7 +52,7 @@ class Player extends EventEmitter
 
 	sendPing: () =>
 		if (@ping == false)
-			@onError();
+			@onTimeout();
 		else
 			@client.write('ping 4242\n');
 		@ping = false;
@@ -75,11 +75,10 @@ class Player extends EventEmitter
 			else
 				defer.reject(command.getArgs());
 
-	shutdown: () => @onDisconnect();
-	onTimeout: () => @onDisconnect();
-	onError: () => @onDisconnect();
-	onDisconnect: () =>
-		@client.end();
+	shutdown: () => @client.end();
+	onTimeout: () => @client.end();
+	onError: (error) => console.log("#Socket Error #{error}");
+	onClose: () =>
 		clearInterval(@timer)
 		@emit('disconnect')
 		for defer in @defers
