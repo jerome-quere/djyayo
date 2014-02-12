@@ -76,9 +76,17 @@ class Player extends EventEmitter
 				defer.reject(command.getArgs());
 
 	shutdown: () => @client.end();
-	onTimeout: () => @client.end();
-	onError: (error) => console.log("#Socket Error #{error}");
+	onTimeout: () =>
+		console.log("PLAYER ON TIMEOUT #{@id}");
+		@client.destroy();
+
+	onError: (error) =>
+		console.log("PLAYER ON ERROR #{@id}");
+		console.log("#Socket Error #{error}");
+		@client.destroy();
+
 	onClose: () =>
+		console.log("PLAYER ON CLOSE #{@id}");
 		clearInterval(@timer)
 		@emit('disconnect')
 		for defer in @defers

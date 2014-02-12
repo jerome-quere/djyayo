@@ -31,6 +31,7 @@ class RoomManager
 	_getKeyFromName: (name) -> return name.toLowerCase();
 
 	create: (name) ->
+		if (!name) then return null;
 		key = @_getKeyFromName(name);
 		if (/^[a-z0-9A-Z_-]+$/.test(name))
 			@rooms[key] = new Room(name);
