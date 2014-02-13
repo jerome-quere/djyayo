@@ -87,6 +87,8 @@ class Room
 		@changed();
 
 	search: (query) =>
+		if (!@players.length)
+			throw "No player connected"
 		@players[0].search(query).then (data) =>
 			return data;
 
