@@ -107,6 +107,7 @@ class Application
 		return RoomManager.getList()
 
 	onRoomRequest: (request, response) =>
+		session = @getAndTestSession(request)
 		room = RoomManager.get(request.params.room);
 		if (!room?)
 			throw HttpErrors.invalidRoomName()
