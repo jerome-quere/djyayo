@@ -39,7 +39,8 @@ class UserManager
 		promise = promise.then (data) =>
 			data = JSON.parse(data)
 			if (data.id?)
-				user = new User("google-#{data.id}", data.first_name, "http://graph.facebook.com/#{data.id}/picture");
+				user = new User("facebook-#{data.id}", data.first_name, "http://graph.facebook.com/#{data.id}/picture");
+				user.token = token;
 				@add(user);
 				return (user);
 			else
@@ -52,7 +53,8 @@ class UserManager
 		promise = promise.then (data) =>
 			data = JSON.parse(data)
 			if data.id?
-				user = new User("facebook-#{data.id}", data.name.givenName, data.image.url)
+				user = new User("google-#{data.id}", data.name.givenName, data.image.url)
+				user.token = token;
 				@add(user);
 				return user;
 			else

@@ -94,6 +94,7 @@ class Application
 		else
 			promise = UserManager.loadFromGoogle(token);
 		return promise.then (user) =>
+			Logger.info("New user logged in: ", JSON.stringify(user));
 			token = @sessionManager.create();
 			@sessionManager.get(token).setUser(user);
 			return {access_token:token};
@@ -171,6 +172,7 @@ class Application
 		room.addPlayer(player);
 
 	onChangeRoomCommand: (client, command) =>
+		if (!command.getArgs().room?) then return;
 		room = RoomManager.get(command.getArgs().room);
 		if (!room) then return;
 		room.addClient(client);
