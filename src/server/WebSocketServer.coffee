@@ -30,7 +30,7 @@ WebSocketClient = require('./WebSocketClient.coffee');
 class WebSocketServer extends EventEmitter
 
 	constructor: (httpServer) ->
-		@io = io.listen(httpServer, {"log level":2});
+		@io = io.listen(httpServer, {"log level":1});
 		@io.on('connection', @onConnection);
 		@idGenerator = new IdGenerator();
 		@clients = {};

@@ -27,6 +27,7 @@ EventEmitter = require("events").EventEmitter
 net = require('net');
 Player = require('./Player.coffee');
 IdGenerator = require('./IdGenerator.coffee');
+Logger = require('./Logger.coffee');
 
 class PlayerCommunicator extends EventEmitter
 
