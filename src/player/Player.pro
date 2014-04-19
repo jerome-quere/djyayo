@@ -68,13 +68,14 @@ HEADERS		+=	include/Application.h	       \
 			include/Store.hpp
 
 INCLUDEPATH	+=	include
-LIBS		+=	-lspotify -lportaudio
+
 
 
 
 *-g++ {
 QMAKE_CXXFLAGS+=	-std=c++0x -W -Wall
+LIBS		+=	-lspotify -lportaudio
 }
 win32-msvc* {
-
+LIBS            +=      libspotify.lib portaudio_x86.lib
 }
