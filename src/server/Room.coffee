@@ -108,7 +108,7 @@ class Room
 		@changed();
 
 	changed: () =>
-		for client in @clients
+		@clients.foreach (client) ->
 			client.send(new Command('roomChanged'));
 
 	getData: () ->
