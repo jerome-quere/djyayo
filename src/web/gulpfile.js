@@ -42,11 +42,13 @@ gulp.task('clean', function () {
 	.pipe(clean());
 });
 
-gulp.task('connect', connect({
-    root: __dirname,
-    port: 8000,
-    open:false
-}));
+gulp.task('connect', function () {
+    connect.server({
+	root: __dirname,
+	port: 8000,
+	open:false
+    })
+});
 
 gulp.task('watch', function () {
      gulp.watch('js/coffee/*.coffee', ['coffee']);
