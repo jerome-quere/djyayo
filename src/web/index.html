@@ -17,7 +17,7 @@
   </head>
   <body>
     <div id="panels">
-      <div id="panel_menu" class="panel" ng-controller="MenuPanelController">
+      <div id="panel_menu" class="side-panel" ng-controller="MenuPanelController">
 	<div class="listView-mini">
 	  <ul>
 	    <li>
@@ -80,7 +80,7 @@
       </div>
       <script>
 	$(function() {
-	  $(".panel").Panel({wrap: "#wrap"});
+	  $(".side-panel").Panel({wrap: "#wrap"});
 	});
       </script>
     </div>
