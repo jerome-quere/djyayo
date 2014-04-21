@@ -60,7 +60,7 @@ class Room
 	onPlayerDisconnect: (player) ->
 		oldFront = @players.front();
 		@players.filter (p) -> p == player
-		if oldFront != @players.front()
+		if oldFront != @players.front() and @havePlayer()
 			@players.front().on('endOfTrack', @onEndOfTrack);
 		if !@havePlayer()
 			@currentTrack = null;
