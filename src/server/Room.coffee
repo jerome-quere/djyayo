@@ -58,7 +58,7 @@ class Room
 	delClient: (client) -> @clients.filter (c) -> c == client
 
 	onPlayerDisconnect: (player) ->
-		oldFront = @player.front();
+		oldFront = @players.front();
 		@players.filter (p) -> p == player
 		if oldFront != @players.front()
 			@players.front().on('endOfTrack', @onEndOfTrack);
