@@ -5,6 +5,7 @@
     <title>Dj - Yayo</title>
     <meta name="author" content="Yayo<contact@jeromequere.com>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <base href="/" />
     <link rel="icon" type="image/png" href="images/favicon.png" />
     <link rel="apple-touch-icon" href="images/touch-icon-iphone.png" />
     <link rel="apple-touch-icon" sizes="76x76" href="images/touch-icon-ipad.png" />
@@ -30,30 +31,30 @@
 	  </div>
 	  <ul ng-show="roomName">
 	    <li>
-	      <a href="javascript:" ng-click="goToTrackQueue()">
+	      <a href="/room/{{roomName}}">
 		<i class="thumbmail fa fa-music"></i>
 		<h2>Go to track queue</h2>
 	      </a>
 	    </li>
 	    <li ng-show="roomName">
-	      <a href="javascript:" ng-click="goToSearch()">
+	      <a href="/room/{{roomName}}/search">
 		<i class="thumbmail fa fa-search"></i>
 		<h2>Go to search</h2>
 	      </a>
 	    </li>
 	    <li ng-show="roomName && isRoomAdmin">
-	      <a href="javascript:" ng-click="goToAdmin()">
+	      <a href="#">
 		<i class="thumbmail fa fa-cog"></i>
 		<h2>Administration</h2>
 	      </a>
 	    </li>
 	    <li class="sub">
-	      <a href="javascript:" ng-click="goToAdmin()">
+	      <a href="/room/{{roomName}}/admin/trackQueue">
 		<h2>Tracks</h2>
 	      </a>
 	    </li>
 	    <li class="sub">
-	      <a href="javascript:" ng-click="goToAdmin()">
+	      <a href="/room/{{roomName}}/admin/users">
 		<h2>Room</h2>
 	      </a>
 	    </li>
@@ -68,13 +69,13 @@
 	  </div>
 	  <ul>
 	    <li ng-hide="roomName">
-	      <a href="javascript:" ng-click="goToRoomSelect()">
+	      <a href="/roomSelect">
 		<i class="thumbmail fa fa-sign-in"></i>
 		<h2>Join a room</h2>
 	      </a>
 	    </li>
 	    <li ng-hide="roomName">
-	      <a href="javascript:" ng-click="goToRoomCreate()">
+	      <a href="/roomCreate">
 		<i class="thumbmail fa fa-plus-circle"></i>
 		<h2>Create a room</h2>
 	      </a>

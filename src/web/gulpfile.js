@@ -5,7 +5,8 @@ connect  = require('gulp-connect'),
 concat   = require('gulp-concat'),
 less     = require('gulp-less'),
 uglify   = require('gulp-uglify'),
-minify   = require('gulp-minify-css');
+minify   = require('gulp-minify-css'),
+modRewrite = require('connect-modrewrite');
 
 gulp.task('coffee', function () {
     return gulp.src(['js/coffee/*.coffee', "!js/coffee/.#*"])
@@ -46,7 +47,13 @@ gulp.task('connect', function () {
     connect.server({
 	root: __dirname,
 	port: 8000,
-	open:false
+	open:false,
+	middleware: function (connect, opt) {
+	    return [modRewrite([
+		'^(.*\.(js|css|jpg|png|html|woff)(\\?.*)?)$ /$1 [L]',
+		'^(.*)$ /index.html'
+	    ])];
+	}
     })
 });
 

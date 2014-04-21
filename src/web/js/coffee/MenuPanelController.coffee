@@ -35,11 +35,8 @@ class MenuPanelController
 
 		@$scope.logout = @logout;
 		@$scope.changeRoom = @changeRoom;
-		@$scope.goToTrackQueue = @goToTrackQueue;
-		@$scope.goToSearch = @goToSearch;
-		@$scope.goToAdmin = @goToAdmin;
-		@$scope.goToRoomCreate = @goToRoomCreate;
-		@$scope.goToRoomSelect = @goToRoomSelect;
+
+		@$scope.$on '$locationChangeStart', @closePanel;
 
 	onUserChange: () =>
 		@$scope.isLog = @user.isLog();
@@ -55,32 +52,13 @@ class MenuPanelController
 		@locationManager.goTo('/roomSelect');
 		@closePanel()
 
-	goToTrackQueue: () =>
-		@locationManager.goTo("/room/#{@room.name}");
-		@closePanel()
-
-	goToSearch: () =>
-		@locationManager.goTo("/room/#{@room.name}/search");
-		@closePanel()
-
-	goToAdmin: () =>
-		@locationManager.goTo("/room/#{@room.name}/admin/trackQueue");
-		@closePanel()
-
-	goToRoomCreate: () =>
-		@locationManager.goTo("/roomCreate");
-		@closePanel()
-
-	goToRoomSelect: () =>
-		@locationManager.goTo("/roomSelect");
-		@closePanel()
-
 	logout: () =>
 		@user.logout();
 		@closePanel();
 
 	closePanel: () ->
-		$('#panel_menu').data('panel').hide();
+		elem = $('#panel_menu')
+		if (elem.data('panel')) then elem.data('panel').hide();
 
 
 MenuPanelController.$inject = ['$scope', 'locationManager', 'room', 'user'];

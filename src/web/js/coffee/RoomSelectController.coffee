@@ -23,7 +23,7 @@
 ##
 
 class RoomSelectController
-	constructor: (@$scope, @locationManager, @webService, @user) ->
+	constructor: (@$scope, @webService) ->
 		@$scope.roomName = "";
 		@$scope.error = false;
 		@$scope.selectRoom = @onSelectRoom
@@ -36,18 +36,4 @@ class RoomSelectController
 			@$scope.rooms = data;
 
 
-	goToRoom: (roomName) =>
-		promise = @webService.query "room/#{roomName}"
-		promise.then (data) =>
-			@locationManager.goTo("/room/#{data.name}");
-		promise.catch (data) =>
-			@$scope.error = true
-
-	onRoomClick: (name) =>
-		@goToRoom(name);
-
-	onSelectRoom: () =>
-		roomName = @$scope.roomName;
-		@goToRoom(roomName);
-
-RoomSelectController.$inject = ['$scope', 'locationManager', 'webService', 'user']
+RoomSelectController.$inject = ['$scope', 'webService']

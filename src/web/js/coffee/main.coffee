@@ -25,7 +25,7 @@
 
 app = angular.module('app', ['ngRoute', 'ngCookies', 'ui.bootstrap'])
 
-app.config ['$routeProvider', ($routeProvider) ->
+app.config ['$locationProvider', '$routeProvider', ($locationProvider, $routeProvider) ->
 	$routeProvider.when('/login', {templateUrl:"./pages/login.html", controller: LoginController})
 	$routeProvider.when('/roomSelect', {templateUrl:"./pages/roomSelect.html", controller: RoomSelectController})
 	$routeProvider.when('/roomCreate', {templateUrl:"./pages/roomCreate.html", controller: RoomCreateController})
@@ -34,6 +34,7 @@ app.config ['$routeProvider', ($routeProvider) ->
 	$routeProvider.when('/room/:room/admin/trackQueue', {templateUrl:"./pages/roomAdminTrackQueue.html", controller: RoomAdminTrackQueueController})
 	$routeProvider.when('/room/:room/admin/users', {templateUrl:"./pages/roomAdminUsers.html", controller: RoomAdminUsersController})
 	$routeProvider.otherwise({redirectTo: '/roomSelect'});
+	$locationProvider.html5Mode(true);
 ]
 
 app.factory 'config', () -> new Config()

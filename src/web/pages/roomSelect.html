@@ -11,9 +11,11 @@
   </form>
   -->
   <div class="spacer" ng-show="rooms">
-    <ul class="list-group" ng-repeat="room in rooms">
-      <li class="list-group-item" style="cursor: pointer" ng-click="roomClick(room.name)">{{room.name}}</li>
-    </ul>
+    <div class="list-group">
+      <a ng-repeat="room in rooms" class="list-group-item" href="/room/{{room.name}}">
+	{{room.name}}
+      </a>
+    </div>
   </div>
   <div ng-show="error" class="spacer alert alert-danger">
     <b>Hummmm:</b> The room doesn't exist
