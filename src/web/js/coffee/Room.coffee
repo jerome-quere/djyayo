@@ -61,7 +61,6 @@ class Room extends EventEmitter
 	getCurrentTrack: () -> @currentTrack
 	getName: () -> @name
 
-
 	buildTrackQueue: (roomData) ->
 		res = []
 		for elem in roomData.queue
@@ -123,5 +122,11 @@ class Room extends EventEmitter
 		return p.then (data) =>
 			return @buildSearchResult(data)
 
+	getUsers: () ->
+		return @webService.query("room/#{@name}/users");
+
 	nextTrack: () -> @webService.query("room/#{@name}/nexttrack");
 	deleteTrack: (uri) -> @webService.query("room/#{@name}/deletetrack", {uri: uri});
+
+	addAdmin: (userId) -> @webService.query("room/#{@name}/addAdmin" , {userId: userId});
+	delAdmin: (userId) -> @webService.query("room/#{@name}/delAdmin" , {userId: userId});

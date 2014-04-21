@@ -24,48 +24,51 @@
 
 Command = require('./Command.coffee');
 TrackQueue = require('./TrackQueue.coffee');
+MyArray = require('./MyArray.coffee');
 
 class Room
 	constructor: (@name) ->
-		@players = []
+		@players = new MyArray([]);
 		@trackQueue = new TrackQueue(this);
 		@currentTrack = null;
-		@clients = [];
-		@admins = [];
+		@clients = new MyArray([]);
+		@users = new MyArray([]);
+		@admins = new MyArray([]);
+
+	havePlayer: () -> @players.size() != 0;
+	getMainPlayer: () -> @players.front();
 
 	addPlayer: (player) ->
 		@players.push(player);
-		console.log("I ADD A PLAYER", p.getId() for p in @players);
-		if (@players.length == 1)
-			@players[0].on('endOfTrack', @onEndOfTrack);
+		if (@players.size() == 1)
+			@getMainPlayer().on('endOfTrack', @onEndOfTrack);
 			@playNextTrack()
 		player.on('disconnect', () => @onPlayerDisconnect(player));
 		@changed();
 
+	addUser: (user) ->
+		if not (@users.find (u) -> u.getId() == user.getId())
+			@users.push_back(user);
+
+	getUsers: (user) -> @users.get();
 
 	addClient: (client) ->
-		@clients.push(client);
+		@clients.push_back(client);
 
-	delClient: (client) ->
-		if ((idx == @client.indexOf(client)) != -1)
-			@players.splice(idx, 1);
+	delClient: (client) -> @clients.filter (c) -> c == client
 
 	onPlayerDisconnect: (player) ->
-		console.log("PLAYER DISCONECT", player.getId());
-		idx = @players.indexOf(player);
-		if idx == -1 then return
-		@players.splice(idx, 1);
-		console.log("I REMOVE A PLAYER", p.getId() for p in @players);
-		if (idx == 0 and @players.length)
-			@players[0].on('endOfTrack', @onEndOfTrack);
-		if (@players.length == 0)
+		oldFront = @player.front();
+		@players.filter (p) -> p == player
+		if oldFront != @players.front()
+			@players.front().on('endOfTrack', @onEndOfTrack);
+		if !@havePlayer()
 			@currentTrack = null;
 		else
 			@playNextTrack()
 		@changed();
 
-	onEndOfTrack: () =>
-		@playNextTrack()
+	onEndOfTrack: () => @playNextTrack()
 
 	playNextTrack: () ->
 		@currentTrack = null;
@@ -77,12 +80,10 @@ class Room
 		@changed();
 
 	vote: (userId, trackUri) ->
-		if (!@players.length)
-			throw "No player connected"
-		@players[0].lookup(trackUri).then (track) =>
+		if not @havePlayer then throw "No player connected"
+		@getMainPlayer().lookup(trackUri).then (track) =>
 			@trackQueue.vote(userId, track);
-			if (@currentTrack == null and @players.length != 0)
-				@playNextTrack();
+			if @currentTrack == null then @playNextTrack();
 			@changed();
 
 	unvote: (userId, uri) ->
@@ -90,16 +91,17 @@ class Room
 		@changed();
 
 	search: (query) =>
-		@players[0].search(query).then (data) =>
+		if not @havePlayer then throw "No player connected"
+		@getMainPlayer().search(query).then (data) =>
 			return data;
 
-	addAdmin: (userId) ->
-		if @admins.indexOf(userId) == -1
-			@admins.push(userId);
-			@changed();
+	addAdmin: (user) ->
+		if !@isAdmin(user)
+			@admins.push_back(user);
+		@changed();
 
-	isAdmin: (userId) ->
-		return @admins.indexOf(userId) != -1;
+	delAdmin: (user) -> @admins.filter (u) -> u.getId() == user.getId()
+	isAdmin: (user) -> @admins.find (u) -> user.getId() == u.getId()
 
 	deleteTrack: (uri) ->
 		@trackQueue.remove(uri);
@@ -113,7 +115,7 @@ class Room
 		data = {}
 		data.name = @name;
 		if (@currentTrack?) then data.currentTrack = @currentTrack.getData();
-		data.players = for p in @players
+		data.players = for p in @players.get()
 			{id: p.getId()}
 		data.queue = @trackQueue.getData()
 		return data;

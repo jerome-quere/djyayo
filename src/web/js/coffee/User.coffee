@@ -45,6 +45,7 @@ class User extends EventEmitter
 	logout: () ->
 		@webService.setAccessToken(null)
 		@_clear()
+		@_saveToken('');
 		@emit('logout');
 
 	refresh: () =>

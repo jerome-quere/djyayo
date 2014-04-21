@@ -5,6 +5,30 @@
 	<div class="listView-header listView-header-warning">
 	  Admin of {{roomName}}
 	</div>
+	<div class="listView-header listView-header">
+	  Admins
+	</div>
+	<ul>
+	  <li ng-repeat="user in admins">
+	    <img class="thumbmail" ng-src="{{user.imgUrl}}" />
+	    <h3>{{user.name}}</h3>
+	    <a href="javascript:" class="icon" ng-click="delAdmin(user)" ng-show="user.canRevoke">
+	      <i class="fa fa-times" />
+	    </a>
+	  </li>
+	</ul>
+	<div class="listView-header listView-header">
+	  Other Users
+	</div>
+	<ul>
+	  <li ng-repeat="user in users">
+	    <img class="thumbmail" ng-src="{{user.imgUrl}}" />
+	    <h3>{{user.name}}</h3>
+	    <a href="javascript:" class="icon" ng-click="addAdmin(user)">
+	      <i class="fa fa-plus" />
+	    </a>
+	  </li>
+	</ul>
       </div>
     </div>
   </div>

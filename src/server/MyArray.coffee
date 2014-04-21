@@ -22,26 +22,42 @@
 # THE SOFTWARE.
 ##
 
-class LocationManager
-	constructor: (@$rootScope, @$location, @user) ->
-		@user.on('login', @$rootScope, @onUserLogin);
-		@user.on('logout', @$rootScope, @onUserLogout);
-		@$rootScope.$on '$locationChangeStart', (scope, next, current) =>
-			if (!@user.isLog() && next.indexOf("login") == -1)
-				@user.refresh().finally () =>
-					if (!@user.isLog()) then @goTo('/login')
+class MyArray
+	constructor: (@array) ->
+	filter: (pred) ->
+		i = 0;
+		toRemove = [];
+		while (i < @array.length)
+			if pred(@array[i]) then toRemove.unshift(i);
+			i++;
+		for i in toRemove
+			@array.splice(i, 1);
+		return this;
 
-	onUserLogin: () =>
-		if (@$location.path() == '/login')
-			@goTo('/roomSelect');
+	find: (pred) ->
+		for o in @array
+			if pred(o) then return true;
+		return false;
 
-	onUserLogout: () =>
-		@goTo('/login');
+	push_back: (o) ->
+		@array.push(o);
+		return this;
+
+	push_front: (o) ->
+		@array.unshift(o);
+		return this;
+
+	foreach: (f) ->
+		for i in @array
+			f(i);
+		return this;
+
+	front: () -> @array[0];
+
+	get: () -> @array;
+	clone: () -> o for o in @array;
+	clear: () -> @array = [];
+	size: () -> @array.length;
 
 
-	scopeApply: (s, f) -> (params...) -> s.$apply(() -> f.apply(params))
-
-	goTo: (path) =>
-		@$location.path(path)
-
-LocationManager.$inject = ['$rootScope', '$location', 'user']
+module.exports = MyArray;

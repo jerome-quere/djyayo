@@ -36,8 +36,11 @@ class Testor
 		return tab.indexOf(@value) != -1
 
 	isTrue: () -> @_test () => @value == true;
+	isFalse: () -> @_test () => @value == false;
 	isNotNull: () -> @_test () => @value?
 	isNotEmpty: () -> @_test () => @value? and @value
+
+	getValue: () -> @value
 
 
 module.exports = (data, err) -> new Testor(data, err);

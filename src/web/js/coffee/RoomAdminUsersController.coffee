@@ -23,4 +23,34 @@
 ##
 
 class RoomAdminUsersController
-	constructor: () ->
+	constructor: (@$scope, $routeParams, locationManager, @room, @user) ->
+		@room.enter($routeParams.room).catch () =>
+			locationManager.goTo('/roomSelect');
+		@room.on 'change', @$scope, @onRoomChange
+		@onRoomChange()
+
+		@clearScope();
+		@$scope.addAdmin = @addAdmin;
+		@$scope.delAdmin = @delAdmin;
+
+	clearScope: () ->
+		@$scope.admins = [];
+		@$scope.users = [];
+
+	buildScope: (data) =>
+		@clearScope();
+		for user in data
+			if (user.isAdmin)
+				user.canRevoke = (user.id != @user.getId())
+				@$scope.admins.push(user);
+			else
+				@$scope.users.push(user);
+
+	onRoomChange: () =>
+		p = @room.getUsers().then @buildScope
+		p.catch () => @clearScope();
+
+	addAdmin: (user) => @room.addAdmin(user.id).then @buildScope;
+	delAdmin: (user) => @room.delAdmin(user.id).then @buildScope;
+
+RoomAdminUsersController.$inject = ['$scope', '$routeParams', 'locationManager', 'room', 'user'];
