@@ -22,26 +22,5 @@
 # THE SOFTWARE.
 ##
 
-class RoomAdminController
-	constructor: (@$scope, $routeParams, @locationManager, @room) ->
-		@room.enter($routeParams.room).catch () =>
-			@locationManager.goTo('/roomSelect');
-		@room.on 'change', @$scope, @onRoomChange
-		@onRoomChange()
-		@$scope.onNextTrackClick = @onNextTrackClick;
-		@$scope.onDeleteTrackClick = @onDeleteTrackClick;
-
-	onRoomChange: () =>
-		@$scope.roomName = @room.getName();
-		@$scope.trackQueue = @room.getTrackQueue();
-		@$scope.currentTrack = @room.getCurrentTrack();
-		@$scope.havePlayer = @room.havePlayer();
-
-	onNextTrackClick: () =>
-		@room.nextTrack();
-
-	onDeleteTrackClick: (elem) =>
-		@room.deleteTrack(elem.track.uri);
-
-
-RoomAdminController.$inject = ['$scope', '$routeParams', 'locationManager', 'room']
+class RoomAdminUsersController
+	constructor: () ->

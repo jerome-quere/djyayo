@@ -31,7 +31,8 @@ app.config ['$routeProvider', ($routeProvider) ->
 	$routeProvider.when('/roomCreate', {templateUrl:"./pages/roomCreate.html", controller: RoomCreateController})
 	$routeProvider.when('/room/:room', {templateUrl:"./pages/roomTrackQueue.html", controller: RoomTrackQueueController})
 	$routeProvider.when('/room/:room/search', {templateUrl:"./pages/roomSearch.html", controller: RoomSearchController})
-	$routeProvider.when('/room/:room/admin', {templateUrl:"./pages/roomAdmin.html", controller: RoomAdminController})
+	$routeProvider.when('/room/:room/admin/trackQueue', {templateUrl:"./pages/roomAdminTrackQueue.html", controller: RoomAdminTrackQueueController})
+	$routeProvider.when('/room/:room/admin/users', {templateUrl:"./pages/roomAdminUsers.html", controller: RoomAdminUsersController})
 	$routeProvider.otherwise({redirectTo: '/roomSelect'});
 ]
 

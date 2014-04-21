@@ -64,7 +64,7 @@ class MenuPanelController
 		@closePanel()
 
 	goToAdmin: () =>
-		@locationManager.goTo("/room/#{@room.name}/admin");
+		@locationManager.goTo("/room/#{@room.name}/admin/trackQueue");
 		@closePanel()
 
 	goToRoomCreate: () =>
