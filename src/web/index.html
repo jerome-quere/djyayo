@@ -48,12 +48,12 @@
 		<h2>Administration</h2>
 	      </a>
 	    </li>
-	    <li class="sub">
+	    <li class="sub" ng-show="roomName && isRoomAdmin">
 	      <a href="/room/{{roomName}}/admin/trackQueue">
 		<h2>Tracks</h2>
 	      </a>
 	    </li>
-	    <li class="sub">
+	    <li class="sub" ng-show="roomName && isRoomAdmin">
 	      <a href="/room/{{roomName}}/admin/users">
 		<h2>Users</h2>
 	      </a>

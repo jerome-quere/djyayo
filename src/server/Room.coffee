@@ -39,7 +39,7 @@ class Room
 	getMainPlayer: () -> @players.front();
 
 	addPlayer: (player) ->
-		@players.push(player);
+		@players.push_back(player);
 		if (@players.size() == 1)
 			@getMainPlayer().on('endOfTrack', @onEndOfTrack);
 			@playNextTrack()
