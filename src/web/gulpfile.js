@@ -50,7 +50,7 @@ gulp.task('connect', function () {
 	open:false,
 	middleware: function (connect, opt) {
 	    return [modRewrite([
-		'^(.*\.(js|css|jpg|png|html|woff)(\\?.*)?)$ /$1 [L]',
+		'^(.*\.(js|css|gif|jpg|png|html|woff)(\\?.*)?)$ /$1 [L]',
 		'^(.*)$ /index.html'
 	    ])];
 	}
