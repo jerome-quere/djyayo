@@ -74,7 +74,7 @@ class Room
 		@currentTrack = null;
 		if (!@trackQueue.empty())
 			@currentTrack = @trackQueue.pop();
-			@players.foreach (player) -> player.play(@currentTrack.getUri())
+			@players.foreach (player) => player.play(@currentTrack.getUri())
 		else
 			p.stop() for p in @players;
 		@changed();
