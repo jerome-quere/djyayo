@@ -64,6 +64,7 @@ class Application
 		@express.get("/room/:room/users", buildHandler(@onRoomUserRequest));
 		@express.get("/room/:room/addAdmin", buildHandler(@onRoomAddAdminRequest));
 		@express.get("/room/:room/delAdmin", buildHandler(@onRoomDelAdminRequest));
+		@express.get("/room/:room/history", buildHandler(@onRoomHistoryRequest));
 		@express.get("/room/:room/search", buildHandler(@onSearchRequest));
 		@express.get("/room/:room/nextTrack", buildHandler(@onRoomNextTrackRequest));
 		@express.get("/room/:room/deleteTrack", buildHandler(@onRoomDeleteTrackRequest));
@@ -146,9 +147,12 @@ class Application
 		room = Testor(RoomManager.get(request.params.room), HttpErrors.invalidRoomName()).isNotNull().getValue();
 		Testor(room.isAdmin(session.getUser()), HttpErrors.permisionDenied()).isTrue();
 		Testor(userId == session.getUser().getId(), HttpErrors.permisionDenied()).isFalse();
-		console.log("DELETE ADMIN", UserManager.get(userId));
 		room.delAdmin(UserManager.get(userId));
 		return @onRoomUserRequest(request, response);
+
+	onRoomHistoryRequest: (request, response) =>
+		room = Testor(RoomManager.get(request.params.room), HttpErrors.invalidRoomName()).isNotNull().getValue();
+		return room.getHistoryData();
 
 	onRoomCreateRequest: (request, response) =>
 		session = @getAndTestSession(request)

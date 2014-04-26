@@ -1,5 +1,5 @@
 ##
-#The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
@@ -22,12 +22,23 @@
 # THE SOFTWARE.
 ##
 
-When = require('when')
+MyArray = require('./MyArray.coffee');
 
-class User
-	constructor: (@id, @name, @imgUrl, @token) ->
+class RoomHistoryManager
+	constructor: () ->
+		@history = new MyArray([])
 
-	getId: () -> @id;
-	getData: () -> {id: @id, name: @name, imgUrl: @imgUrl};
+	addTrack: (track) ->
+		@history.push_front({track: track, date: new Date()});
+		while (@history.size() > 100)
+			@history.pop_back();
 
-module.exports = User
+	getData: () ->
+		data = [];
+		@history.foreach (t) ->
+			info = t.track.getData();
+			info.date = t.date.toJSON();
+			data.push(info);
+		return data;
+
+module.exports = RoomHistoryManager

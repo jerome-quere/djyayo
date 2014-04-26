@@ -1,5 +1,5 @@
 ##
-#The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
@@ -27,7 +27,7 @@ EventEmitter = require("events").EventEmitter
 RoomPlayerManager = require('./RoomPlayerManager.coffee');
 RoomUserManager = require('./RoomUserManager.coffee');
 RoomClientManager = require('./RoomClientManager.coffee');
-
+RoomHistoryManager = require('./RoomHistoryManager.coffee');
 
 class Room
 	constructor: (@name) ->
@@ -41,6 +41,8 @@ class Room
 		@userManager = new RoomUserManager();
 		@clientManager = new RoomClientManager
 		@currentTrack = null;
+
+		@historyManager = new RoomHistoryManager();
 
 	# PLAYER MANAGER HANDLERS
 	onEndOfTrack:	()	=>	@playNextTrack()
@@ -58,6 +60,7 @@ class Room
 		@currentTrack = null
 		if @playerManager.havePlayer() and not @trackQueue.empty()
 			@currentTrack = @trackQueue.pop()
+			@historyManager.addTrack(@currentTrack);
 			@playerManager.play(@currentTrack)
 		else
 			@playerManager.stop();
@@ -81,7 +84,7 @@ class Room
 	delClient:	(client) ->	@clientManager.delClient(client)
 	change:		()	=>	@clientManager.change()
 
-	# GENERAL GETTERS
+	# DATA GETTERS
 	getData: () ->
 		data = {}
 		data.name = @name;
@@ -89,5 +92,7 @@ class Room
 		data.players = @playerManager.getData()
 		data.queue = @trackQueue.getData()
 		return data;
+
+	getHistoryData: () -> @historyManager.getData();
 
 module.exports = Room
