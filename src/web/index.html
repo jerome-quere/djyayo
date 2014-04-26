@@ -27,7 +27,7 @@
 	    </li>
 	  </ul>
 	  <div class="listView-header" ng-show="roomName">
-	    You are in {{roomName}}
+	    You are in room: {{roomName}}
 	  </div>
 	  <ul ng-show="roomName">
 	    <li>
@@ -43,7 +43,7 @@
 	      </a>
 	    </li>
 	    <li ng-show="roomName && isRoomAdmin">
-	      <a href="#">
+	      <a href="/room/{{roomName}}/admin/trackQueue">
 		<i class="thumbmail fa fa-cog"></i>
 		<h2>Administration</h2>
 	      </a>
