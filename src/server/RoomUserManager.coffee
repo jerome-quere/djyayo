@@ -22,47 +22,23 @@
 # THE SOFTWARE.
 ##
 
-class MyArray
-	constructor: (@array) ->
-	filter: (pred) ->
-		i = 0;
-		toRemove = [];
-		while (i < @array.length)
-			if pred(@array[i]) then toRemove.unshift(i);
-			i++;
-		for i in toRemove
-			@array.splice(i, 1);
-		return this;
+MyArray = require('./MyArray.coffee');
 
-	find: (pred) ->
-		for o in @array
-			if pred(o) then return o;
-		return null;
+class RoomUserManager
+	constructor: () ->
+		@users = new MyArray([])
+		@admins = new MyArray([])
 
-	push_back: (o) ->
-		@array.push(o);
-		return this;
+	addUser: (user) ->
+		if not (@users.find (u) -> u.getId() == user.getId())
+			@users.push_back(user)
 
-	push_front: (o) ->
-		@array.unshift(o);
-		return this;
+	getUsers: () -> @users.get()
 
-	foreach: (f) ->
-		for i in @array
-			f(i);
-		return this;
-
-	pop_front: () -> @array.shift()
-	pop_back: () -> @array.pop();
-
-	front: () -> @array[0];
-	sort: (fn) -> @array.sort(fn);
-
-	empty: () -> @size() == 0;
-	get: () -> @array;
-	clone: () -> new MyArray(o for o in @array)
-	clear: () -> @array = [];
-	size: () -> @array.length;
+	addAdmin: (user) -> if not @isAdmin(user) then @admins.push_back(user)
+	delAdmin: (user) -> @admins.filter (u) -> u.getId() == user.getId()
+	isAdmin : (user) ->  @admins.find((u) -> user.getId() == u.getId()) != null
 
 
-module.exports = MyArray;
+
+module.exports = RoomUserManager;

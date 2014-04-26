@@ -22,50 +22,47 @@
 # THE SOFTWARE.
 ##
 
-TrackQueueElement = require('./TrackQueueElement.coffee');
 EventEmitter = require("events").EventEmitter
 MyArray = require('./MyArray.coffee');
 
-class TrackQueue extends EventEmitter
+class RoomPlayerManager extends EventEmitter
+	constructor: () ->
+		@players = new MyArray([]);
 
-	constructor:	() -> @tracks = new MyArray([]);
-	empty:		() -> @tracks.empty();
+	havePlayer:	()	-> @players.size() != 0;
+	endOfTrack:	()	=> @emit('endOfTrack');
+	change:		()	-> @emit('change');
+	play:		(track)	-> @players.foreach (player) -> player.play(track.getUri())
+	stop:		()	-> @players.foreach (player) -> player.stop();
 
-	vote: (userId, track) ->
-		t = @tracks.find (t) -> t.track.uri == track.uri
-		if !t
-			t = new TrackQueueElement(track, userId)
-			@tracks.push_back(t);
-		t.vote(userId);
-		@_sort()
+	getData:	()	->
+		players = []
+		@players.foreach (p) ->
+			players.push {id: p.getId()};
+		return players;
+
+	getMainPlayer: () ->
+		if not @havePlayer then throw "No player connected"
+		return @players.front();
+
+	addPlayer:	(player) ->
+		player.on('disconnect', () => @onPlayerDisconnect(player));
+		@players.push_back(player);
+		if (@players.size() == 1)
+			@getMainPlayer().on('endOfTrack', @endOfTrack);
+			@endOfTrack();
 		@change();
 
-	unvote: (userId, trackUri) ->
-		tmp = @tracks.clone().filter((t) -> t.track.uri != trackUri)
-		tmp.foreach (t) -> t.unvote(userId)
-		@tracks.filter (t) -> t.getNbVotes() == 0
-		@_sort()
+	onPlayerDisconnect: (player) ->
+		old = @players.front();
+		@players.filter (p) -> p == player
+		if old != @players.front() and @havePlayer()
+			@getMainPlayer().on('endOfTrack', @endOfTrack);
+			@endOfTrack();
 		@change();
 
-	remove: (trackUri) ->
-		@tracks.filter (t) -> t.track.uri == trackUri
-		@change();
+	search: (query) -> @getMainPlayer().search(query);
+	lookup: (uri) -> @getMainPlayer().lookup(uri)
 
-	getData: () ->
-		queue = []
-		@tracks.foreach (elem) -> queue.push(elem.getData())
-		return (queue)
 
-	pop: () -> @tracks.pop_front()
-
-	_sort: () -> @tracks.sort((a, b) -> b.getNbVotes() - a.getNbVotes())
-
-	getVotes: (clientId) ->
-		res = []
-		@tracks.foreach (elem) ->
-			if elem.hasVote(clientId) then res.push(elem.getUri())
-		return res
-
-	change: () -> @emit('change');
-
-module.exports = TrackQueue;
+module.exports = RoomPlayerManager;
