@@ -1,5 +1,5 @@
 ##
-#The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
@@ -38,16 +38,16 @@ app.config ['$locationProvider', '$routeProvider', ($locationProvider, $routePro
 	$locationProvider.html5Mode(true);
 ]
 
-app.factory 'config', () -> new Config()
-app.factory 'loading', () -> new Loading()
-app.factory 'webService', ['$http', '$q', 'config', ($http, $q, config) -> new WebService($http, $q, config)]
-app.factory 'user', ['webService', '$location', '$cookies', (webService, $location, $cookies) -> new User(webService, $location, $cookies)]
-app.factory 'room', ['webService', 'user', (webService, user) -> new Room(webService, user)]
-app.factory 'locationManager', ['$rootScope', '$location', 'user', ($rootScope, $location, user) -> new LocationManager($rootScope, $location, user)]
-app.factory 'facebook', ['$rootScope', '$q', 'config', ($rootScope, $q, config) -> new Facebook($rootScope, $q, config)]
-app.factory 'google', ['$rootScope', '$q', 'config', ($rootScope, $q, config) -> new Google($rootScope, $q, config)]
-app.factory 'webSocketClient', ['$rootScope', 'config', 'room', ($rootScope, config, room) -> new WebSocketClient($rootScope, config, room)]
+app.factory 'config', () -> new ConfigServiceController()
+app.factory 'loading', () -> new LoadingServiceController()
+app.factory 'webService', ['$http', '$q', 'config', ($http, $q, config) -> new WebServiceServiceController($http, $q, config)]
+app.factory 'user', ['webService', '$location', '$cookies', (webService, $location, $cookies) -> new UserServiceController(webService, $location, $cookies)]
+app.factory 'room', ['webService', 'user', (webService, user) -> new RoomServiceController(webService, user)]
+app.factory 'locationManager', ['$rootScope', '$location', 'user', ($rootScope, $location, user) -> new LocationManagerServiceController($rootScope, $location, user)]
+app.factory 'facebook', ['$rootScope', '$q', 'config', ($rootScope, $q, config) -> new FacebookServiceController($rootScope, $q, config)]
+app.factory 'google', ['$rootScope', '$q', 'config', ($rootScope, $q, config) -> new GoogleServiceController($rootScope, $q, config)]
+app.factory 'webSocketClient', ['$rootScope', 'config', 'room', ($rootScope, config, room) -> new WebSocketClientServiceController($rootScope, config, room)]
 
-app.directive 'onVisible', () -> { controller: OnVisibleController}
+app.directive 'onVisible', () -> OnVisibleDirectiveController.getConfig()
 
 app.run ['webSocketClient', 'locationManager', (w, r) -> ]

@@ -1,5 +1,5 @@
 ##
-#The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
@@ -27,30 +27,22 @@ class Panel
 		@visible = false;
 
 	show: () ->
-		if (@visible == false)
-			@elem.animate {left: "0px"}, 600, 'swing', () =>
-				@wrap.bind('click', @onWrapClick); 
-			@visible = true;
+		if @visible == false
+			@elem.animate {left: "0px"}, 600, 'swing', () => @wrap.bind('click', @onWrapClick)
+			@visible = true
 
 	hide: () ->
-		if (@visible != false)
-			@elem.animate({left: "-400px"});
-			@visible = false;
-			@wrap.unbind('click')
+		if @visible != false
+			@elem.animate({left: "-400px"})
+			@visible = false
+			@wrap.unbind('click', @onWrapClick)
 
-	toogle: () ->
-		if (@visible == false)
-			@show()
-		else
-			@hide()
+	toogle: () -> if (@visible == false) then @show() else @hide()
 
 	onWrapClick: () =>
-		if (@visible == true)
-			@hide();
+		if @visible == true then @hide();
 		return (false);
 
 
-$ () ->
-	$.fn.Panel = (conf) ->
-		@each () ->
-			jQuery(this).data('panel', new Panel(jQuery(this), $(conf.wrap)))
+jQuery.fn.Panel = (conf) ->
+	@each () -> jQuery(this).data('panel', new Panel(jQuery(this), jQuery(conf.wrap)))

@@ -1,5 +1,5 @@
 ##
-#The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
@@ -22,17 +22,32 @@
 # THE SOFTWARE.
 ##
 
-class Loading
-	constructor: () ->
 
-	start: () ->
-		NProgress.start();
+class OnVisibleDirectiveController
+	@getConfig: () -> {controller: OnVisibleDirectiveController}
 
-	done: () ->
-		NProgress.done();
+	constructor: (@$scope, @$element, @$attrs) ->
+		@bind()
+		@refresh()
+		@$element.on('$destroy', @unbind)
 
-	incr:() ->
-		NProgress.inc()
+	bind:	() => $(window).scroll(@onNeedToRefresh).resize(@onNeedToRefresh)
+	unbind: () => $(window).unbind("scroll", @onNeedToRefresh).unbind("resize", @onNeedToRefresh)
 
-	set: (v) ->
-		NProgress.set(v)
+	isVisible: () ->
+		window = $(window)
+		docViewTop = window.scrollTop()
+		docViewBottom = docViewTop + window.height()
+		elemTop = @$element.offset().top
+		elemBottom = elemTop + @$element.height()
+		return ((elemBottom <= docViewBottom) && (elemTop >= docViewTop))
+
+	onNeedToRefresh: () => @$scope.$apply () => @refresh()
+
+	refresh: () ->
+		if @isVisible()
+			@$scope.$eval(@$attrs.onVisible)
+			@unbind()
+
+
+OnVisibleDirectiveController.$inject = ['$scope', '$element', '$attrs']

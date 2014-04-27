@@ -1,5 +1,5 @@
 ##
-#The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
@@ -26,22 +26,20 @@ class RoomAdminTrackQueueController
 	constructor: (@$scope, $routeParams, @locationManager, @room) ->
 		@room.enter($routeParams.room).catch () =>
 			@locationManager.goTo('/roomSelect');
+
 		@room.on 'change', @$scope, @onRoomChange
 		@onRoomChange()
+
 		@$scope.onNextTrackClick = @onNextTrackClick;
 		@$scope.onDeleteTrackClick = @onDeleteTrackClick;
 
 	onRoomChange: () =>
-		@$scope.roomName = @room.getName();
-		@$scope.trackQueue = @room.getTrackQueue();
-		@$scope.currentTrack = @room.getCurrentTrack();
-		@$scope.havePlayer = @room.havePlayer();
+		@$scope.roomName	= @room.getName();
+		@$scope.trackQueue	= @room.getTrackQueue();
+		@$scope.currentTrack	= @room.getCurrentTrack();
+		@$scope.havePlayer	= @room.havePlayer();
 
-	onNextTrackClick: () =>
-		@room.nextTrack();
-
-	onDeleteTrackClick: (elem) =>
-		@room.deleteTrack(elem.track.uri);
-
+	onNextTrackClick:	()	=> @room.nextTrack();
+	onDeleteTrackClick:	(elem)	=> @room.deleteTrack(elem.track.uri);
 
 RoomAdminTrackQueueController.$inject = ['$scope', '$routeParams', 'locationManager', 'room']

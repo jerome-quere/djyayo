@@ -1,5 +1,5 @@
 ##
-#The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
@@ -27,14 +27,7 @@ class LoginController
 		@$scope.facebookLogin = @facebookLogin;
 		@$scope.googleLogin = @googleLogin;
 
-	facebookLogin: () =>
-		promise = @facebook.login();
-		promise.then (token) =>
-			@user.loginWithFacebookToken(token);
-
-	googleLogin: () =>
-		promise = @google.login();
-		promise.then (token) =>
-			@user.loginWithGoogleToken(token);
+	facebookLogin:	() => @facebook.login().then (token) => @user.loginWithFacebookToken(token);
+	googleLogin:	() => @google.login().then   (token) => @user.loginWithGoogleToken(token);
 
 LoginController.$inject = ['$scope', 'user', 'facebook', 'google']

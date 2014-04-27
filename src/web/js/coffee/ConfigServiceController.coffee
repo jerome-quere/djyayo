@@ -1,5 +1,5 @@
 ##
-#The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
@@ -22,7 +22,9 @@
 # THE SOFTWARE.
 ##
 
-class Config
+
+
+class ConfigServiceController
 
 	constructor: () ->
 		proto = window.location.protocol;

@@ -1,5 +1,5 @@
 ##
-#The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
@@ -22,7 +22,7 @@
 # THE SOFTWARE.
 ##
 
-class Facebook
+class FacebookServiceController
 	constructor: (@$rootScope, @$q, @config) ->
 		@facebookLoaded = @$q.defer();
 		@loadFacebookSDK();

@@ -1,5 +1,5 @@
 ##
-#The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
@@ -22,26 +22,15 @@
 # THE SOFTWARE.
 ##
 
-class LocationManager
+class LocationManagerServiceController
+
 	constructor: (@$rootScope, @$location, @user) ->
 		@user.on('login', @$rootScope, @onUserLogin);
 		@user.on('logout', @$rootScope, @onUserLogout);
 		@$rootScope.$on '$locationChangeStart', (scope, next, current) =>
-			if (!@user.isLog() && next.indexOf("login") == -1)
-				@user.refresh().finally () =>
-					if (!@user.isLog()) then @goTo('/login')
+			if not @user.isLog() and next.indexOf("login") == -1
+				@user.refresh().finally () => if not @user.isLog() then @goTo('/login')
 
-	onUserLogin: () =>
-		if (@$location.path() == '/login')
-			@goTo('/roomSelect');
-
-	onUserLogout: () =>
-		@goTo('/login');
-
-
-	scopeApply: (s, f) -> (params...) -> s.$apply(() -> f.apply(params))
-
-	goTo: (path) =>
-		@$location.path(path)
-
-LocationManager.$inject = ['$rootScope', '$location', 'user']
+	onUserLogin:	()	=> if (@$location.path() == '/login') then @goTo('/roomSelect');
+	onUserLogout:	()	=> @goTo('/login');
+	goTo:		(path)	=> @$location.path(path)

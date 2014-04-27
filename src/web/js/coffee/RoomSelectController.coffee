@@ -1,5 +1,5 @@
 ##
-#The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
@@ -29,7 +29,6 @@ class RoomSelectController
 		@$scope.selectRoom = @onSelectRoom
 		@$scope.roomClick = @onRoomClick
 		@refreshRooms();
-
 
 	refreshRooms: () ->
 		@webService.query('rooms').then (data) =>

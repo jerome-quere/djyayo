@@ -1,5 +1,5 @@
 ##
-#The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
@@ -22,25 +22,20 @@
 # THE SOFTWARE.
 ##
 
-class User extends EventEmitter
+class UserServiceController extends EventEmitter
 
 	constructor: (@webService, @$location, @$cookies) ->
 		@_clear();
 		@_loadToken()
-		@refresh().finally () =>
-			if @isLog() then @emit('login') else @emit('logout')
+		@refresh().finally () => if @isLog() then @emit('login') else @emit('logout')
 
-	isLog: () -> return @id != -1;
-	getId: () -> @id;
-	getName: () -> @name;
-	getImgUrl: () -> @imgUrl
+	isLog:	()	-> @id != -1;
+	getId:	()	-> @id;
+	getName: ()	-> @name;
+	getImgUrl: ()	-> @imgUrl
 
-
-	loginWithFacebookToken: (token) =>
-		@_login {method:"facebook", token:token}
-
-	loginWithGoogleToken: (token) =>
-		@_login {method:"google", token:token}
+	loginWithFacebookToken: (token) => @_login {method: "facebook", token: token}
+	loginWithGoogleToken:	(token) => @_login {method: "google", token: token}
 
 	logout: () ->
 		@webService.setAccessToken(null)
@@ -49,12 +44,9 @@ class User extends EventEmitter
 		@emit('logout');
 
 	refresh: () =>
-		p = @webService.query('me').then (data) =>
-			@_update(data);
-		p.then null, () =>
-			@_clear()
+		p = @webService.query('me').then (data) => @_update(data);
+		p.catch () => @_clear()
 		return p;
-
 
 	_clear: () ->
 		@id = -1
@@ -62,8 +54,8 @@ class User extends EventEmitter
 		@imgUrl = '';
 
 	_update: (userData) =>
-		@id = userData.id
-		@name = userData.name
+		@id	= userData.id
+		@name	= userData.name
 		@imgUrl = userData.imgUrl
 
 	_login: (data) ->
@@ -77,5 +69,4 @@ class User extends EventEmitter
 		token = @$cookies.access_token;
 		@webService.setAccessToken(token);
 
-	_saveToken: (token) =>
-		@$cookies.access_token = token;
+	_saveToken: (token) => @$cookies.access_token = token;

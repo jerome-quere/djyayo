@@ -1,5 +1,5 @@
 ##
-#The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
@@ -22,25 +22,8 @@
 # THE SOFTWARE.
 ##
 
-class WebService
-	constructor: ($http, $q, @config)  ->
-		@q = $q
-		@http = $http
-		@access_token = null;
-
-	_buildQueryString: (params) =>
-		tmp = [];
-		for key, value of params
-			tmp.push("#{key}=#{encodeURI(value)}");
-		if (tmp.length == 0) then return ''
-		return "?#{tmp.join('&')}";
-
-	setAccessToken: (@access_token) ->
-	query: (method, data) =>
-		if (!data?) then data = {};
-		if (@access_token?) then data.access_token = @access_token;
-		return @http.get("#{@config.get('webservice.url')}/#{method}#{@_buildQueryString(data)}", {cache:false}).then (httpRes) =>
-			if (httpRes.data.code == 200)
-				return httpRes.data.data
-			else
-				@q.reject httpRes.data.message
+class LoadingServiceController
+	start:	()	-> NProgress.start();
+	done:	()	-> NProgress.done();
+	incr:	()	-> NProgress.inc()
+	set:	(v)	-> NProgress.set(v)

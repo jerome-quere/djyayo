@@ -1,5 +1,5 @@
 ##
-#The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
@@ -26,6 +26,7 @@ class RoomAdminUsersController
 	constructor: (@$scope, $routeParams, locationManager, @room, @user) ->
 		@room.enter($routeParams.room).catch () =>
 			locationManager.goTo('/roomSelect');
+
 		@room.on 'change', @$scope, @onRoomChange
 		@onRoomChange()
 
@@ -33,21 +34,19 @@ class RoomAdminUsersController
 		@$scope.addAdmin = @addAdmin;
 		@$scope.delAdmin = @delAdmin;
 
-	clearScope: () ->
-		@$scope.admins = [];
-		@$scope.users = [];
+	clearScope:	() ->
+		@$scope.admins = []
+		@$scope.users = []
 
-	buildScope: (data) =>
-		@clearScope();
-		for user in data
-			if (user.isAdmin)
-				user.canRevoke = (user.id != @user.getId())
-				@$scope.admins.push(user);
-			else
-				@$scope.users.push(user);
-
-	onRoomChange: () =>
-		p = @room.getUsers().then @buildScope
+	onRoomChange:	() =>
+		p = @room.getUsers().then (data) =>
+			@clearScope();
+			for user in data
+				user.canRevoke = user.id != @user.getId()
+				if (user.isAdmin)
+					@$scope.admins.push(user);
+				else
+					@$scope.users.push(user);
 		p.catch () => @clearScope();
 
 	addAdmin: (user) => @room.addAdmin(user.id).then @buildScope;

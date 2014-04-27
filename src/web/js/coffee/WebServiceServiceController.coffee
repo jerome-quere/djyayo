@@ -1,5 +1,5 @@
 ##
-#The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
@@ -22,18 +22,20 @@
 # THE SOFTWARE.
 ##
 
-class WebSocketClient
-	constructor: ($rootScope, @config, @room) ->
-		@rootScope = $rootScope;
-		@socket = io.connect(@config.get('webservice.url'))
-		@socket.on('command', @onCommand);
-		@room.on('enter', @onEnterRoom);
+class WebServiceServiceController
+	constructor: (@$http, @$q, @config)  ->
+		@access_token = null;
 
-	onCommand: (command) =>
-		actions = {};
-		actions['roomChanged'] = @onRoomChange;
-		if (actions[command.name]?)
-			actions[command.name]()
+	_buildQueryString: (params) =>
+		tmp = [];
+		for key, value of params
+			tmp.push("#{key}=#{encodeURI(value)}");
+		return if (tmp.length != 0) then "?#{tmp.join('&')}" else ''
 
-	onRoomChange: () => @rootScope.$apply(() => @room.refreshTrackQueue());
-	onEnterRoom: () => @socket.emit('command', {name: 'changeRoom', args:{room: @room.name}});
+	setAccessToken: (@access_token) ->
+	query: (method, data) =>
+		if (!data?) then data = {};
+		if (@access_token?) then data.access_token = @access_token;
+		return @$http.get("#{@config.get('webservice.url')}/#{method}#{@_buildQueryString(data)}", {cache:false}).then (httpRes) =>
+			if (httpRes.data.code != 200) then throw httpRes.data.message
+			return httpRes.data.data

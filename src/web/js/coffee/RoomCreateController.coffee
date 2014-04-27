@@ -1,5 +1,5 @@
 ##
-#The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
@@ -22,41 +22,15 @@
 # THE SOFTWARE.
 ##
 
-class Google
-	constructor: (@$rootScope, @$q, @config) ->
-		@googleLoaded = @$q.defer();
-		@loadGoogleSDK();
+class RoomCreateController
+	constructor: (@$scope, @locationManager, @webService) ->
+		@$scope.roomName = "";
+		@$scope.error = false;
+		@$scope.createRoom = @onCreateRoom
 
-	login: () =>
-		defer = @$q.defer();
-		@googleLoaded.promise.then () =>
-			params = {};
-			params.client_id = @config.get("google.clientId");
-			params.imediate = true;
-			params.scope = 'https://www.googleapis.com/auth/plus.me'
-			gapi.auth.authorize params, (authResponse) =>
-				@scopeApply () =>
-					defer.resolve(authResponse.access_token);
+	onCreateRoom: () =>
+		roomName = @$scope.roomName;
+		p = @webService.query("room/#{roomName}/create").then (data) => @locationManager.goTo("/room/#{data.name}");
+		p.catch (data) => @$scope.error = true
 
-		return (defer.promise)
-
-
-	scopeApply: (func) =>
-		if (@$rootScope.$$phase && @$rootScope.$$phase == '$digest')
-			func();
-		else
-			@$rootScope.$apply(func)
-
-	loadGoogleSDK: () ->
-		jQuery () =>
-			window.googleAsyncInit = @onGoogleSDKLoaded
-			po = document.createElement('script');
-			po.type = 'text/javascript';
-			po.async = true;
-			po.src = 'https://apis.google.com/js/client:plusone.js?onload=googleAsyncInit';
-			s = document.getElementsByTagName('script')[0];
-			s.parentNode.insertBefore(po, s);
-
-	onGoogleSDKLoaded: () =>
-		@scopeApply () =>
-			@googleLoaded.resolve(true);
+RoomCreateController.$inject = ['$scope', 'locationManager', 'webService']

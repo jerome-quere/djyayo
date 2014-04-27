@@ -1,5 +1,5 @@
 ##
-#The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
@@ -27,15 +27,17 @@ class RoomTrackQueueController
 	constructor: (@$scope, $routeParams, @locationManager, @room) ->
 		@room.enter($routeParams.room).catch () =>
 			@locationManager.goTo('/roomSelect');
+
 		@room.on 'change', @$scope, @onRoomChange
 		@onRoomChange()
+
 		@$scope.onTrackClick = @onTrackClick
 
 	onRoomChange: () =>
-		@$scope.roomName = @room.getName();
-		@$scope.trackQueue = @room.getTrackQueue();
-		@$scope.currentTrack = @room.getCurrentTrack();
-		@$scope.havePlayer = @room.havePlayer();
+		@$scope.roomName	= @room.getName();
+		@$scope.trackQueue	= @room.getTrackQueue();
+		@$scope.currentTrack	= @room.getCurrentTrack();
+		@$scope.havePlayer	= @room.havePlayer();
 
 	onTrackClick: (elem) =>
 		if (elem.haveMyVote)

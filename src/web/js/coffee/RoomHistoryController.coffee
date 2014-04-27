@@ -1,5 +1,5 @@
 ##
-#The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
@@ -24,11 +24,10 @@
 
 class RoomHistoryController
 	constructor: (@$scope, $routeParams, @locationManager, @room) ->
-		promise = @room.enter($routeParams.room).then () =>
+		p = @room.enter($routeParams.room).then () =>
 			@onRoomChange();
 			@onRoomLoaded();
-		promise.catch () =>
-			@locationManager.goTo('/roomSelect');
+		p.catch () => @locationManager.goTo('/roomSelect');
 
 		@room.on 'change', @$scope, @onRoomChange
 		@$scope.onTrackClick = @onTrackClick;
@@ -43,9 +42,8 @@ class RoomHistoryController
 	onTrackClick: (elem) =>
 		if (elem.haveMyVote)
 			@room.unvote(elem.track.uri)
-			elem.haveMyVote = false;
 		else
 			@room.vote(elem.track.uri)
-			elem.haveMyVote = true;
+		elem.haveMyVote = !elem.haveMyVote;
 
 RoomAdminTrackQueueController.$inject = ['$scope', '$routeParams', 'locationManager', 'room']

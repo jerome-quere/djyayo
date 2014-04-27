@@ -1,5 +1,5 @@
 ##
-#The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2013 Jerome Quere <contact@jeromequere.com>
 #
@@ -26,36 +26,31 @@ class RoomSearchController
 	constructor: (@$scope, @room, @locationManager, $routeParams, @$timeout, @loading) ->
 		@room.enter($routeParams.room).catch () =>
 			@locationManager.goTo('/roomSelect');
-		@$scope.searchInput = "";
-		@$scope.searchResults = null;
-		@$scope.onInputChange = @onInputChange;
-		@$scope.onTryThisClick = @onTryThisClick
-		@$scope.trackClick = @onTrackClick;
-		@$scope.loading = false;
+
 		@room.on 'change', @$scope, @onRoomChange
 		@onRoomChange()
-		@timer = null;
 
-	onRoomChange: () =>
-		@$scope.havePlayer = @room.havePlayer();
-		if (!@room.havePlayer())
-			@$scope.searchInput = "";
-			@onInputChange();
+		@timer			= null;
+
+		@$scope.searchInput	= "";
+		@$scope.searchResults	= null;
+		@$scope.loading		= false;
+		@$scope.onInputChange	= @onInputChange;
+		@$scope.onTryThisClick	= @onTryThisClick
+		@$scope.trackClick	= @onTrackClick;
+
+	onRoomChange: () => @$scope.havePlayer = @room.havePlayer();
 
 	onInputChange: () =>
 		value = @$scope.searchInput;
 		if (@timer?)
 			@$timeout.cancel(@timer)
 			@timer = null;
-		if (value)
-			@timer = @$timeout(@search, 500);
-
-
+		if value then @timer = @$timeout(@search, 500);
 
 	_startLoading: () =>
 		@loading.start();
 		@$scope.loading = true;
-
 
 	_doneLoading: () =>
 		@loading.done();
@@ -65,19 +60,14 @@ class RoomSearchController
 		query = @$scope.searchInput;
 		@$scope.searchResults = null;
 		@_startLoading();
-		p = @room.search(query);
-		p.then (searchResults) =>
+		p = @room.search(query).then (searchResults) =>
 			if (query == @$scope.searchInput)
 				@$scope.searchResults = searchResults.tracks;
 				@_doneLoading();
 
 	onTrackClick: (track) =>
-		if (track.haveMyVote)
-			@room.unvote(track.uri);
-			track.haveMyVote = false;
-		else
-			@room.vote(track.uri);
-			track.haveMyVote = true;
+		if track.haveMyVote then @room.unvote(track.uri) else @room.vote(track.uri);
+		track.haveMyVote = !track.haveMyVote
 
 	onTryThisClick: () =>
 		@$scope.searchInput = "Selena Gomez";
