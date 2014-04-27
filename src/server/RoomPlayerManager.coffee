@@ -42,7 +42,7 @@ class RoomPlayerManager extends EventEmitter
 		return players;
 
 	getMainPlayer: () ->
-		if not @havePlayer then throw "No player connected"
+		if not @havePlayer() then throw "No player connected"
 		return @players.front();
 
 	addPlayer:	(player) ->
