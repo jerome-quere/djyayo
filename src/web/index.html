@@ -33,13 +33,19 @@
 	    <li>
 	      <a href="/room/{{roomName}}">
 		<i class="thumbmail fa fa-music"></i>
-		<h2>Go to track queue</h2>
+		<h2>Track queue</h2>
 	      </a>
 	    </li>
 	    <li ng-show="roomName">
 	      <a href="/room/{{roomName}}/search">
 		<i class="thumbmail fa fa-search"></i>
-		<h2>Go to search</h2>
+		<h2>Search</h2>
+	      </a>
+	    </li>
+	    <li ng-show="roomName">
+	      <a href="/room/{{roomName}}/history">
+		<i class="thumbmail fa fa-repeat"></i>
+		<h2>History</h2>
 	      </a>
 	    </li>
 	    <li ng-show="roomName && isRoomAdmin">

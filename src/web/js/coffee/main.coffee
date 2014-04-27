@@ -30,6 +30,7 @@ app.config ['$locationProvider', '$routeProvider', ($locationProvider, $routePro
 	$routeProvider.when('/roomSelect', {templateUrl:"./pages/roomSelect.html", controller: RoomSelectController})
 	$routeProvider.when('/roomCreate', {templateUrl:"./pages/roomCreate.html", controller: RoomCreateController})
 	$routeProvider.when('/room/:room', {templateUrl:"./pages/roomTrackQueue.html", controller: RoomTrackQueueController})
+	$routeProvider.when('/room/:room/history', {templateUrl:"./pages/roomHistory.html", controller: RoomHistoryController})
 	$routeProvider.when('/room/:room/search', {templateUrl:"./pages/roomSearch.html", controller: RoomSearchController})
 	$routeProvider.when('/room/:room/admin/trackQueue', {templateUrl:"./pages/roomAdminTrackQueue.html", controller: RoomAdminTrackQueueController})
 	$routeProvider.when('/room/:room/admin/users', {templateUrl:"./pages/roomAdminUsers.html", controller: RoomAdminUsersController})

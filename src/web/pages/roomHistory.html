@@ -1,0 +1,27 @@
+<div class="container-fluid">
+  <div class="row-fluid">
+    <div class="span12">
+      <div class="listView">
+	<div ng-hide="havePlayer" class="listView-header listView-header-error">
+	  No Player Connected
+	</div>
+	<div class="listView-header">
+	  Room history
+	</div>
+	<ul class="listView">
+	  <li ng-repeat="elem in history">
+	    <img class="thumbmail" ng-src="{{elem.track.imgUrl}}" />
+	    <h3>{{elem.track.name}}</h3>
+	    <p>{{elem.track.artists[0].name}} - {{elem.date}}</p>
+	    <span class="badge">{{elem.votes.length}}</span>
+	    <img  ng-src="{{elem.addedBy.imgUrl}}" class="userImg"  tooltip-placement="left" tooltip="{{elem.addedBy.name}}" />
+	    <a href="javascript:" ng-click="onTrackClick(elem)" ng-show="havePlayer">
+	      <img class="icon" ng-show="elem.haveMyVote" src="images/star_full.png" />
+	      <img class="icon" ng-show="!elem.haveMyVote" src="images/star_empty.png"/>
+	    </a>
+	  </li>
+	</ul>
+      </div>
+    </div>
+  </div>
+</div>

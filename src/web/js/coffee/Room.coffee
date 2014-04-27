@@ -61,9 +61,9 @@ class Room extends EventEmitter
 	getCurrentTrack: () -> @currentTrack
 	getName: () -> @name
 
-	buildTrackQueue: (roomData) ->
+	buildTrackQueue: (queue) ->
 		res = []
-		for elem in roomData.queue
+		for elem in queue
 			data = {};
 			data.track = elem.track;
 			data.votes = elem.votes;
@@ -91,7 +91,7 @@ class Room extends EventEmitter
 		p = @webService.query("room/#{@name}");
 		return p.then (data) =>
 			@player = @buildPlayer(data);
-			@trackQueue = @buildTrackQueue(data);
+			@trackQueue = @buildTrackQueue(data.queue);
 			@currentTrack = @buildCurrentTrack(data);
 			@admin = data.admin;
 			@emit('change');
@@ -109,12 +109,12 @@ class Room extends EventEmitter
 
 	vote: (uri) =>
 		@webService.query("room/#{@name}/vote", {uri:uri}).then (data) =>
-			@trackQueue = @buildTrackQueue(data);
+			@trackQueue = @buildTrackQueue(data.queue);
 			@emit('change');
 
 	unvote: (uri) =>
 		@webService.query("room/#{@name}/unvote", {uri:uri}).then (data) =>
-			@trackQueue = @buildTrackQueue(data);
+			@trackQueue = @buildTrackQueue(data.queue);
 			@emit('change');
 
 	search: (query) ->
@@ -124,6 +124,13 @@ class Room extends EventEmitter
 
 	getUsers: () ->
 		return @webService.query("room/#{@name}/users");
+
+	getHistory: () ->
+		return @webService.query("room/#{@name}/history").then (data) =>
+			data = @buildTrackQueue(data);
+			for elem in data
+				elem.haveMyVote = @haveMyVote(elem.track.uri);
+			return data;
 
 	nextTrack: () -> @webService.query("room/#{@name}/nexttrack");
 	deleteTrack: (uri) -> @webService.query("room/#{@name}/deletetrack", {uri: uri});
