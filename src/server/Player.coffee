@@ -32,9 +32,10 @@ class Player extends EventEmitter
 		@client.on('close', @onClose)
 		@client.on('error', @onError)
 		@client.on('data', @onData)
-		@client.on('timeout', @onTimeout)
+		@client.setTimeout(25 * 1000, @onTimeout)
 		@client.setEncoding('utf8')
 		@buffer = ""
+		@isClose = false;
 		@defers = []
 		@client.write('hello\n')
 		@ping = true;
@@ -77,8 +78,10 @@ class Player extends EventEmitter
 
 	shutdown: () => @client.end();
 	onTimeout: () => @client.end();
-	onError: (error) => console.log("#Socket Error #{error}");
+	onError: (error) => @onClose();
 	onClose: () =>
+		if (@isClose == true) then return;
+		@isClose = true;
 		clearInterval(@timer)
 		@emit('disconnect')
 		for defer in @defers
