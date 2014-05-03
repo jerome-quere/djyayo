@@ -111,13 +111,15 @@ class Application
 		return RoomManager.getList()
 
 	onRoomRequest: (request, response) =>
-		session = @getAndTestSession(request)
 		room = RoomManager.get(request.params.room);
 		if (!room?)
 			throw HttpErrors.invalidRoomName()
 		data = room.getData();
-		data.admin = room.isAdmin(session.getUser());
-		room.addUser(session.getUser());
+		data.admin = false;
+		try
+			session = @getAndTestSession(request)
+			data.admin = room.isAdmin(session.getUser());
+			room.addUser(session.getUser());
 		return data;
 
 	onRoomUserRequest: (request, response) =>
