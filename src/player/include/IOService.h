@@ -26,6 +26,7 @@
 #define _SPDJ_IOSERVICE_H_
 
 #include <functional>
+#include <map>
 #include <memory>
 
 #include <QObject>
@@ -37,6 +38,8 @@ namespace SpDj
     class IOService : public QObject
     {
 	Q_OBJECT;
+
+      typedef std::function<void ()> Task;
 
     public:
 
@@ -55,23 +58,23 @@ namespace SpDj
 
 	static int run();
 	static void stop();
-	static Event addTimer(long long millisecond, const std::function<void ()>&f);
+	static Event addTimer(long long millisecond, const Task&f);
 
-	static void addTask(const std::function<void ()>&f);
-	static void addTaskFromThread(const std::function<void ()>&f);
+	static void addTask(const Task&f);
+	static void addTaskFromThread(const Task&f);
 
     Q_SIGNALS:
-	void _addTask(std::function<void ()>* f);
+	void _addTask(Task* f);
 
     private Q_SLOTS:
-	void _onAddTask(std::function<void ()>*f);
+	void _onAddTask(Task* f);
+	void _onTimeout();
 
     private:
-	void _onTimeout();
 	void _removeTimer(QObject*);
 
 
-	std::map<QObject*, std::function<void ()> > _cbs;
+	std::map<QObject*, Task> _cbs;
 
 	friend class Event;
     };

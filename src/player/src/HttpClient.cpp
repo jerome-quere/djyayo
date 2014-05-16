@@ -46,7 +46,7 @@ namespace SpDj
 	auto defer = When::defer<std::string>();
 	QNetworkRequest request(QUrl(QString(url.c_str())));
 	QNetworkReply* reply = _networkManager.get(request);
-	connect(reply, &QNetworkReply::finished, this, &HttpClient::onFinished);
+	connect(reply, SIGNAL(finished()), this, SLOT(onFinished()));
 	_defers.insert(std::make_pair(reply, defer));
 	return defer.promise();
     }

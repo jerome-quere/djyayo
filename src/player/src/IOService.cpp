@@ -23,6 +23,7 @@
  */
 
 #include <QCoreApplication>
+#include <QMetaType>
 #include <QThread>
 #include <QTimer>
 #include <QSignalMapper>
@@ -60,7 +61,8 @@ namespace SpDj
 
     IOService::IOService()
     {
-	connect(this, &IOService::_addTask, this, &IOService::_onAddTask, Qt::QueuedConnection);
+      qRegisterMetaType<Task*>("Task*");
+      connect(this, SIGNAL(_addTask(Task*)), this, SLOT(_onAddTask(Task*)), Qt::QueuedConnection);
     }
 
     IOService::~IOService() {
@@ -79,7 +81,7 @@ namespace SpDj
 	if (QThread::currentThread() != QCoreApplication::instance()->thread())
 	    throw std::runtime_error("NO THE GOOGD THREAD");
 	QTimer* t = new QTimer(&getIOService());
-	connect(t, &QTimer::timeout, &getIOService(), &IOService::_onTimeout, Qt::QueuedConnection);
+	connect(t, SIGNAL(timeout()), &getIOService(), SLOT(_onTimeout()), Qt::QueuedConnection);
 	t->start(millisecond);
 	getIOService()._cbs[t] = f;
 	return Event(t);
@@ -90,7 +92,7 @@ namespace SpDj
 	getIOService()._addTask(t);
     }
 
-    void IOService::_onAddTask(std::function<void ()>*f) {
+    void IOService::_onAddTask(Task *f) {
 	(*f)();
 	delete f;
     }

@@ -35,10 +35,10 @@ namespace SpDj
         _socket = new QTcpSocket(this);
 	_activity = false;
 	_timeout = 0;
-	QObject::connect(_socket, &QTcpSocket::readyRead, this, &Socket::_onReadReady);
+	QObject::connect(_socket, SIGNAL(readyRead()), this, SLOT(_onReadReady()));
 	QObject::connect(_socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(onError(QAbstractSocket::SocketError)));
-	QObject::connect(_socket, &QTcpSocket::connected, this, &Socket::_onConnected);
-	QObject::connect(_socket, &QTcpSocket::disconnected, this, &Socket::_onDisconnected);
+	QObject::connect(_socket, SIGNAL(connected()), this, SLOT(_onConnected()));
+	QObject::connect(_socket, SIGNAL(disconnected()), this, SLOT(_onDisconnected()));
     }
 
     Socket::~Socket() {

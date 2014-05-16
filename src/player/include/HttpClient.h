@@ -25,6 +25,8 @@
 #ifndef _SPDJ_HTTPCLIENT_H_
 #define _SPDJ_HTTPCLIENT_H_
 
+#include <map>
+
 #include <QObject>
 #include <QNetworkAccessManager>
 
