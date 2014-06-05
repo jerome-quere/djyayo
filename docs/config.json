@@ -1,0 +1,18 @@
+{
+    "title": "Dj Yayo",
+    "tagline": "The modern jukebox",
+    "docs_path": "docs/",
+    "image": "docs/app.png",
+    "theme": "navy",
+    "template":"default",
+    "float": false,
+    "toggle_code": false,
+    "date_modified": true,
+    "repo": "jerome-quere/djyayo",
+    "twitter": ["jeromequere"],
+    "links": {
+	"Download": "https://github.com/jerome-quere/djyayo/archive/master.zip",
+	"GitHub Repo": "https://github.com/jerome-quere/djyayo",
+	"Made by Jerome Quere": "http://www.jeromequere.com"
+    }
+}
