@@ -34,6 +34,7 @@ namespace SpDj
     {
     public:
 	CircularBuffer();
+	CircularBuffer(size_t minimumSize);
 	~CircularBuffer();
 
 	template <typename I>
@@ -55,6 +56,7 @@ namespace SpDj
 
 
 	T*	_buffer;
+        size_t	_minimumSize;
 	size_t	_size;
 	T*	_read;
 	T*	_write;
