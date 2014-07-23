@@ -22,10 +22,7 @@
 
 namespace SpDj
 {
-    const size_t AudioPlayer::minimumBufferSize = 10000000;
-
-    AudioPlayer::AudioPlayer() : _buffer(minimumBufferSize)
-    {
+    AudioPlayer::AudioPlayer() {
 	_stream = NULL;
 	Pa_Initialize();
     }

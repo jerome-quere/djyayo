@@ -25,15 +25,11 @@
 namespace SpDj
 {
     template <typename T>
-    CircularBuffer<T>::CircularBuffer() : CircularBuffer(0) {
-    }
-
-    template <typename T>
-    CircularBuffer<T>::CircularBuffer(size_t minimumSize) {
+    CircularBuffer<T>::CircularBuffer() {
 	_buffer = NULL;
 	_read = NULL;
 	_write = NULL;
-	resize(minimumSize);
+	_size = 0;
     }
 
     template <typename T>
@@ -80,21 +76,14 @@ namespace SpDj
 
     template <typename T>
     size_t CircularBuffer<T>::resize(size_t newSize) {
-      T* newBuffer = NULL;
-      size_t size = 0;
-
-      newSize = std::min(_minimumSize, newSize);
-      if (newSize)
-	{
-	  newBuffer = new T [newSize]();
-	  size = copy(newBuffer, newSize);
-	}
-      _read = newBuffer;
-      _write = newBuffer + size;
-      _size = newSize;
-      delete _buffer;
-      _buffer = newBuffer;
-      return newSize;
+	T* newBuffer = new T [newSize]();
+	size_t size = copy(newBuffer, newSize);
+	_read = newBuffer;
+	_write = newBuffer + size;
+	_size = newSize;
+	delete _buffer;
+	_buffer = newBuffer;
+	return newSize;
     }
 
     template <typename T>
