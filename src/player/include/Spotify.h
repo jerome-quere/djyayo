@@ -64,7 +64,10 @@ namespace SpDj
 
 	static void SPCALL callback_logged_in(sp_session*, sp_error);
 	static void SPCALL callback_notify_main_thread(sp_session *sess);
-	static int SPCALL callback_music_delivery(sp_session *sess, const sp_audioformat *format, const void *frames, int num_frames);
+	static int  SPCALL callback_music_delivery(sp_session *sess, const sp_audioformat *format, const void *frames, int num_frames);
+        static void SPCALL callback_start_playback(sp_session* sess);
+        static void SPCALL callback_stop_playback(sp_session* sess);
+	static void SPCALL callback_get_audio_buffer_stats(sp_session* sess, sp_audio_buffer_stats* stats);
 	static void SPCALL callback_play_token_lost(sp_session *sess);
 	static void SPCALL callback_end_of_track(sp_session *sess);
 	static void SPCALL callback_metadata_updated(sp_session *sess);

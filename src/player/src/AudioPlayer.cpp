@@ -34,8 +34,6 @@ namespace SpDj
     void AudioPlayer::play(const AudioData& data) {
 	if (_stream == NULL)
 	    initStream(data.format());
-	if (!Pa_IsStreamActive(_stream))
-	    Pa_StartStream(_stream);
 	std::lock_guard<std::mutex> lock(_mutex);
 	_buffer.write((Byte*)data.frames(), (Byte*)data.frames() + (data.nbFrames() * data.format().frameSize()));
     }
@@ -44,6 +42,32 @@ namespace SpDj
     {
 	_buffer.clear();
 	Pa_StopStream(_stream);
+    }
+
+    void AudioPlayer::pause()
+    {
+      Pa_StopStream(_stream);
+    }
+
+    void AudioPlayer::resume()
+    {
+      Pa_StartStream(_stream);
+    }
+
+    int AudioPlayer::bufferSampleCount()
+    {
+        if (_audioFormat.frameSize() == 0)
+	  return 0;
+	std::lock_guard<std::mutex> lock(_mutex);
+        return _buffer.size() / _audioFormat.frameSize();
+    }
+
+    int AudioPlayer::audioDropoutCount()
+    {
+	std::lock_guard<std::mutex> lock(_mutex);
+        int dropout = _dropout;
+	_dropout = 0;
+	return dropout;
     }
 
     void AudioPlayer::initStream(const AudioFormat& format)

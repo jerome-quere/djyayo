@@ -41,6 +41,9 @@ namespace SpDj
 	session_callbacks.logged_in = &Spotify::callback_logged_in;
 	session_callbacks.notify_main_thread = &Spotify::callback_notify_main_thread;
 	session_callbacks.music_delivery = &Spotify::callback_music_delivery;
+	session_callbacks.stop_playback = &Spotify::callback_stop_playback;
+	session_callbacks.start_playback = &Spotify::callback_start_playback;
+	session_callbacks.get_audio_buffer_stats = &Spotify::callback_get_audio_buffer_stats;
 	session_callbacks.metadata_updated = &Spotify::callback_metadata_updated;
 	session_callbacks.play_token_lost = &Spotify::callback_play_token_lost;
 	session_callbacks.log_message = NULL;
@@ -106,7 +109,7 @@ namespace SpDj
 		if (sp_session_player_load(_spSession, track) != SP_ERROR_OK)
 		    throw std::runtime_error("Can't load link in player");
 		if (sp_session_player_play(_spSession, true) != SP_ERROR_OK)
-		    throw std::runtime_error("Can't start player");
+		  throw std::runtime_error("Can't start player");
 		_player.stop();
 		_audioStatus = PLAYING;
 		return true;
@@ -167,6 +170,22 @@ namespace SpDj
 	AudioData data(frames, nbFrames, AudioFormat(format->sample_rate, format->channels));
 	spotify->_player.play(data);
 	return nbFrames;
+    }
+
+    void Spotify::callback_start_playback(sp_session* s) {
+        Spotify* spotify = reinterpret_cast<Spotify*>(sp_session_userdata(s));
+	spotify->_player.resume();
+    }
+
+    void Spotify::callback_stop_playback(sp_session* s) {
+        Spotify* spotify = reinterpret_cast<Spotify*>(sp_session_userdata(s));
+	spotify->_player.pause();
+    }
+
+    void Spotify::callback_get_audio_buffer_stats(sp_session* s, sp_audio_buffer_stats* stats) {
+        Spotify* spotify = reinterpret_cast<Spotify*>(sp_session_userdata(s));
+	stats->samples = spotify->_player.bufferSampleCount();
+	stats->stutter = spotify->_player.audioDropoutCount();
     }
 
     void Spotify::callback_play_token_lost(sp_session *) {

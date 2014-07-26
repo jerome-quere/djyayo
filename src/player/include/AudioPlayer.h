@@ -44,6 +44,10 @@ namespace SpDj
 
 	void play(const AudioData&);
 	void stop();
+        void pause();
+        void resume();
+        int bufferSampleCount();
+	int audioDropoutCount();
 
 	static int streamCallback(const void *,
 				  void *output,
