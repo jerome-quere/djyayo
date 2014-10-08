@@ -12,8 +12,7 @@
 	<img class="thumbmail"  ng-src="{{track.imgUrl}}" />
 	<h3>{{track.name}}</h3>
 	<p>{{track.artists[0].name}}</p>
-	<img class="icon" ng-show="track.haveMyVote" src="images/star_full.png"/>
-	<img class="icon" ng-show="!track.haveMyVote" src="images/star_empty.png" />
+	<i class="fa fa-thumbs-up icon" ng-class="{'thumbs-green': track.haveMyVote}" />
       </li>
     </ul>
     <div class="center spacer" ng-show="loading">

@@ -1,2 +1,7 @@
 spotifyApiKey.h
 build
+node_modules
+src/web/css/style.css
+src/web/css/vendor.css
+src/web/js/script.js
+src/web/js/vendor.js
