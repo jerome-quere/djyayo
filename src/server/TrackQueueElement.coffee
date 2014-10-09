@@ -28,6 +28,7 @@ class TrackQueueElement
 
 	constructor: (@track, userId) ->
 		@votes = []
+		@downvotes = []
 		@addedBy = UserManager.get(userId);
 
 	vote: (userId) ->
@@ -38,9 +39,20 @@ class TrackQueueElement
 		if ((idx = @votes.indexOf(userId)) != -1)
 			@votes.splice(idx, 1);
 
+	downvote: (userId) =>
+		if ((idx = @downvotes.indexOf(userId)) == -1)
+			@downvotes.push(userId);
+
+	undownvote: (userId) =>
+		if ((idx = @downvotes.indexOf(userId)) != -1)
+			@downvotes.splice(idx, 1);
+
 	getUri: () -> @track.uri
 
 	getNbVotes: () -> @votes.length
+	getNbDownvotes: () -> @downvotes.length
+
+	getScore: () -> @getNbVotes() - @getNbDownvotes();
 
 	getVotes: () ->
 		res = []
@@ -48,9 +60,15 @@ class TrackQueueElement
 			res.push({id:id});
 		return res
 
+	getDownvotes: () ->
+		res = []
+		for id in @downvotes
+			res.push({id:id});
+		return res;
+
 	hasVote: (userId) ->
 		return @votes.indexOf(userId) != -1
 
-	getData: () -> {votes: @getVotes(), addedBy: @addedBy.getData(), track: @track}
+	getData: () -> {votes: @getVotes(), downvotes: @getDownvotes(), addedBy: @addedBy.getData(), track: @track}
 
 module.exports = TrackQueueElement;

@@ -71,6 +71,8 @@ class Application
 		@express.get("/room/:room/queue", buildHandler(@onQueueRequest));
 		@express.get("/room/:room/vote", buildHandler(@onVoteRequest));
 		@express.get("/room/:room/unvote", buildHandler(@onUnvoteRequest));
+		@express.get("/room/:room/downvote", buildHandler(@onDownvoteRequest));
+		@express.get("/room/:room/undownvote", buildHandler(@onUndownvoteRequest));
 		@express.get("/room/:room/create", buildHandler(@onRoomCreateRequest));
 		@express.get("/me", buildHandler(@onMeRequest));
 
@@ -181,6 +183,22 @@ class Application
 		Testor(room, HttpErrors.invalidRoomName()).isNotNull();
 		uri = Testor(request.query.uri, HttpErrors.badParams()).isNotEmpty().toString();
 		return room.vote(session.getUser().getId(), uri).then () =>
+			return @onRoomRequest(request, response)
+
+	onUndownvoteRequest: (request, response) =>
+		session = @getAndTestSession(request)
+		room = RoomManager.get(request.params.room)
+		Testor(room, HttpErrors.invalidRoomName()).isNotNull();
+		uri = Testor(request.query.uri, HttpErrors.badParams()).isNotEmpty().toString();
+		room.undownvote(session.getUser().getId(), uri);
+		return @onRoomRequest(request, response)
+
+	onDownvoteRequest: (request, response) =>
+		session = @getAndTestSession(request)
+		room = RoomManager.get(request.params.room)
+		Testor(room, HttpErrors.invalidRoomName()).isNotNull();
+		uri = Testor(request.query.uri, HttpErrors.badParams()).isNotEmpty().toString();
+		return room.downvote(session.getUser().getId(), uri).then () =>
 			return @onRoomRequest(request, response)
 
 	onSearchRequest: (request, response) =>
