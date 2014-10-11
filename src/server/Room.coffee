@@ -70,6 +70,9 @@ class Room
 	# TRACK QUEUE RELATED ACTIONS
 	vote: (userId, trackUri) -> @playerManager.lookup(trackUri).then (track) => @trackQueue.vote(userId, track);
 	unvote: (userId, uri) -> @trackQueue.unvote(userId, uri)
+
+	downvote: (userId, trackUri) -> @playerManager.lookup(trackUri).then (track) => @trackQueue.downvote(userId, track);
+	undownvote: (userId, uri) -> @trackQueue.undownvote(userId, uri)
 	deleteTrack: (uri) -> @trackQueue.remove(uri);
 
 	# USERS RELATED ACTIONS
