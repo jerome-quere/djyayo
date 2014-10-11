@@ -31,6 +31,7 @@ class RoomTrackQueueController
 		@room.on 'change', @$scope, @onRoomChange
 		@onRoomChange()
 
+		@$scope.onDownVoteClick = @onDownVoteClick
 		@$scope.onTrackClick = @onTrackClick
 
 	onRoomChange: () =>
@@ -38,6 +39,12 @@ class RoomTrackQueueController
 		@$scope.trackQueue	= @room.getTrackQueue();
 		@$scope.currentTrack	= @room.getCurrentTrack();
 		@$scope.havePlayer	= @room.havePlayer();
+
+	onDownVoteClick: (elem) =>
+		if (elem.haveMyDownVote)
+			@room.unDownVote(elem.track.uri)
+		else
+			@room.downVote(elem.track.uri)
 
 	onTrackClick: (elem) =>
 		if (elem.haveMyVote)

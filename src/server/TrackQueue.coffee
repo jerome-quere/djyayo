@@ -54,10 +54,10 @@ class TrackQueue extends EventEmitter
 		@_sort()
 		@change();
 
-	undownvote: (userId, track) ->
-		tmp = @tracks.clone().filter((t) -> t.track.uri != trackUri)
-		tmp.foreach (t) -> t.undownvote(userId)
-		@tracks.filter (t) -> t.getNbVotes() == 0
+	undownvote: (userId, trackUri) ->
+		t = @tracks.find (t) -> t.track.uri == trackUri
+		if (!t?) then return;
+		t.undownvote(userId)
 		@_sort()
 		@change();
 
