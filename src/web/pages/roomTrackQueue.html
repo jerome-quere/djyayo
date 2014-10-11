@@ -28,10 +28,13 @@
 	    <img class="thumbmail" ng-src="{{elem.track.imgUrl}}" />
 	    <h3>{{elem.track.name}}</h3>
 	    <p>{{elem.track.artists[0].name}}</p>
-	    <span class="badge">{{elem.votes.length}}</span>
+	    <span class="badge">{{elem.score}}</span>
 	    <img  ng-src="{{elem.addedBy.imgUrl}}" class="userImg"  tooltip-placement="left" tooltip="{{elem.addedBy.name}}" />
 	    <a href="javascript:" ng-click="onTrackClick(elem)">
 	      <i class="fa fa-thumbs-up icon icon-top" ng-class="{'thumbs-green': elem.haveMyVote}" />
+	    </a>
+	    <a href="javascript:" ng-click="onDownVoteClick(elem)">
+	      <i class="fa fa-thumbs-down icon icon-bottom" ng-class="{'thumbs-red': elem.haveMyDownVote}" />
 	    </a>
 	  </li>
 	</ul>
