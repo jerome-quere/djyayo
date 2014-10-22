@@ -38,9 +38,14 @@ class ConfigServiceController
 		@config['static'] = {}
 
 		@hostConfs = {};
+		@hostConfs['localhost'] = @loadManuConf;
 		@hostConfs['archlinux'] = @loadLocalhostConf;
 		@hostConfs['dj.yayo.fr'] = @loadProdConf;
 		if @hostConfs[host]? then @hostConfs[host]();
+
+	loadManuConf: () =>
+		@config['website']['url'] = 'http://localhost:8000'
+		@config['webservice']['url'] = 'http://localhost:4545'
 
 	loadLocalhostConf: () =>
 		@config['website']['url'] = 'http://archlinux:8000'

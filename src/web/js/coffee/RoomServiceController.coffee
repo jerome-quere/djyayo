@@ -50,6 +50,11 @@ class RoomServiceController extends EventEmitter
 		@_clear()
 		@emit('exit')
 
+	haveMyDownVote: (uri) =>
+		e = new MyArray(@trackQueue).find (e) -> e.track.uri == uri;
+		if not e then return false;
+		return new MyArray(e.downvotes).find (v) => v.id == @user.getId()
+
 	haveMyVote: (uri) =>
 		e = new MyArray(@trackQueue).find (e) -> e.track.uri == uri;
 		if not e then return false;
@@ -63,6 +68,8 @@ class RoomServiceController extends EventEmitter
 		data = {};
 		data.track = elem.track;
 		data.votes = elem.votes;
+		data.score = elem.votes.length - elem.downvotes.length;
+		data.downvotes = elem.downvotes;
 		data.addedBy = elem.addedBy;
 		if (elem.date) then data.date = new Date(elem.date);
 		return data
@@ -76,6 +83,7 @@ class RoomServiceController extends EventEmitter
 		@admin = roomData.admin;
 		for elem in @trackQueue
 			elem.haveMyVote = @haveMyVote(elem.track.uri);
+			elem.haveMyDownVote = @haveMyDownVote(elem.track.uri);
 		@emit('change');
 
 	refreshTrackQueue: () -> @webService.query("room/#{@name}").then @loadRoomFromData
@@ -101,6 +109,8 @@ class RoomServiceController extends EventEmitter
 	nextTrack:	()	-> @webService.query("room/#{@name}/nexttrack");
 	deleteTrack:	(uri)	-> @webService.query("room/#{@name}/deletetrack", {uri: uri});
 	vote:		(uri)	=> @webService.query("room/#{@name}/vote", {uri:uri}).then @loadRoomFromData
+	downVote:	(uri)	=> @webService.query("room/#{@name}/downvote", {uri:uri}).then @loadRoomFromData
+	unDownVote:	(uri)	=> @webService.query("room/#{@name}/undownvote", {uri:uri}).then @loadRoomFromData
 	unvote:		(uri)	=> @webService.query("room/#{@name}/unvote", {uri:uri}).then @loadRoomFromData
 	addAdmin:	(userId)-> @webService.query("room/#{@name}/addAdmin" , {userId: userId});
 	delAdmin:	(userId)-> @webService.query("room/#{@name}/delAdmin" , {userId: userId});
