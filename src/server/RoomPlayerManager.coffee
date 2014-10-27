@@ -52,13 +52,19 @@ class RoomPlayerManager extends EventEmitter
 			@getMainPlayer().on('endOfTrack', @endOfTrack);
 			@endOfTrack();
 		@change();
+		console.log(new Error("I app player #{player.id}"))
+		console.log(@players.get());
 
 	onPlayerDisconnect: (player) ->
 		old = @players.front();
+		e = new Error("BEFORE I remove player");
+		console.log(e, e.stack)
 		@players.filter (p) -> p == player
 		if old != @players.front() and @havePlayer()
 			@getMainPlayer().on('endOfTrack', @endOfTrack);
 			@endOfTrack();
+		console.log(new Error("I remove player #{player.id}"))
+		console.log(@players.get());
 		@change();
 
 	search: (query) -> @getMainPlayer().search(query);

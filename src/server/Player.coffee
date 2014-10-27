@@ -83,7 +83,7 @@ class Player extends EventEmitter
 		if (@isClose == true) then return;
 		@isClose = true;
 		clearInterval(@timer)
-		@emit('disconnect')
+		process.nextTick () => @emit('disconnect')
 		for defer in @defers
 			defer.reject('player was disconnected');
 
