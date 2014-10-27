@@ -76,14 +76,15 @@ class Player extends EventEmitter
 			else
 				defer.reject(command.getArgs());
 
-	shutdown: () => @client.end();
-	onTimeout: () => @client.end();
+	shutdown: () => @client.destroy();
+	onTimeout: () => @client.destroy();
 	onError: (error) => @onClose();
 	onClose: () =>
 		if (@isClose == true) then return;
 		@isClose = true;
 		clearInterval(@timer)
 		@emit('disconnect')
+		@shutdown();
 		for defer in @defers
 			defer.reject('player was disconnected');
 
