@@ -97,7 +97,7 @@ namespace SpDj
 
 	cpy.reserve(s.size());
 	for (auto c : s) {
-	    if (c == '\"')
+	    if (c == '\"' || c == '\\')
 		cpy.push_back('\\');
 	    cpy.push_back(c);
 	}
