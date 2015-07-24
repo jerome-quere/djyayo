@@ -20,10 +20,13 @@
 #include "IOService.h"
 #include "AudioPlayer.h"
 
+#include <iostream>
+
 namespace SpDj
 {
     AudioPlayer::AudioPlayer() {
 	_stream = NULL;
+	_dropout = 0;
 	Pa_Initialize();
     }
 
@@ -93,9 +96,15 @@ namespace SpDj
 	AudioPlayer* p = static_cast<AudioPlayer*>(obj);
 
 	std::lock_guard<std::mutex> lock(p->_mutex);
+
+	if (p->_buffer.size() < frameCount * p->_audioFormat.frameSize()) {
+	  p->_dropout += frameCount * p->_audioFormat.frameSize() - p->_buffer.size();
+	}
+
 	auto size = p->_buffer.read((Byte*)output, frameCount * p->_audioFormat.frameSize());
-	if (p->_buffer.size() == 0)
+	if (p->_buffer.size() == 0) {
 	    IOService::addTask([p] {p->emit("empty");});
+	}
 	std::fill((char*)output + size, (char*)output + frameCount * p->_audioFormat.frameSize(), 0);
 	return (paContinue);
     }
