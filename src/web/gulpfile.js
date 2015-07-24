@@ -46,6 +46,7 @@ gulp.task('clean', function () {
 gulp.task('connect', function () {
     connect.server({
 	root: __dirname,
+	host: "0.0.0.0",
 	port: 8000,
 	open:false,
 	middleware: function (connect, opt) {
