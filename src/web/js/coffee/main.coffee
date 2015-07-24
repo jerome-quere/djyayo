@@ -50,4 +50,4 @@ app.factory 'webSocketClient', ['$rootScope', 'config', 'room', ($rootScope, con
 
 app.directive 'onVisible', () -> OnVisibleDirectiveController.getConfig()
 
-app.run ['webSocketClient', 'locationManager', (w, r) -> ]
+app.run ['locationManager', (r) -> ]
