@@ -39,7 +39,7 @@ class ConfigServiceController
 
 		@hostConfs = {};
 		@hostConfs['localhost'] = @loadManuConf;
-		@hostConfs['archlinux'] = @loadLocalhostConf;
+		@hostConfs['debian'] = @loadLocalhostConf;
 		@hostConfs['dj.yayo.fr'] = @loadProdConf;
 		if @hostConfs[host]? then @hostConfs[host]();
 
@@ -48,8 +48,8 @@ class ConfigServiceController
 		@config['webservice']['url'] = 'http://localhost:4545'
 
 	loadLocalhostConf: () =>
-		@config['website']['url'] = 'http://archlinux:8000'
-		@config['webservice']['url'] = 'http://archlinux:4545'
+		@config['website']['url'] = 'http://debian:8000'
+		@config['webservice']['url'] = 'http://debian:4545'
 
 	loadProdConf: () =>
 		@config['website']['url'] = 'http://dj.yayo.fr'

@@ -72,10 +72,8 @@ INCLUDEPATH	+=	include
 
 
 
-*-g++ {
-QMAKE_CXXFLAGS+=	-std=c++0x -W -Wall
-LIBS		+=	-lspotify -lportaudio
-}
-win32-msvc* {
-LIBS            +=      libspotify.lib portaudio_x86.lib
-}
+
+gcc:QMAKE_CXXFLAGS      +=	-std=c++11 -W -Wall
+gcc:LIBS                +=	-lspotify -lportaudio
+
+msvc:LIBS               +=      libspotify.lib portaudio_x86.lib

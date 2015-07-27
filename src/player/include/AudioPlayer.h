@@ -62,6 +62,7 @@ namespace SpDj
 	std::mutex	_mutex;
 	CircularBuffer<Byte> _buffer;
 	AudioFormat	_audioFormat;
+	uint _dropout;
     };
 }
 #endif
