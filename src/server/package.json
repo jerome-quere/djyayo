@@ -10,6 +10,8 @@
     "devDependencies": {
 	"express": "*",
 	"socket.io": "*",
-	"when": "*"
+	"when": "*",
+	"mongoose": "*",
+	"async": "*"
     }
 }

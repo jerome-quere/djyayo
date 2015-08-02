@@ -85,7 +85,7 @@ class Room
 	# CLIENT RELATED ACTIONS
 	addClient:	(client) ->	@clientManager.addClient(client)
 	delClient:	(client) ->	@clientManager.delClient(client)
-	change:		()	=>	@clientManager.change()
+	change:		()	=>	@clientManager.change();
 
 	# DATA GETTERS
 	getData: () ->

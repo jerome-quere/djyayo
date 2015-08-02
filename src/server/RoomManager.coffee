@@ -23,6 +23,7 @@
 ##
 
 Room = require('./Room.coffee');
+DatabaseManager = require('./DatabaseManager.coffee');
 
 class RoomManager
 	constructor: () ->
@@ -34,11 +35,14 @@ class RoomManager
 		if (!name) then return null;
 		key = @_getKeyFromName(name);
 		if (/^[a-z0-9A-Z_-]+$/.test(name))
-			@rooms[key] = new Room(name);
-			return (@rooms[key]);
+			room = new Room(key);
+			DatabaseManager.createRoom(name, room);
+			@rooms[name] = room;
+			return (room);
 		return null;
 
 	getList: () ->
+		@rooms = DatabaseManager.getAllRooms();
 		names = []
 		for key,room of @rooms
 			names.push({name: key});

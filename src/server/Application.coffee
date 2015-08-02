@@ -32,6 +32,7 @@ SessionManager = require('./SessionManager.coffee');
 HttpErrors = require('./HttpErrors.coffee');
 Logger = require('./Logger.coffee');
 PlayerCommunicator = require('./PlayerCommunicator.coffee');
+DatabaseManager = require('./DatabaseManager.coffee');
 RoomManager = require('./RoomManager.coffee');
 Testor = require('./Testor.coffee');
 UserManager = require('./UserManager.coffee')
@@ -40,10 +41,10 @@ WebSocketCommunicator = require('./WebSocketCommunicator.coffee');
 class Application
 
 	constructor: () ->
-		@users = {}
+		@users = {};
 		@express = express();
-		@httpServer = http.createServer(@express)
-		@webSockCom = new WebSocketCommunicator(@httpServer)
+		@httpServer = http.createServer(@express);
+		@webSockCom = new WebSocketCommunicator(@httpServer);
 		@playerCom = new PlayerCommunicator();
 		@webSockCom.on('command', @onWebSocketCommand);
 		@playerCom.on('joinRoom', @onPlayerJoinRoom);
@@ -110,7 +111,7 @@ class Application
 		return session.getUser().getData();
 
 	onRoomsRequest: (request, response) =>
-		return RoomManager.getList()
+		return RoomManager.getList();
 
 	onRoomRequest: (request, response) =>
 		room = RoomManager.get(request.params.room);
@@ -167,6 +168,7 @@ class Application
 		if (!room?)
 			throw HttpErrors.invalidRoomName()
 		room.addAdmin(session.getUser());
+		# DatabaseManager.createRoom(room.name);
 		return @onRoomRequest(request, response);
 
 	onUnvoteRequest: (request, response) =>
@@ -239,6 +241,7 @@ class Application
 	onWebSocketCommand: (client, command) =>
 		if (command.getName() == "changeRoom")
 			@onChangeRoomCommand(client, command);
+
 	run : () ->
 		@httpServer.listen(Config.getPort());
 

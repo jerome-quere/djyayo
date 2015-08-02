@@ -39,6 +39,4 @@ class RoomUserManager
 	delAdmin: (user) -> @admins.filter (u) -> u.getId() == user.getId()
 	isAdmin : (user) ->  @admins.find((u) -> user.getId() == u.getId()) != null
 
-
-
 module.exports = RoomUserManager;
