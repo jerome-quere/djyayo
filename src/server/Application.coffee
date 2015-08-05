@@ -22,26 +22,25 @@
 # THE SOFTWARE.
 ##
 
-
 express = require('express');
 fn   = require("when/function");
 http = require('http')
-
 Config = require('./Config.coffee');
 SessionManager = require('./SessionManager.coffee');
 HttpErrors = require('./HttpErrors.coffee');
 Logger = require('./Logger.coffee');
 PlayerCommunicator = require('./PlayerCommunicator.coffee');
-DatabaseManager = require('./DatabaseManager.coffee');
 RoomManager = require('./RoomManager.coffee');
 Testor = require('./Testor.coffee');
 UserManager = require('./UserManager.coffee')
 WebSocketCommunicator = require('./WebSocketCommunicator.coffee');
+DatabaseManager = require('./DatabaseManager.coffee');
 
 class Application
 
 	constructor: () ->
 		@users = {};
+		@db = new DatabaseManager();
 		@express = express();
 		@httpServer = http.createServer(@express);
 		@webSockCom = new WebSocketCommunicator(@httpServer);
@@ -101,7 +100,7 @@ class Application
 		else
 			promise = UserManager.loadFromGoogle(token);
 		return promise.then (user) =>
-			Logger.info("New user logged in: ", JSON.stringify(user));
+			# Logger.info("New user logged in: ", JSON.stringify(user));
 			token = @sessionManager.create();
 			@sessionManager.get(token).setUser(user);
 			return {access_token:token};
@@ -114,23 +113,26 @@ class Application
 		return RoomManager.getList();
 
 	onRoomRequest: (request, response) =>
+		console.log('Room request');
 		room = RoomManager.get(request.params.room);
 		if (!room?)
 			throw HttpErrors.invalidRoomName()
 		data = room.getData();
 		data.admin = false;
 		try
-			session = @getAndTestSession(request)
-			data.admin = room.isAdmin(session.getUser());
+			session = @getAndTestSession(request);
+			data.admin = @db.isAdminInRoom(session.getUser(), room.name);
 			room.addUser(session.getUser());
 		return data;
 
 	onRoomUserRequest: (request, response) =>
+		console.log('Room user request');
 		session = @getAndTestSession(request)
 		room = RoomManager.get(request.params.room)
 		Testor(room, HttpErrors.invalidRoomName()).isNotNull();
 		Testor(room.isAdmin(session.getUser()), HttpErrors.permisionDenied()).isTrue();
 		users = room.getUsers();
+		console.log(users);
 		data = [];
 		for user in users
 			d = user.getData();
@@ -168,10 +170,10 @@ class Application
 		if (!room?)
 			throw HttpErrors.invalidRoomName()
 		room.addAdmin(session.getUser());
-		# DatabaseManager.createRoom(room.name);
 		return @onRoomRequest(request, response);
 
 	onUnvoteRequest: (request, response) =>
+		console.log('+--------+ onUnvoteRequest +----------+');
 		session = @getAndTestSession(request)
 		room = RoomManager.get(request.params.room)
 		Testor(room, HttpErrors.invalidRoomName()).isNotNull();
@@ -180,6 +182,7 @@ class Application
 		return @onRoomRequest(request, response)
 
 	onVoteRequest: (request, response) =>
+		console.log('+--------+ onVoteRequest +----------+');
 		session = @getAndTestSession(request)
 		room = RoomManager.get(request.params.room)
 		Testor(room, HttpErrors.invalidRoomName()).isNotNull();
@@ -188,6 +191,7 @@ class Application
 			return @onRoomRequest(request, response)
 
 	onUndownvoteRequest: (request, response) =>
+		console.log('+--------+ onUndownvoteRequest +----------+');
 		session = @getAndTestSession(request)
 		room = RoomManager.get(request.params.room)
 		Testor(room, HttpErrors.invalidRoomName()).isNotNull();
@@ -196,6 +200,7 @@ class Application
 		return @onRoomRequest(request, response)
 
 	onDownvoteRequest: (request, response) =>
+		console.log('+--------+ onDownvoteRequest +----------+');
 		session = @getAndTestSession(request)
 		room = RoomManager.get(request.params.room)
 		Testor(room, HttpErrors.invalidRoomName()).isNotNull();

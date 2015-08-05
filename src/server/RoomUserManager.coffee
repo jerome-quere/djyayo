@@ -23,19 +23,29 @@
 ##
 
 MyArray = require('./MyArray.coffee');
+DatabaseManager = require('./DatabaseManager.coffee');
 
 class RoomUserManager
-	constructor: () ->
+	constructor: (@name) ->
 		@users = new MyArray([])
 		@admins = new MyArray([])
+		@db = new DatabaseManager();
 
 	addUser: (user) ->
 		if not (@users.find (u) -> u.getId() == user.getId())
-			@users.push_back(user)
+			console.log('RoomUserManager.addUser');
+			@users.push_back(user);
+			@db.addUserInRoom(user, @name);
 
-	getUsers: () -> @users.get()
+	getUsers: () ->
+		return @users.get();
 
-	addAdmin: (user) -> if not @isAdmin(user) then @admins.push_back(user)
+	addAdmin: (user) ->
+		if not @isAdmin(user)
+			console.log('RoomUserManager.addAdmin');
+			@admins.push_back(user);
+			@db.addAdminInRoom(user, @name);
+
 	delAdmin: (user) -> @admins.filter (u) -> u.getId() == user.getId()
 	isAdmin : (user) ->  @admins.find((u) -> user.getId() == u.getId()) != null
 

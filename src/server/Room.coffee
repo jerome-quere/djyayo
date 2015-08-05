@@ -23,7 +23,7 @@
 ##
 
 TrackQueue = require('./TrackQueue.coffee');
-EventEmitter = require("events").EventEmitter
+EventEmitter = require("events").EventEmitter;
 RoomPlayerManager = require('./RoomPlayerManager.coffee');
 RoomUserManager = require('./RoomUserManager.coffee');
 RoomClientManager = require('./RoomClientManager.coffee');
@@ -38,7 +38,7 @@ class Room
 		@trackQueue = new TrackQueue(this);
 		@trackQueue.on('change', @onTrackQueueChange);
 
-		@userManager = new RoomUserManager();
+		@userManager = new RoomUserManager(@name);
 		@clientManager = new RoomClientManager
 		@currentTrack = null;
 
@@ -98,4 +98,4 @@ class Room
 
 	getHistoryData: () -> @historyManager.getData();
 
-module.exports = Room
+module.exports.room = (name) -> return new Room(name);
