@@ -68,7 +68,7 @@ class RoomPlayerManager extends EventEmitter
 		@change();
 
 	search: (query) -> @getMainPlayer().search(query);
-	lookup: (uri) -> @getMainPlayer().lookup(uri)
+	lookup: (uri) -> @getMainPlayer().lookup(uri);
 
 
 module.exports = RoomPlayerManager;

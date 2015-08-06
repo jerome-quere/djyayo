@@ -33,7 +33,6 @@ class RoomUserManager
 
 	addUser: (user) ->
 		if not (@users.find (u) -> u.getId() == user.getId())
-			console.log('RoomUserManager.addUser');
 			@users.push_back(user);
 			@db.addUserInRoom(user, @name);
 
@@ -42,11 +41,14 @@ class RoomUserManager
 
 	addAdmin: (user) ->
 		if not @isAdmin(user)
-			console.log('RoomUserManager.addAdmin');
 			@admins.push_back(user);
 			@db.addAdminInRoom(user, @name);
 
-	delAdmin: (user) -> @admins.filter (u) -> u.getId() == user.getId()
+	delAdmin: (user) ->
+		@admins.filter (u) ->
+			u.getId() == user.getId();
+		@db.delAdminInRoom(user, @name);
+
 	isAdmin : (user) ->  @admins.find((u) -> user.getId() == u.getId()) != null
 
 module.exports = RoomUserManager;

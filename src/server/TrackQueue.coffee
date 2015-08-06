@@ -25,30 +25,56 @@
 TrackQueueElement = require('./TrackQueueElement.coffee');
 EventEmitter = require("events").EventEmitter
 MyArray = require('./MyArray.coffee');
+DatabaseManager = require('./DatabaseManager.coffee');
 
 class TrackQueue extends EventEmitter
 
-	constructor:	() -> @tracks = new MyArray([]);
+	constructor:	(room) ->
+		@tracks = new MyArray([]);
+		@db = new DatabaseManager();
+		@roomName = room.name;
+
 	empty:		() -> @tracks.empty();
 
 	vote: (userId, track) ->
 		t = @tracks.find (t) -> t.track.uri == track.uri
 		if !t
-			t = new TrackQueueElement(track, userId)
+			t = new TrackQueueElement(track, userId);
+			@tracks.push_back(t);
+			@db.addSongInRoom(userId, track, @roomName);
+		t.vote(userId);
+		@db.userVoteSong(userId, track, @roomName);
+		@_sort();
+		@change();
+
+	voteInit: (userId, track) ->
+		t = @tracks.find (t) -> t.track.uri == track.uri
+		if !t
+			t = new TrackQueueElement(track, userId);
 			@tracks.push_back(t);
 		t.vote(userId);
-		@_sort()
+		@_sort();
 		@change();
 
 	unvote: (userId, trackUri) ->
 		tmp = @tracks.clone().filter((t) -> t.track.uri != trackUri)
-		tmp.foreach (t) -> t.unvote(userId)
+		tmp.foreach (t) =>
+			t.unvote(userId);
+			@db.userUnvoteSong(userId, trackUri, @roomName);
 		@tracks.filter (t) -> t.getNbVotes() == 0
 		@_sort()
 		@change();
 
 	downvote: (userId, track) ->
-		t = @tracks.find (t) -> t.track.uri == track.uri
+		t = @tracks.find (t) -> t.track.uri == track.uri	
+		if (!t?) then return;
+		t.downvote(userId);
+		@db.userDownvoteSong(userId, track, @roomName);
+		@_sort()
+		@change();
+
+	downvoteInit: (userId, track) ->
+		t = @tracks.find (t) -> t.track.uri == track.uri	
 		if (!t?) then return;
 		t.downvote(userId);
 		@_sort()
@@ -57,12 +83,14 @@ class TrackQueue extends EventEmitter
 	undownvote: (userId, trackUri) ->
 		t = @tracks.find (t) -> t.track.uri == trackUri
 		if (!t?) then return;
-		t.undownvote(userId)
+		t.undownvote(userId);
+		@db.userUndownvoteSong(userId, trackUri, @roomName);
 		@_sort()
 		@change();
 
 	remove: (trackUri) ->
 		@tracks.filter (t) -> t.track.uri == trackUri
+		@db.removeSongInRoom(trackUri, @roomName);
 		@change();
 
 	getData: () ->
@@ -70,7 +98,9 @@ class TrackQueue extends EventEmitter
 		@tracks.foreach (elem) -> queue.push(elem.getData())
 		return (queue)
 
-	pop: () -> @tracks.pop_front()
+	pop: () ->
+		@db.removeFirstSongInRoom(@roomName);
+		return @tracks.pop_front();
 
 	_sort: () -> @tracks.sort((a, b) -> b.getScore() - a.getScore())
 

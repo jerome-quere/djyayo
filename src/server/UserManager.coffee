@@ -31,7 +31,8 @@ class UserManager
 
 	add: (user) -> @users[user.getId()] = user;
 
-	get: (userId) -> if @users[userId]? then @users[userId] else null
+	get: (userId) ->
+		if @users[userId]? then @users[userId] else null;
 
 
 	loadFromFacebook: (token) ->

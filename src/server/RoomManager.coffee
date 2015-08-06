@@ -46,7 +46,7 @@ class RoomManager
 		return null;
 
 	getList: () ->
-		names = []
+		names = [];
 		for key,room of @rooms
 			names.push({name: key});
 		return names

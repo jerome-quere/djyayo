@@ -44,6 +44,10 @@ class Room
 
 		@historyManager = new RoomHistoryManager();
 
+		@prevotes = [];
+		@votes = {};
+		@downvotes = {};
+
 	# PLAYER MANAGER HANDLERS
 	onEndOfTrack:	()	=>	@playNextTrack()
 	onPlayerChange: ()	=>	@change()
@@ -55,23 +59,43 @@ class Room
 
 	# PLAYER RELATED ACTIONS
 	havePlayer:	()	->	@playerManager.havePlayer()
-	addPlayer:	(player) ->	@playerManager.addPlayer(player)
+	addPlayer:	(player) ->
+		@playerManager.addPlayer(player);
+		i = 0;
+		while (i < @prevotes.length)
+			@vote(@prevotes[i].id, @prevotes[i].uri);
+			i++;
+
+		@prevotes = [];
+
 	playNextTrack:	()	->
-		@currentTrack = null
+		@currentTrack = null;
 		if @playerManager.havePlayer() and not @trackQueue.empty()
-			@currentTrack = @trackQueue.pop()
+			@currentTrack = @trackQueue.pop();
 			@historyManager.addTrack(@currentTrack);
-			@playerManager.play(@currentTrack)
+			@playerManager.play(@currentTrack);
 		else
 			@playerManager.stop();
 		@change()
 	search: (query) -> @playerManager.search(query);
 
 	# TRACK QUEUE RELATED ACTIONS
-	vote: (userId, trackUri) -> @playerManager.lookup(trackUri).then (track) => @trackQueue.vote(userId, track);
-	unvote: (userId, uri) -> @trackQueue.unvote(userId, uri)
-
+	vote: (userId, trackUri) ->
+		@playerManager.lookup(trackUri).then (track) =>
+			@trackQueue.vote(userId, track);
+			if (@votes[userId] == undefined)
+				@votes[userId] = [];
+			@votes[userId].push(trackUri);
+	voteInit: (userId, trackUri) -> @playerManager.lookup(trackUri).then (track) => @trackQueue.voteInit(userId, track);
+	prevote: (userId, trackUri) -> @prevotes.push({id: userId, uri: trackUri});
+	unvote: (userId, uri) ->
+		@trackQueue.unvote(userId, uri);
+		if (@downvotes[userId] == undefined)
+			@downvotes[userId] = [];
+		@downvotes[userId].push(uri);
+	predownvote: (userId, uri) -> @predownvotes.push({id: userId, uri: uri});
 	downvote: (userId, trackUri) -> @playerManager.lookup(trackUri).then (track) => @trackQueue.downvote(userId, track);
+	downvoteInit: (userId, trackUri) -> @playerManager.lookup(trackUri).then (track) => @trackQueue.downvoteInit(userId, track);
 	undownvote: (userId, uri) -> @trackQueue.undownvote(userId, uri)
 	deleteTrack: (uri) -> @trackQueue.remove(uri);
 
@@ -91,7 +115,8 @@ class Room
 	getData: () ->
 		data = {}
 		data.name = @name;
-		if (@currentTrack?) then data.currentTrack = @currentTrack.getData();
+		if (@currentTrack)
+			data.currentTrack = @currentTrack.getData();
 		data.players = @playerManager.getData()
 		data.queue = @trackQueue.getData()
 		return data;

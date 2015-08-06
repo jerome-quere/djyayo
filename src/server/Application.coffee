@@ -100,7 +100,6 @@ class Application
 		else
 			promise = UserManager.loadFromGoogle(token);
 		return promise.then (user) =>
-			# Logger.info("New user logged in: ", JSON.stringify(user));
 			token = @sessionManager.create();
 			@sessionManager.get(token).setUser(user);
 			return {access_token:token};
@@ -130,13 +129,12 @@ class Application
 		session = @getAndTestSession(request)
 		room = RoomManager.get(request.params.room)
 		Testor(room, HttpErrors.invalidRoomName()).isNotNull();
-		Testor(room.isAdmin(session.getUser()), HttpErrors.permisionDenied()).isTrue();
+		Testor(@db.isAdminInRoom(session.getUser(), room.name), HttpErrors.permisionDenied()).isTrue();
 		users = room.getUsers();
-		console.log(users);
 		data = [];
 		for user in users
 			d = user.getData();
-			d.isAdmin = room.isAdmin(user);
+			d.isAdmin = @db.isAdminInRoom(user, room.name);
 			data.push(d);
 		return data;
 
@@ -144,7 +142,9 @@ class Application
 		session = @getAndTestSession(request)
 		userId = Testor(request.query.userId, HttpErrors.badParams).isNotNull().getValue();
 		room = Testor(RoomManager.get(request.params.room), HttpErrors.invalidRoomName()).isNotNull().getValue();
-		Testor(room.isAdmin(session.getUser()), HttpErrors.permisionDenied()).isTrue();
+
+		Testor(@db.isAdminInRoom(session.getUser(), room.name), HttpErrors.permisionDenied()).isTrue();
+
 		room.addAdmin(UserManager.get(userId));
 		return @onRoomUserRequest(request, response);
 
@@ -152,7 +152,9 @@ class Application
 		session = @getAndTestSession(request)
 		userId = Testor(request.query.userId, HttpErrors.badParams).isNotNull().getValue();
 		room = Testor(RoomManager.get(request.params.room), HttpErrors.invalidRoomName()).isNotNull().getValue();
-		Testor(room.isAdmin(session.getUser()), HttpErrors.permisionDenied()).isTrue();
+		
+		Testor(@db.isAdminInRoom(session.getUser(), room.name), HttpErrors.permisionDenied()).isTrue();
+		
 		Testor(userId == session.getUser().getId(), HttpErrors.permisionDenied()).isFalse();
 		room.delAdmin(UserManager.get(userId));
 		return @onRoomUserRequest(request, response);
@@ -173,7 +175,6 @@ class Application
 		return @onRoomRequest(request, response);
 
 	onUnvoteRequest: (request, response) =>
-		console.log('+--------+ onUnvoteRequest +----------+');
 		session = @getAndTestSession(request)
 		room = RoomManager.get(request.params.room)
 		Testor(room, HttpErrors.invalidRoomName()).isNotNull();
@@ -182,7 +183,6 @@ class Application
 		return @onRoomRequest(request, response)
 
 	onVoteRequest: (request, response) =>
-		console.log('+--------+ onVoteRequest +----------+');
 		session = @getAndTestSession(request)
 		room = RoomManager.get(request.params.room)
 		Testor(room, HttpErrors.invalidRoomName()).isNotNull();
@@ -191,8 +191,7 @@ class Application
 			return @onRoomRequest(request, response)
 
 	onUndownvoteRequest: (request, response) =>
-		console.log('+--------+ onUndownvoteRequest +----------+');
-		session = @getAndTestSession(request)
+		session = @getAndTestSession(request);
 		room = RoomManager.get(request.params.room)
 		Testor(room, HttpErrors.invalidRoomName()).isNotNull();
 		uri = Testor(request.query.uri, HttpErrors.badParams()).isNotEmpty().toString();
@@ -200,8 +199,7 @@ class Application
 		return @onRoomRequest(request, response)
 
 	onDownvoteRequest: (request, response) =>
-		console.log('+--------+ onDownvoteRequest +----------+');
-		session = @getAndTestSession(request)
+		session = @getAndTestSession(request);
 		room = RoomManager.get(request.params.room)
 		Testor(room, HttpErrors.invalidRoomName()).isNotNull();
 		uri = Testor(request.query.uri, HttpErrors.badParams()).isNotEmpty().toString();
@@ -215,12 +213,12 @@ class Application
 		return room.search(query)
 
 	onRoomNextTrackRequest: (request, response) =>
-		session = @getAndTestSession(request)
-		room = RoomManager.get(request.params.room)
+		session = @getAndTestSession(request);
+		room = RoomManager.get(request.params.room);
 		Testor(room, HttpErrors.invalidRoomName()).isNotNull();
-		Testor(room.isAdmin(session.getUser()), HttpErrors.permisionDenied()).isTrue();
+		Testor(@db.isAdminInRoom(session.getUser(), room.name), HttpErrors.permisionDenied()).isTrue();
 		room.playNextTrack();
-		return "Success"
+		return "Success";
 
 	onRoomDeleteTrackRequest: (request, response) =>
 		session = @getAndTestSession(request)

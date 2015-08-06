@@ -69,6 +69,7 @@ class TrackQueueElement
 	hasVote: (userId) ->
 		return @votes.indexOf(userId) != -1
 
-	getData: () -> {votes: @getVotes(), downvotes: @getDownvotes(), addedBy: @addedBy.getData(), track: @track}
+	getData: () ->
+		return {votes: @getVotes(), downvotes: @getDownvotes(), addedBy: @addedBy.getData(), track: @track};
 
 module.exports = TrackQueueElement;
