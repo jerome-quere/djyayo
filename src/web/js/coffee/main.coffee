@@ -35,7 +35,7 @@ app.config ['$locationProvider', '$routeProvider', ($locationProvider, $routePro
 	$routeProvider.when('/room/:room/admin/trackQueue', {templateUrl:"./pages/roomAdminTrackQueue.html", controller: RoomAdminTrackQueueController})
 	$routeProvider.when('/room/:room/admin/users', {templateUrl:"./pages/roomAdminUsers.html", controller: RoomAdminUsersController})
 	$routeProvider.otherwise({redirectTo: '/roomSelect'});
-	$locationProvider.html5Mode(true);
+	$locationProvider.html5Mode(false);
 ]
 
 app.factory 'config', () -> new ConfigServiceController()
