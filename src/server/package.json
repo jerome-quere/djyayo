@@ -7,9 +7,13 @@
 	"type" : "git",
 	"url" : "https://github.com/jerome-quere/spotifyDJ.git"
     },
+    "scripts": {
+        "start": "./node_modules/.bin/coffee ./main.coffee"
+    },
     "devDependencies": {
 	"express": "*",
 	"socket.io": "*",
-	"when": "*"
+	"when": "*",
+    "coffee-script": "*"
     }
 }
