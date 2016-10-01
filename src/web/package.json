@@ -3,6 +3,9 @@
     "version": "0.1.0",
     "author": "Jerome Quere <contact@jeromequere.com>",
     "description": "A we interface for the ???-DJ server",
+	"scripts": {
+	"build": "./node_modules/.bin/gulp"
+	},
     "repository" : {
 	"type" : "git",
 	"url" : "https://github.com/jerome-quere/spotifyDJ.git"
