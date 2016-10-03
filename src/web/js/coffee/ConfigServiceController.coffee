@@ -52,8 +52,8 @@ class ConfigServiceController
 		@config['webservice']['url'] = 'http://debian:4545'
 
 	loadProdConf: () =>
-		@config['website']['url'] = 'http://dj.yayo.fr'
-		@config['webservice']['url'] = 'http://dj-api.yayo.fr'
+		@config['website']['url'] = 'https://dj.yayo.fr'
+		@config['webservice']['url'] = 'https://dj-api.yayo.fr'
 
 	get: (key) =>
 		parts = key.split('.');
