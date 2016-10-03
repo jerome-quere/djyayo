@@ -31,36 +31,36 @@
 	  </div>
 	  <ul ng-show="roomName">
 	    <li>
-	      <a href="/room/{{roomName}}">
+	      <a href="#/room/{{roomName}}">
 		<i class="thumbmail fa fa-music"></i>
 		<h2>Track queue</h2>
 	      </a>
 	    </li>
 	    <li ng-show="roomName">
-	      <a href="/room/{{roomName}}/search">
+	      <a href="#/room/{{roomName}}/search">
 		<i class="thumbmail fa fa-search"></i>
 		<h2>Search</h2>
 	      </a>
 	    </li>
 	    <li ng-show="roomName">
-	      <a href="/room/{{roomName}}/history">
+	      <a href="#/room/{{roomName}}/history">
 		<i class="thumbmail fa fa-repeat"></i>
 		<h2>History</h2>
 	      </a>
 	    </li>
 	    <li ng-show="roomName && isRoomAdmin">
-	      <a href="/room/{{roomName}}/admin/trackQueue">
+	      <a href="#/room/{{roomName}}/admin/trackQueue">
 		<i class="thumbmail fa fa-cog"></i>
 		<h2>Administration</h2>
 	      </a>
 	    </li>
 	    <li class="sub" ng-show="roomName && isRoomAdmin">
-	      <a href="/room/{{roomName}}/admin/trackQueue">
+	      <a href="#/room/{{roomName}}/admin/trackQueue">
 		<h2>Tracks</h2>
 	      </a>
 	    </li>
 	    <li class="sub" ng-show="roomName && isRoomAdmin">
-	      <a href="/room/{{roomName}}/admin/users">
+	      <a href="#/room/{{roomName}}/admin/users">
 		<h2>Users</h2>
 	      </a>
 	    </li>
@@ -75,13 +75,13 @@
 	  </div>
 	  <ul>
 	    <li ng-hide="roomName">
-	      <a href="/roomSelect">
+	      <a href="#/roomSelect">
 		<i class="thumbmail fa fa-sign-in"></i>
 		<h2>Join a room</h2>
 	      </a>
 	    </li>
 	    <li ng-hide="roomName">
-	      <a href="/roomCreate">
+	      <a href="#/roomCreate">
 		<i class="thumbmail fa fa-plus-circle"></i>
 		<h2>Create a room</h2>
 	      </a>
